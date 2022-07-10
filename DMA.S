@@ -212,9 +212,9 @@ DMADump:
     MOVE.W -(a0), (a1)
     
     ; write first part of dest address
-    MOVE.L  d2, (SCRATCH)
-    MOVE.W  (SCRATCH), (a1)
-    MOVE.W  (SCRATCH+2), (a1)
+    MOVE.L  d2, ($FFFFF0)
+    MOVE.W  ($FFFFF0), (a1)
+    MOVE.W  ($FFFFF2), (a1)
     ;SWAP    d2
     ;MOVE.W  d2, (a1)
     ; second part of dest address

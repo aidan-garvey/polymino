@@ -71,5 +71,3 @@ SCORE_2 = $FF41E2       ; 4B: BCD 7-digit score
 LIVES_2 = $FF41E6       ; 2B: Number of lifelines, BCD or bimary w/ limit of 9
 CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
-
-SCRATCH = $FFFFF0       ; scratch RAM
