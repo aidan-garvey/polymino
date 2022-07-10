@@ -69,7 +69,7 @@ GENERATE_ROWS:
 ;   a2 - start of player game state
 ;   a3 - joypad inputs
 ; Thrashed:
-;   d0-d2
+;   a0, d0-d2
 ; =========================================
 PLAYER_ACTIONS:
     PUSH    a4-a5
@@ -134,6 +134,14 @@ PLAYER_ACTIONS:
     MOVE.L  (a4), d2
     SWAP    d2
     MOVE.L  d2, (a4)
+
+    ; check for matches at swapped blocks
+    MOVE.L  a4, a0
+    JSR     CHECK_MATCH
+    MOVE.L  a4, a0
+    ADDA.W  #2, a0
+    JSR     CHECK_MATCH
+
 @SKIP_A_PRESS:
 
     ; if B pressed, swap veritcally
@@ -162,15 +170,126 @@ PLAYER_ACTIONS:
     MOVE.W  (a4), d2
     MOVE.W  (a5), (a4)
     MOVE.W  d2, (a5)
+
+    ; check for matches at swapped blocks
+    MOVE.L  a4, a0
+    JSR     CHECK_MATCH
+    MOVE.L  a5, a0
+    JSR     CHECK_MATCH
+
 @SKIP_B_PRESS:
 
     POP     a4-a5
     RTS
 
+; =====================================
+; UPDATE_PHYSICS
+; -------------------------------------
+; For each block with empty space below
+; it, make it fall due to gravity.
+; -------------------------------------
+; Paramaters:
+;   a1 - points to game board
+;   a2 - points to end of board
+; Thrashed:
+;   a0, d0-d1
+; =====================================
 UPDATE_PHYSICS:
-    NOP
+    PUSH    a1
+    ; clear updated flag for all blocks
+    ; do 2 blocks (4 bytes) per iteration
+    MOVE.W  #BOARD_SIZE/4, d0
+@CLEAR_UPDATE_FLAG:
+    ANDI.L  #$DFFFDFFF, (a1)+ ; clears update bit
+    DBRA    d0, @CLEAR_UPDATE_FLAG
+
+    ; a1 will point 1 row above a0
+    MOVE.L  a2, a0
+    MOVE.L  a2, a1
+    SUBA.W  #BOARD_WIDTH*2, a1
+
+    ; we will iterate every row except the top
+    MOVE.W  #BOARD_WIDTH*BOARD_HEIGHT-1, d0
+@UPDATE_BLOCK_LOOP:
+    SUBA.W  #2, a1
+    TST.W   -(a0)
+    ; if (a0) not empty, (a1) can't move down
+    BNE     @UPDATE_BLOCK_STEP
+    ; move (a1) downwards
+    MOVE.W  (a1), (a0)
+    CLR.W   (a1)
+    ORI.W   #$2000, (a0) ; set update bit
+@UPDATE_BLOCK_STEP:  
+    DBRA    d0, @UPDATE_BLOCK_LOOP
+
+    POP     a1
     RTS
 
 PLACE_NEW_JUNK:
     NOP
+    RTS
+
+; ========================
+; CHECK_MATCH
+; ------------------------
+; Check for a match that
+; includes a given block
+; ------------------------
+; Parameters:
+;   a0 - pointer to block
+;   a2 - player game state
+; Thrashed:
+;   d0-d2
+; ========================
+CHECK_MATCH:
+    PUSH    a1/a3
+    MOVE.L  a0, a1
+    MOVE.L  a0, a3
+    MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
+    
+    ; move a1 to the left until (a1) != d0, but don't go further left than the end of the row
+    MOVE.W  8(a2), d1   ; d1 := (CURSOR_X)
+    MOVEQ   #0, d2      ; so we don't break the loop instantly
+    BRA     @CHECK_LEFT_STEP
+@CHECK_LEFT_LOOP:
+    CMP.W   -(a1), d0
+@CHECK_LEFT_STEP:
+    DBNE    d1, @CHECK_LEFT_LOOP
+    ; if we exitted the loop due to the count, (a1) matches d0.
+    ; if we exitted due to the NE condition, (a1 + 2) matches d0, but (a1) doesn't.
+    BEQ     @CHECK_LEFT_DONE
+    ADDA.W  #2, a1
+@CHECK_LEFT_DONE:
+    
+    ; move a3 to the right until (a3) != d0
+    MOVE.W  #BOARD_WIDTH, d1
+    SUB.W   8(a2), d1
+    SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
+    MOVEQ   #0, d2  ; so we don't break the loop instantly
+    BRA     @CHECK_RIGHT_STEP
+@CHECK_RIGHT_LOOP:
+    CMP.W   (a3)+, d0
+@CHECK_RIGHT_STEP:
+    DBNE    d1, @CHECK_RIGHT_LOOP
+    ; if we exitted the loop due to the count, (a1 - 2) matches d0.
+    ; if we exitted due to the NE condition, (a1 - 4) matches d0, but (a1 - 2) doesn't.
+    BEQ     @CHECK_RIGHT_DONE
+    SUBA.W  #2, a3
+@CHECK_RIGHT_DONE:
+    SUBA.W  #2, a3
+
+    ; if a3 - a1 >= 4, we have a match
+    MOVE.W  a3, d1
+    SUB.W   a1, d1
+    CMPI.W  #4, d1
+    BLT     @NO_H_MATCH
+    ; clear the blocks
+    ; >= 4 words is >= 2 blocks of space, is >= 2+1 blocks to clear
+    LSR.W   #1, d1
+@H_CLEAR_LOOP:
+    CLR.W   (a1)+
+    DBRA    d1, @H_CLEAR_LOOP
+@NO_H_MATCH:
+
+    POP     a1/a3
     RTS

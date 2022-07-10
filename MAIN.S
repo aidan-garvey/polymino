@@ -129,7 +129,7 @@ GAME_LOOP:
     MOVE.W  (a0), d0
     CMP.W   -(a0), d0
     BLT     @SKIP_UPDATE_RESET
-    CLR.W   (a0)    ; if we're at the limit, reset timer
+    CLR.W   2(a0)    ; if we're at the limit, reset timer
 @SKIP_UPDATE_RESET:
     LEA.L   JUNK_TIMER, a0
     ADD.W   #1, (a0)
@@ -137,7 +137,7 @@ GAME_LOOP:
     MOVE.W  (a0), d0
     CMP.W   -(a0), d0
     BLT     @SKIP_JUNK_RESET
-    CLR.W   (a0)
+    CLR.W   2(a0)
 @SKIP_JUNK_RESET:
 
     ; needed addresses:
@@ -181,7 +181,7 @@ GAME_LOOP:
     JSR     DRAW_INFO
 
     ; write to sprite buffer
-    JSR     DRAW_SPRITES
+    JSR     DRAW_CURSOR
 
     RTS
 

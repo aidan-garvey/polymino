@@ -1,6 +1,6 @@
 
 ; ==============================================
-; BOARD_BUFFER
+; DRAW_BOARD
 ; ----------------------------------------------
 ; Using the board data, write the representation
 ; of the board to the scroll plane buffer
@@ -12,7 +12,6 @@
 ; Thrashed:
 ;   d0-d2
 ; ==============================================
-
 DRAW_BOARD:
     PUSH    a1-a4
 
@@ -51,17 +50,18 @@ DRAW_INFO:
     NOP
     RTS
 
-; ==
-; DRAW_SPRITES
-; --
-; ...
-; --
+; =======================================
+; DRAW_CURSOR
+; ---------------------------------------
+; Draw one of the players' cursors
+; ---------------------------------------
 ; Parameters:
 ;   a2 - player game state
 ;   a5 - player's cursor in sprite buffer
 ; Thrashed:
 ;   d0-d1, a0
-DRAW_SPRITES:
+; =======================================
+DRAW_CURSOR:
     ; LEA.L   VDP_DATA, a0
     MOVEA.L a5, a0
     MOVE.W  #$1000+SPRITE_GFX_CHAR, d1 ; pri = 0, pal = 0,
