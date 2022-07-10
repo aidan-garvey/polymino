@@ -247,7 +247,7 @@ CHECK_MATCH:
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
     
-    ; move a1 to the left until (a1) != d0, but don't go further left than the end of the row
+    ; move a1 to the left until (a1) != d0, but don't go further left than the board
     MOVE.W  8(a2), d1   ; d1 := (CURSOR_X)
     MOVEQ   #0, d2      ; so we don't break the loop instantly
     BRA     @CHECK_LEFT_STEP
@@ -261,7 +261,7 @@ CHECK_MATCH:
     ADDA.W  #2, a1
 @CHECK_LEFT_DONE:
     
-    ; move a3 to the right until (a3) != d0
+    ; move a3 to the right until (a3) != d0, don't go further right than the board
     MOVE.W  #BOARD_WIDTH, d1
     SUB.W   8(a2), d1
     SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
@@ -283,6 +283,8 @@ CHECK_MATCH:
     SUB.W   a1, d1
     CMPI.W  #4, d1
     BLT     @NO_H_MATCH
+    ; spawn projectile
+    
     ; clear the blocks
     ; >= 4 words is >= 2 blocks of space, is >= 2+1 blocks to clear
     LSR.W   #1, d1
@@ -290,6 +292,55 @@ CHECK_MATCH:
     CLR.W   (a1)+
     DBRA    d1, @H_CLEAR_LOOP
 @NO_H_MATCH:
+
+    ; same as above, but vertical
+    MOVE.L  a0, a1
+    MOVE.L  a0, a3
+    ; d0 still contains the block
+
+    ; move a1 up until (a1) != d0, but don't go above the top of the board
+    MOVE.W  10(a2), d1
+    MOVE.W  #0, d2
+    BRA     @CHECK_UP_STEP
+@CHECK_UP_LOOP:
+    SUBA.W  #BOARD_WIDTH*2, a1
+    CMP.W   (a1), d0
+@CHECK_UP_STEP:
+    DBNE    d1, @CHECK_UP_LOOP
+    ; if we exitted due to NE, go back down a row
+    BEQ     @CHECK_UP_DONE
+    ADDA.W  #BOARD_WIDTH*2, a1
+@CHECK_UP_DONE:
+
+    ; move a3 down until (a3) != d0, but don't go below the board
+    MOVE.W  #BOARD_HEIGHT, d1
+    SUB.W   10(a2), d1
+    SUBQ    #1, d1
+    MOVE.W  #0, d2
+    BRA     @CHECK_DOWN_STEP
+@CHECK_DOWN_LOOP:
+    ADDA.W  #BOARD_WIDTH*2, a3
+    CMP.W   (a3), d0
+@CHECK_DOWN_STEP:
+    DBNE    d1, @CHECK_DOWN_LOOP
+    ; if we exitted due to NE, go up a row
+    BEQ     @CHECK_DOWN_DONE
+    SUBA.W  #BOARD_WIDTH*2, a3
+@CHECK_DOWN_DONE:
+
+    ; if a3 - a1 >= BOARD_WIDTH*4, we have a match
+    MOVE.W  a3, d1
+    SUB.W   a1, d1
+    CMPI.W  #BOARD_WIDTH*4, d1
+    BLT     @NO_V_MATCH
+    ; clear the blocks
+@V_CLEAR_LOOP:
+    CLR.W   (a1)
+    ADDA.W  #BOARD_WIDTH*2, a1
+    CMP.L   a1, a3
+    BGT     @V_CLEAR_LOOP
+    CLR.W   (a1) ; clear the block at a3, then stop clearing
+@NO_V_MATCH:
 
     POP     a1/a3
     RTS
