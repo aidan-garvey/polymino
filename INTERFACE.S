@@ -12,7 +12,6 @@
 ; Copy patterns to VRAM
 ; for the WINDOW layer.
 ; =====================
-; INIT_WINDOW:
 INIT_SCROLLA:
     ; temporary: use block graphics for everything
 
