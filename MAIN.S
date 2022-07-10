@@ -39,7 +39,7 @@ MAIN_INIT:
     MOVEQ   #2, d0
     JSR     LOAD_PALETTE
 
-    LEA.L   BLOCK_PALETTE, a0
+    LEA.L   BCKGND_NIGHT_PAL, a0
     MOVEQ   #3, d0
     JSR     LOAD_PALETTE
 
@@ -84,7 +84,9 @@ MAIN_INIT:
 
     JSR     RAND_SEED   ; initialize pseudorandom number generator
 
-    JSR     INIT_WINDOW ; fill WINDOW patterns
+    JSR     INIT_BACKGROUND ; copy background to VRAM
+    ; JSR     INIT_WINDOW ; fill WINDOW patterns
+    JSR     INIT_SCROLLA
     JSR     INIT_CURSOR ; initialize cursors for both players
 
     RTS
@@ -194,3 +196,4 @@ GAME_LOOP:
 ; ******
     INCLUDE UI_GFX.S 
     INCLUDE BLOCK_GFX.S 
+    INCLUDE BCKGND_GFX.S
