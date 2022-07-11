@@ -5,9 +5,9 @@ Play with 1 or 2 players!
 
 ## How to Play
 
-(Please note: not all features and mechanics described below are complete)
+(Please note: this game is unfinished. The following section describes how the game will be when it is completed, not its current state)
 
-This is a puzzle game along the lines of Tetris, Columns, Dr. Mario, etc.
+Beams is a puzzle game along the lines of Tetris, Columns, Dr. Mario, etc.
 Use a cursor to swap blocks horizontally or vertically. Match 3 blocks of the same color to remove them from the board, and shoot a beam of light in the direction of the match!
 Large junk pieces periodically fall from the top of the board. Hit them with a beam of light to shatter them into more blocks that you can match up!
 Beams are the same color as the blocks that you matched. Some junk has a color, and you must hit it with a beam of the same color to shatter them.
