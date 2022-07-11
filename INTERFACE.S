@@ -11,9 +11,16 @@
 ; ---------------------
 ; Copy patterns to VRAM
 ; for the WINDOW layer.
+; ---------------------
+; Thrashed:
+;   d0-d3
 ; =====================
 INIT_SCROLLA:
-    ; temporary: use block graphics for everything
+    ; load characters into VRAM
+    MOVE.L  #UI_BRDR_CHARS, d0
+    MOVE.W  #3*16, d1
+    MOVE.W  #VRAM_UI_GFX, d2
+    JSR     DMADump
 
     ; horizontal layout: 1 border, 7 P1 info,
     ; 1 border, 10 P1 board, 2 border, 10 P2 board,
@@ -196,7 +203,7 @@ INIT_BACKGROUND:
 
     ; DMA transfer to VRAM
     MOVE.L  #BUFF_PLANE, d0
-    MOVE.W  #$800, d1
+    MOVE.W  #VRAM_SCROLLB_SIZE/2, d1
     MOVE.W  #VRAM_SCROLLB, d2
     JSR     DMADump
 

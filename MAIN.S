@@ -150,11 +150,9 @@ GAME_LOOP:
     LEA.L   P1_SPRITE, a5
 
     ; if 2 players, run code twice
-    ; MOVE.W  (NUM_PLAYERS), d0
-    ; CMPI.W  #1, d0
     CMPI.W  #1, (NUM_PLAYERS)
     BEQ.B   @LOOP_START
-    JSR     @LOOP_START
+    BSR     @LOOP_START
     ; re-configure pointers for P2 data
     LEA.L   PLAYER_2_DATA, a1
     LEA.L   NEW_ROWS_2, a2

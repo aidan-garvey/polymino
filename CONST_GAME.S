@@ -3,8 +3,9 @@
 ; cover the screen, scrolling won't be necessary. So, each plane
 ; is 64 x 32 cells = 2048 cells = $1000 bytes
 VRAM_BLOCK_GFX = $0000
+VRAM_UI_GFX = $1000
 VRAM_BCKGND_GFX = $2000
-VRAM_SPRITE_GFX = $4000
+VRAM_SPRITE_GFX = $3000
 VRAM_SPRITETBL = $B800
 VRAM_HSCROLL = $BC00
 VRAM_WINDOW = $C000

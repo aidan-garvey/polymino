@@ -9,7 +9,7 @@
 ; RAM_BASE = $FF0000
 ; RAM_SIZE = $10000
 
-STACK_END = $FF0400     ; 1024B stack
+STACK_END = $FF0400     ; 1KB stack
 VBLANKON = $FF0400      ; WORD: Has VBlank routine finished?
 VBVECTOR = $FF0402      ; LONG: Location of VBlank routine
 
