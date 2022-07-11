@@ -32,6 +32,7 @@ BUFF_PALETTES = $FF06B0 ; 128B: Palettes on screen
 BUFF_SPRITES = $FF0730  ; $400B: Sprite Table Buffer
 P1_SPRITE = $FF0730     ; 8B: player 1 cursor
 P2_SPRITE = $FF0738     ; 8B: player 2 cursor
+VAR_SPRITES = $FF0740   ; Variable-length list of sprites
 BUFF_PLANE = $FF0B30    ; $1000B: Playfield buffer for writing to VRAM
 BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)
                         ; 28 rows * 2 planes * 2 bytes = 112B

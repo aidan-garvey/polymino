@@ -1,0 +1,37 @@
+
+; ===========================
+; SPAWN_V_PROJ
+; ---------------------------
+; Spawn a vertical projectile
+; ---------------------------
+; Parameters:
+;   a2 - player game state
+;   d3 - column number
+; Thrashed:
+;   none
+; ===========================
+SPAWN_V_PROJ:
+    PUSH    a0/d0-d1
+
+    ; idea: when moving projectiles each physics update,
+    ; identify their direction from their pattern & h/vflip
+
+    POP     a0/d0-d1
+    RTS
+
+; =============================
+; SPAWN_H_PROJ
+; -----------------------------
+; Spawn a horizontal projectile
+; -----------------------------
+; Parameters:
+;   a2 - player game state
+;   d4 - row number
+; Thrashed:
+;   none
+; =============================
+SPAWN_H_PROJ:
+    PUSH    a0/d0-d1
+
+    POP     a0/d0-d1
+    RTS

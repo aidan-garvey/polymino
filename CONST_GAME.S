@@ -27,3 +27,4 @@ BOARD2_OFFSET = BOARD1_OFFSET+24
 BOARD_ROW_OFFSET = 108
 
 HOLD_LENGTH = 6 ; held buttons are handled every HOLD_LENGTH frames
+SCROLL_DIV = 2  ; divisor for background scroll amount per frame

@@ -4,9 +4,9 @@ UI_PALETTE:
     DC.W    $0000   ; black/transparent
     DC.W    $0000   ; black
     DC.W    $0EEE   ; white
-    DC.W    $0EEE
+    DC.W    $048A   ; bronze
 
-    DC.W    $0EEE
+    DC.W    $0A44   ; bronzer?
     DC.W    $0EEE
     DC.W    $0EEE
     DC.W    $0EEE

@@ -303,28 +303,31 @@ SHATTER_JUNK:
 
 ; ==========================
 ; CHECK_MATCH
-; ***
-; BUG: this should not use CURSOR_X/Y
-; ***
 ; --------------------------
 ; Check for a match that
 ; includes a given block
 ; --------------------------
 ; Parameters:
 ;   a0 - pointer to block
+;   a2 - player game state
 ;   d3 - x position of block
 ;   d4 - y position of block
 ; Thrashed:
-;   d0-d2
+;   none
+; Locals:
+;   a1 - pointer up/left
+;   a3 - pointer down/right
+;   d0 - block data
+;   d1 - loop counter
+;   d2 - misc
 ; ==========================
 CHECK_MATCH:
-    PUSH    a1/a3/d3-d4
+    PUSH    a1/a3/d0-d4
     MOVE.L  a0, a1
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
-    ; MOVE.W  8(a2), d1   ; d1 := (CURSOR_X)
     MOVE.W  d3, d1
     MOVEQ   #0, d2      ; so we don't break the loop instantly
     BRA     @CHECK_LEFT_STEP
@@ -340,7 +343,6 @@ CHECK_MATCH:
     
     ; move a3 to the right until (a3) != d0, don't go further right than the board
     MOVE.W  #BOARD_WIDTH, d1
-    ; SUB.W   8(a2), d1
     SUB.W   d3, d1
     SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
     MOVEQ   #0, d2  ; so we don't break the loop instantly
@@ -362,6 +364,7 @@ CHECK_MATCH:
     CMPI.W  #4, d1
     BLT     @NO_H_MATCH
     ; spawn projectile
+    JSR     SPAWN_H_PROJ
     
     ; clear the blocks
     ; >= 4 words is >= 2 blocks of space, is >= 2+1 blocks to clear
@@ -377,7 +380,6 @@ CHECK_MATCH:
     ; d0 still contains the block
 
     ; move a1 up until (a1) != d0, but don't go above the top of the board
-    ; MOVE.W  10(a2), d1
     MOVE.W  d4, d1
     MOVE.W  #0, d2
     BRA     @CHECK_UP_STEP
@@ -393,7 +395,6 @@ CHECK_MATCH:
 
     ; move a3 down until (a3) != d0, but don't go below the board
     MOVE.W  #BOARD_HEIGHT, d1
-    ; SUB.W   10(a2), d1
     SUB.W   d4, d1
     SUBQ    #1, d1
     MOVE.W  #0, d2
@@ -413,6 +414,9 @@ CHECK_MATCH:
     SUB.W   a1, d1
     CMPI.W  #BOARD_WIDTH*4, d1
     BLT     @NO_V_MATCH
+    ; spawn projectile
+    JSR     SPAWN_V_PROJ
+
     ; clear the blocks
 @V_CLEAR_LOOP:
     CLR.W   (a1)
@@ -421,5 +425,5 @@ CHECK_MATCH:
     BGE     @V_CLEAR_LOOP
 @NO_V_MATCH:
 
-    POP     a1/a3/d3-d4
+    POP     a1/a3/d0-d4
     RTS
