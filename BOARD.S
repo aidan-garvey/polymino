@@ -79,57 +79,87 @@ PLAYER_ACTIONS:
     ; to get buttons pressed this frame but not held:
     ; XOR new inputs into old inputs, then AND result with new inputs
     EOR.W   d0, d1
-    AND.W   d1, d0  ; d0 indicates buttons pressed for the first frame
+    AND.W   d0, d1  ; d1 indicates buttons pressed for the first frame
 
     ; horizontal movement
-    BTST    #3, d0  ; right
-    BEQ     @SKIP_MOVE_RIGHT ; skip if right not pressed
+    BTST    #3, d1  ; right pressed
+    BNE     @MOVE_RIGHT ; if pressed for the first frame, move
+    BTST    #3, d0  ; right held
+    BEQ     @SKIP_MOVE_RIGHT ; if not held either, skip moving
+    SUB.W   #1, 12(a2) ; JOY_H_TIMER countdown
+    BNE     @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
+@MOVE_RIGHT:
+    MOVE.W  #HOLD_LENGTH, 12(a2) ; reset hold timer
     CMPI.W  #BOARD_WIDTH-1, 8(a2) ; CURSOR_X
     BEQ     @SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
     ADDI.W  #1, 8(a2)
 @SKIP_MOVE_RIGHT:
-    BTST    #2, d0  ; left
-    BEQ     @SKIP_MOVE_LEFT ; skip if left not pressed
+
+
+    BTST    #2, d1  ; left
+    BNE     @MOVE_LEFT ; if pressed for first frame, move
+    BTST    #2, d0  ; left held
+    BEQ     @SKIP_MOVE_LEFT ; if not held either, skip moving
+    SUB.W   #1, 12(a2) ; JOY_H_TIMER countdown
+    BNE     @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
+@MOVE_LEFT:
+    MOVE.W  #HOLD_LENGTH, 12(a2)
     TST.W   8(a2)   ; CURSOR_X
     BEQ     @SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
     SUBI.W  #1, 8(a2)
 @SKIP_MOVE_LEFT:
 
     ; vertical movement
-    BTST    #1, d0  ; down
+    BTST    #1, d1  ; down
+    BNE     @MOVE_DOWN
+    BTST    #1, d0  ; down held
     BEQ     @SKIP_MOVE_DOWN
+    SUB.W   #1, 14(a2) ; JOY_V_TIMER countdown
+    BNE     @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
+@MOVE_DOWN:
+    MOVE.W  #HOLD_LENGTH, 14(a2)
     CMPI.W  #BOARD_HEIGHT-1, 10(a2) ; CURSOR_Y
     BEQ     @SKIP_MOVE_DOWN
     ADDI.W  #1, 10(a2)
 @SKIP_MOVE_DOWN:
-    BTST    #0, d0  ; up
+
+
+    BTST    #0, d1  ; up
+    BNE     @MOVE_UP
+    BTST    #0, d0  ; up held
     BEQ     @SKIP_MOVE_UP
+    SUB.W   #1, 14(a2) ; JOY_V_TIMER countdown
+    BNE     @SKIP_MOVE_UP ; if hold timer not at 0, don't move
+@MOVE_UP:
+    MOVE.W  #HOLD_LENGTH, 14(a2)
     TST.W   10(a2)   ; CURSOR_Y
     BEQ     @SKIP_MOVE_UP
     SUBI.W  #1, 10(a2)
 @SKIP_MOVE_UP:
 
+    ; d0 not needed for inputs from here on - only D-pad can be held
+
     ; if A pressed, swap horizontally
-    BTST    #6, d0
+    BTST    #6, d1
     BEQ     @SKIP_A_PRESS
 
     ; get cursor pos, convert to RAM offset
-    MOVE.W  8(a2), d1 ; horizontal position
+    MOVE.W  8(a2), d0 ; horizontal position
     ; if cursor is all the way to the right, the
     ; horizontal component is shifted to the left
-    CMPI.W  #BOARD_WIDTH-1, d1
+    CMPI.W  #BOARD_WIDTH-1, d0
     BNE     @A_PRESS_NO_SUB
-    SUBQ    #1, d1
+    SUBQ    #1, d0
 @A_PRESS_NO_SUB:
     ; get vertical pos
     MOVE.W  10(a2), d2
     ; multiply it by row width
     MULU.W  #BOARD_WIDTH, d2
     ; calculate RAM offset
-    ADD.W   d2, d1
-    ASL.W   #1, d1
+    ADD.W   d2, d0
+    ASL.W   #1, d0
     MOVE.L  a1, a4
-    ADDA.W  d1, a4
+    ADDA.W  d0, a4
     ; swap the blocks
     MOVE.L  (a4), d2
     SWAP    d2
@@ -141,15 +171,14 @@ PLAYER_ACTIONS:
     MOVE.L  a4, a0
     ADDA.W  #2, a0
     JSR     CHECK_MATCH
-
 @SKIP_A_PRESS:
 
     ; if B pressed, swap veritcally
-    BTST    #4, d0
+    BTST    #4, d1
     BEQ     @SKIP_B_PRESS
 
     ; get cursor pos, convert to RAM offset
-    MOVE.W  8(a2), d1 ; horizontal position
+    MOVE.W  8(a2), d0 ; horizontal position
     ; get vertical pos
     MOVE.W  10(a2), d2
     ; if cursor is at top, move it down by 1
@@ -159,13 +188,13 @@ PLAYER_ACTIONS:
     ; multiply by row width
     MULU.W  #BOARD_WIDTH, d2
     ; calculate RAM offset for top and bottom blocks
-    ADD.W   d2, d1
-    ASL.W   #1, d1
+    ADD.W   d2, d0
+    ASL.W   #1, d0
     MOVE.L  a1, a4
     MOVE.L  a1, a5
-    ADDA.W  d1, a4
-    SUBI.W  #BOARD_WIDTH*2, d1
-    ADDA.W  d1, a5
+    ADDA.W  d0, a4
+    SUBI.W  #BOARD_WIDTH*2, d0
+    ADDA.W  d0, a5
     ; swap the blocks
     MOVE.W  (a4), d2
     MOVE.W  (a5), (a4)
@@ -176,7 +205,6 @@ PLAYER_ACTIONS:
     JSR     CHECK_MATCH
     MOVE.L  a5, a0
     JSR     CHECK_MATCH
-
 @SKIP_B_PRESS:
 
     POP     a4-a5
@@ -219,13 +247,37 @@ UPDATE_PHYSICS:
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
     ORI.W   #$2000, (a0) ; set update bit
-@UPDATE_BLOCK_STEP:  
+@UPDATE_BLOCK_STEP:
     DBRA    d0, @UPDATE_BLOCK_LOOP
 
     POP     a1
     RTS
 
+; ==================================
+; CHECK_ALL_MATCHES
+; ----------------------------------
+; Check the entire board for matches
+; ----------------------------------
+; Parameters:
+;   a1 - points to game board
+;   a2 - player game state
+; Thrashed:
+;   a0, d0-d3
+; ==================================
+CHECK_ALL_MATCHES:
+    MOVE.L  a1, a0
+    MOVE.W  #BOARD_SIZE/2-1, d3
+@CHECK_ALL_LOOP:
+    JSR     CHECK_MATCH
+    ADDA.W  #2, a0
+    DBRA    d3, @CHECK_ALL_LOOP
+    RTS
+
 PLACE_NEW_JUNK:
+    NOP
+    RTS
+
+SHATTER_JUNK:
     NOP
     RTS
 

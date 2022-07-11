@@ -76,6 +76,7 @@ MAIN_INIT:
     MOVE.W  #3, (a0)+       ; lifelines
     MOVE.W  #1, (a0)+       ; cursor x
     MOVE.W  #1, (a0)+       ; cursor y
+    MOVE.L  #0, (a0)+       ; cursor h&v timers
 
     ; p2:
     LEA.L   NEW_ROWS_2, a0
@@ -84,6 +85,7 @@ MAIN_INIT:
     MOVE.W  #4, (a0)+       ; lifelines
     MOVE.W  #9, (a0)+       ; cursor x
     MOVE.W  #23, (a0)+      ; cursor y
+    MOVE.L  #0, (a0)+       ; cursor h&v timers
 
     JSR     RAND_SEED   ; initialize pseudorandom number generator
 
@@ -168,12 +170,23 @@ GAME_LOOP:
     TST.W   (UPDATE_TIMER)
     BNE.B   @SKIP_UPDATE_PHYSICS
     JSR     UPDATE_PHYSICS
+    BRA     @SKIP_MATCH_ALL
 @SKIP_UPDATE_PHYSICS:
+    ; to spread the load, update matches the frame after physics
+    CMPI.W  #1, (UPDATE_TIMER)
+    BNE     @SKIP_MATCH_ALL
+    JSR     CHECK_ALL_MATCHES
+@SKIP_MATCH_ALL:
+
     ; if junk timer is at zero, place junk
     TST.W   (JUNK_TIMER)
     BNE.B   @SKIP_PLACE_JUNK
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
 @SKIP_PLACE_JUNK:
+
+    ; if any junk is in contact with a projectile, shatter it
+    JSR     SHATTER_JUNK
+
     ; convert game board to graphics, place in scroll plane buffer
     JSR     DRAW_BOARD
 

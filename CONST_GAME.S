@@ -25,3 +25,5 @@ BOARD_SIZE = 480 ; size of board in bytes
 BOARD1_OFFSET = 274
 BOARD2_OFFSET = BOARD1_OFFSET+24
 BOARD_ROW_OFFSET = 108
+
+HOLD_LENGTH = 6 ; held buttons are handled every HOLD_LENGTH frames

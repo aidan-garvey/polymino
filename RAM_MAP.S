@@ -63,6 +63,8 @@ SCORE_1 = $FF31E2       ; 4B: BCD 7-digit score
 LIVES_1 = $FF31E6       ; 2B: Number of lifelines, BCD or bimary w/ limit of 9
 CURSOR_1_X = $FF31E8    ; 2B: horizontal position of cursor
 CURSOR_1_Y = $FF31EA    ; 2B: vertical position of cursor
+JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
+JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0B: 240 cells * 2B
@@ -71,5 +73,7 @@ SCORE_2 = $FF41E2       ; 4B: BCD 7-digit score
 LIVES_2 = $FF41E6       ; 2B: Number of lifelines, BCD or bimary w/ limit of 9
 CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
+JOY_H_TIMER_2 = $FF31EC ; 2B: frames until held L/R will take effect again
+JOY_V_TIMER_2 = $FF31EE ; 2B: frames until held U/D will take effect again
 
 SCRATCH = $FFFFF0

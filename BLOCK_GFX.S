@@ -3,22 +3,22 @@
 BLOCK_PALETTE:
     DC.W    $0000   ; 0
     DC.W    $0C00   ; 1 blue
-    DC.W    $000C   ; 2 red
+    DC.W    $000A   ; 2 red
     DC.W    $04E2   ; 3 light green
 
-    DC.W    $00EE   ; 4 yellow
+    DC.W    $00CC   ; 4 yellow
     DC.W    $008E   ; 5 orange
     DC.W    $0A0A   ; 6 violet
     DC.W    $0EC2   ; 7 cyan
     
-    DC.W    $0040   ; 8 dark green
-    DC.W    $0800   ; 9 dark blue
-    DC.W    $0008   ; A dark red
+    DC.W    $0020   ; 8 dark green
+    DC.W    $0600   ; 9 dark blue
+    DC.W    $0006   ; A dark red
     DC.W    $0260   ; B green
     
-    DC.W    $00AA   ; C dark yellow
-    DC.W    $006A   ; D dark orange
-    DC.W    $0808   ; E dark violet
+    DC.W    $0088   ; C dark yellow
+    DC.W    $0048   ; D dark orange
+    DC.W    $0606   ; E dark violet
     DC.W    $0A60   ; F dark cyan
 
 ; ----------
