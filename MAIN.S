@@ -48,8 +48,8 @@ MAIN_INIT:
 
     JSR     DUMP_PALETTES
 
-    ; background: palette 3, color 0
-    VDP_REG 7, %00110000
+    ; background: palette 3, color 0 (background palette)
+    VDP_REG 7, $00
 
     ; load block graphics into VRAM
     MOVE.L  #BLOCK_CHARS, d0    ; address

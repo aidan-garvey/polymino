@@ -46,8 +46,11 @@ VBMAIN:
     ; horizontally scroll background
     ADD.W   #1, (BUFF_HSCROLLB)
     MOVE.W  (BUFF_HSCROLLB), d0
-    LSR.W   #2, d0
+    LSR.W   #SCROLL_DIV, d0
     VDP_ACCESS VDP_W_VRAM, VRAM_HSCROLL+2
+    MOVE.W  d0, (VDP_DATA)
+    LSR.W   #1, d0
+    VDP_ACCESS VDP_W_VSRAM, 2
     MOVE.W  d0, (VDP_DATA)
 
     POP     a0-a2/d0-d3

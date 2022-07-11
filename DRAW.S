@@ -10,10 +10,12 @@
 ;   a4 - scroll plane destination
 ; ----------------------------------------------
 ; Thrashed:
-;   d0-d2
+;   d0-d3
 ; ==============================================
 DRAW_BOARD:
     PUSH    a1-a4
+
+    MOVE.W  UI_DITHER, d3   ; d3 holds character for empty tiles
 
     MOVE.W  #BOARD_HEIGHT-1, d0  ; d0 will count number of rows
 @BOARD_LOOP:
@@ -35,7 +37,7 @@ DRAW_BOARD:
     BRA.B   @ROW_STEP
 
 @EMPTY_CELL:
-    MOVE.W  #0, (a4)+
+    MOVE.W  d3, (a4)+
 
 @ROW_STEP:
     DBRA    d1, @ROW_LOOP

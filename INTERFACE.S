@@ -6,6 +6,13 @@
 ; background
 ; *******************
 
+SCROLLA_FILLER:
+    MOVEQ   #11, d4
+@SCROLLA_FILL_LOOP:
+    MOVE.L  d0, (a0)+
+    DBRA    d4, @SCROLLA_FILL_LOOP
+    RTS
+
 ; =====================
 ; INIT_WINDOW
 ; ---------------------
@@ -13,89 +20,210 @@
 ; for the WINDOW layer.
 ; ---------------------
 ; Thrashed:
-;   d0-d3
+;   d0-d6
 ; =====================
 INIT_SCROLLA:
     ; load characters into VRAM
     MOVE.L  #UI_BRDR_CHARS, d0
-    MOVE.W  #3*16, d1
+    MOVE.W  #NUM_UI_CHARS*16, d1
     MOVE.W  #VRAM_UI_GFX, d2
     JSR     DMADump
+
+    ; load patterns into registers
+    
+    ; d0 := FILLER, FILLER
+    LEA.L   UI_FILLER, a1
+    MOVE.W  (a1), d0
+    SWAP    d0
+    MOVE.W  (a1), d0
+
+    ; d1 := EDGE_TOP, EDGE_TOP
+    LEA.L   UI_EDGE_T, a1
+    MOVE.W  (a1), d1
+    SWAP    d1
+    MOVE.W  (a1), d1
+
+    ; d2 := CORNER_TL, CORNER_TR
+    LEA.L   UI_BRDR_TL, a1
+    MOVE.L  (a1), d2
+
+    ; d3 := 3WAY_D
+    LEA.L   UI_BRDR_3WAY_D, a1
+    MOVE.W  (a1), d3
+
+    ; d6 := DITHER, DITHER
+    LEA.L   UI_DITHER, a1
+    MOVE.W  (a1), d6
+    SWAP    d6
+    MOVE.W  (a1), d6
 
     ; horizontal layout: 1 border, 7 P1 info,
     ; 1 border, 10 P1 board, 2 border, 10 P2 board,
     ; 1 border, 7 P2 info, 1 border, 24 filler
 
-    ; vertical layout: 2 border/filler, 24 horizontal layout, 6 border/filler
-
+    ; vertical layout: 1 filler, 1 border, 24 horizontal layout, 1 border, 5 filler
     LEA.L   BUFF_PLANE, a0
-    LEA.L   PAT_TEAL, a1
-    MOVE.W  (a1), d0
-    SWAP    d0
-    MOVE.W  (a1), d0
-    ; copy 2 rows of filler - 128 cells
-    MOVEQ   #63, d1
+
+    ; row 1: 64 filler
+    MOVEQ   #31, d4
 @TOP_FILLER_LOOP:
     MOVE.L  d0, (a0)+
-    DBRA    d1, @TOP_FILLER_LOOP
+    DBRA    d4, @TOP_FILLER_LOOP
     
-    ; copy 24 rows of the horizontal layout pattern
-    MOVEQ   #23, d1
-@H_LAYOUT_LOOP:
-    ; 1 border
-    MOVE.W  d0, (a0)+
-    ; 7 info
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.W  #0, (a0)+
-    ; 1 border
-    MOVE.W  d0, (a0)+
-    ; 10 P1 board
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    ; 2 border
-    MOVE.L  d0, (a0)+
-    ; 10 P2 board
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    ; 1 border
-    MOVE.W  d0, (a0)+
-    ; 7 P2 info
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.L  #0, (a0)+
-    MOVE.W  #0, (a0)+
-    ; 1 border
-    MOVE.W  d0, (a0)+
+    ; row 2: corner, 7 edge, 3way, 10 edge, 2 corner, 10 edge,
+    ;   3way, 7 edge, corner, 24 filler
+
+    ; tl corner
+    SWAP    d2
+    MOVE.W  d2, (a0)+
+    ; 7 edge
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.W  d1, (a0)+
+    ; 3way
+    MOVE.W  d3, (a0)+
+    ; 10 edge
+    MOVEQ   #4, d4
+@TOP_EDGE_LOOP_1:
+    MOVE.L  d1, (a0)+
+    DBRA    d4, @TOP_EDGE_LOOP_1
+    ; tr, tl corner
+    MOVE.L  d2, (a0)+
+    ; 10 edge
+    MOVEQ   #4, d4
+@TOP_EDGE_LOOP_2:
+    MOVE.L  d1, (a0)+
+    DBRA    d4, @TOP_EDGE_LOOP_2
+    ; 3way
+    MOVE.W  d3, (a0)+
+    ; 7 edge
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.W  d1, (a0)+
+    ; tr corner
+    SWAP    d2
+    MOVE.W  d2, (a0)+
     ; 24 filler
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
+    BSR     SCROLLA_FILLER
 
-    DBRA    d1, @H_LAYOUT_LOOP
 
-    ; copy 6 rows of filler - 64 x 6 cells
-    MOVEQ   #65, d1
+
+    ; don't need corners or h. edges for a while
+    ; d1 := vertical separator
+    LEA.L   UI_SEP_V, a1
+    MOVE.W  (a1), d1
+    ; d2 := EDGE_L, EDGE_R 
+    LEA.L   UI_EDGE_L, a1
+    MOVE.L  (a1), d2
+    ; d3 := EMPTY, EMPTY
+    MOVEQ   #0, d3
+    ; copy 24 rows of the horizontal layout pattern
+    MOVEQ   #23, d5
+@H_LAYOUT_LOOP:
+    ; 1 left edge
+    SWAP    d2
+    MOVE.W  d2, (a0)+
+    ; 7 info
+    MOVE.L  d6, (a0)+
+    MOVE.L  d6, (a0)+
+    MOVE.L  d6, (a0)+
+    MOVE.W  d6, (a0)+
+    ; 1 separator
+    MOVE.W  d1, (a0)+
+    ; 10 P1 board
+    MOVEQ   #4, d4
+@H_LAYOUT_BOARD_1:
+    MOVE.L  d3, (a0)+
+    DBRA    d4, @H_LAYOUT_BOARD_1
+    ; 2 border
+    MOVE.L  d2, (a0)+
+    ; 10 P2 board
+    MOVEQ   #4, d4
+@H_LAYOUT_BOARD_2:
+    MOVE.L  d3, (a0)+
+    DBRA    d4, @H_LAYOUT_BOARD_2
+    ; 1 separator
+    MOVE.W  d1, (a0)+
+    ; 7 P2 info
+    MOVE.L  d6, (a0)+
+    MOVE.L  d6, (a0)+
+    MOVE.L  d6, (a0)+
+    MOVE.W  d6, (a0)+
+    ; 1 border
+    SWAP    d2
+    MOVE.W  d2, (a0)+
+    ; 24 filler
+    BSR     SCROLLA_FILLER
+    DBRA    d5, @H_LAYOUT_LOOP
+
+    ; *****************
+    ; END H_LAYOUT_LOOP
+    ; *****************
+
+    ; d1 := EDGE_BOT, EDGE_BOT
+    LEA.L   UI_EDGE_B, a1
+    MOVE.W  (a1), d1
+    SWAP    d1
+    MOVE.W  (a1), d1
+
+    ; d2 := CORNER_BL, CORNER_BR
+    LEA.L   UI_BRDR_BL, a1
+    MOVE.L  (a1), d2
+
+    ; d3 := 3WAY_U
+    LEA.L   UI_BRDR_3WAY_U, a1
+    MOVE.W  (a1), d3
+
+    ; row 27: corner, 7 edge, 3way, 10 edge, 2 corner, 10 edge,
+    ;   3way, 7 edge, corner, 24 filler
+
+    ; corner
+    SWAP    d2
+    MOVE.W  d2, (a0)+
+    ; 7 edge
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.W  d1, (a0)+
+    ; 3way
+    MOVE.W  d3, (a0)+
+    ; 10 edge
+    MOVEQ   #4, d4
+@BOT_EDGE_LOOP_1:
+    MOVE.L  d1, (a0)+
+    DBRA    d4, @BOT_EDGE_LOOP_1
+    ; 2 corner
+    MOVE.L  d2, (a0)+
+    ; 10 edge
+    MOVEQ   #4, d4
+@BOT_EDGE_LOOP_2:
+    MOVE.L  d1, (a0)+
+    DBRA    d4, @BOT_EDGE_LOOP_2
+    ; 3way
+    MOVE.W  d3, (a0)+
+    ; 7 edge
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.W  d1, (a0)+
+    ; corner
+    SWAP    d2
+    MOVE.W  d2, (a0)+
+    ; 24 filler
+    BSR     SCROLLA_FILLER
+
+    ; copy 5 rows of filler - 64 x 5 cells
+    ; 32 x 5 LONGs
+    MOVEQ   #31, d4
 @BOT_FILLER_LOOP:
     MOVE.L  d0, (a0)+
     MOVE.L  d0, (a0)+
-    DBRA    d1, @BOT_FILLER_LOOP
+    MOVE.L  d0, (a0)+
+    MOVE.L  d0, (a0)+
+    MOVE.L  d0, (a0)+
+    DBRA    d4, @BOT_FILLER_LOOP
 
     ; transfer plane to VRAM
     MOVE.L  #BUFF_PLANE, d0
