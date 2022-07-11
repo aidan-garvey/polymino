@@ -69,7 +69,7 @@ GENERATE_ROWS:
 ;   a2 - start of player game state
 ;   a3 - joypad inputs
 ; Thrashed:
-;   a0, d0-d2
+;   a0, d0-d4
 ; =========================================
 PLAYER_ACTIONS:
     PUSH    a4-a5
@@ -151,8 +151,12 @@ PLAYER_ACTIONS:
     BNE     @A_PRESS_NO_SUB
     SUBQ    #1, d0
 @A_PRESS_NO_SUB:
+    ; save x pos
+    MOVE.W  d0, d3
+
     ; get vertical pos
     MOVE.W  10(a2), d2
+    MOVE.W  d2, d4
     ; multiply it by row width
     MULU.W  #BOARD_WIDTH, d2
     ; calculate RAM offset
@@ -170,6 +174,7 @@ PLAYER_ACTIONS:
     JSR     CHECK_MATCH
     MOVE.L  a4, a0
     ADDA.W  #2, a0
+    ADDQ    #1, d3
     JSR     CHECK_MATCH
 @SKIP_A_PRESS:
 
@@ -179,12 +184,16 @@ PLAYER_ACTIONS:
 
     ; get cursor pos, convert to RAM offset
     MOVE.W  8(a2), d0 ; horizontal position
+    MOVE.W  d0, d3
     ; get vertical pos
     MOVE.W  10(a2), d2
     ; if cursor is at top, move it down by 1
     BNE     @B_PRESS_NO_ADD
     ADDQ    #1, d2
 @B_PRESS_NO_ADD:
+    ; save vertical pos
+    MOVE.W  d2, d4
+    
     ; multiply by row width
     MULU.W  #BOARD_WIDTH, d2
     ; calculate RAM offset for top and bottom blocks
@@ -204,6 +213,7 @@ PLAYER_ACTIONS:
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
     MOVE.L  a5, a0
+    SUB.W   #1, d4
     JSR     CHECK_MATCH
 @SKIP_B_PRESS:
 
@@ -262,15 +272,25 @@ UPDATE_PHYSICS:
 ;   a1 - points to game board
 ;   a2 - player game state
 ; Thrashed:
-;   a0, d0-d3
+;   a0, d0-d7
+; ----------------------------------
+; TODO: could go backwards, use
+; x/y pos as loop counters
 ; ==================================
 CHECK_ALL_MATCHES:
     MOVE.L  a1, a0
-    MOVE.W  #BOARD_SIZE/2-1, d3
+    MOVE.W  #0, d4 ; y pos
+    MOVE.W  #BOARD_HEIGHT-1, d7
 @CHECK_ALL_LOOP:
+    MOVE.W  #0, d3 ; x pos
+    MOVE.W  #BOARD_WIDTH-1, d6
+@CHECK_ROW_LOOP:
     JSR     CHECK_MATCH
     ADDA.W  #2, a0
-    DBRA    d3, @CHECK_ALL_LOOP
+    ADDQ    #1, d3
+    DBRA    d6, @CHECK_ROW_LOOP
+    ADDQ    #1, d4
+    DBRA    d7, @CHECK_ALL_LOOP
     RTS
 
 PLACE_NEW_JUNK:
@@ -281,26 +301,31 @@ SHATTER_JUNK:
     NOP
     RTS
 
-; ========================
+; ==========================
 ; CHECK_MATCH
-; ------------------------
+; ***
+; BUG: this should not use CURSOR_X/Y
+; ***
+; --------------------------
 ; Check for a match that
 ; includes a given block
-; ------------------------
+; --------------------------
 ; Parameters:
 ;   a0 - pointer to block
-;   a2 - player game state
+;   d3 - x position of block
+;   d4 - y position of block
 ; Thrashed:
 ;   d0-d2
-; ========================
+; ==========================
 CHECK_MATCH:
-    PUSH    a1/a3
+    PUSH    a1/a3/d3-d4
     MOVE.L  a0, a1
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
-    MOVE.W  8(a2), d1   ; d1 := (CURSOR_X)
+    ; MOVE.W  8(a2), d1   ; d1 := (CURSOR_X)
+    MOVE.W  d3, d1
     MOVEQ   #0, d2      ; so we don't break the loop instantly
     BRA     @CHECK_LEFT_STEP
 @CHECK_LEFT_LOOP:
@@ -315,7 +340,8 @@ CHECK_MATCH:
     
     ; move a3 to the right until (a3) != d0, don't go further right than the board
     MOVE.W  #BOARD_WIDTH, d1
-    SUB.W   8(a2), d1
+    ; SUB.W   8(a2), d1
+    SUB.W   d3, d1
     SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
     MOVEQ   #0, d2  ; so we don't break the loop instantly
     BRA     @CHECK_RIGHT_STEP
@@ -351,7 +377,8 @@ CHECK_MATCH:
     ; d0 still contains the block
 
     ; move a1 up until (a1) != d0, but don't go above the top of the board
-    MOVE.W  10(a2), d1
+    ; MOVE.W  10(a2), d1
+    MOVE.W  d4, d1
     MOVE.W  #0, d2
     BRA     @CHECK_UP_STEP
 @CHECK_UP_LOOP:
@@ -366,7 +393,8 @@ CHECK_MATCH:
 
     ; move a3 down until (a3) != d0, but don't go below the board
     MOVE.W  #BOARD_HEIGHT, d1
-    SUB.W   10(a2), d1
+    ; SUB.W   10(a2), d1
+    SUB.W   d4, d1
     SUBQ    #1, d1
     MOVE.W  #0, d2
     BRA     @CHECK_DOWN_STEP
@@ -390,9 +418,8 @@ CHECK_MATCH:
     CLR.W   (a1)
     ADDA.W  #BOARD_WIDTH*2, a1
     CMP.L   a1, a3
-    BGT     @V_CLEAR_LOOP
-    CLR.W   (a1) ; clear the block at a3, then stop clearing
+    BGE     @V_CLEAR_LOOP
 @NO_V_MATCH:
 
-    POP     a1/a3
+    POP     a1/a3/d3-d4
     RTS
