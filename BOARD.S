@@ -86,13 +86,13 @@ PLAYER_ACTIONS:
     BNE     @MOVE_RIGHT ; if pressed for the first frame, move
     BTST    #3, d0  ; right held
     BEQ     @SKIP_MOVE_RIGHT ; if not held either, skip moving
-    SUB.W   #1, 12(a2) ; JOY_H_TIMER countdown
+    SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
     BNE     @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
 @MOVE_RIGHT:
-    MOVE.W  #HOLD_LENGTH, 12(a2) ; reset hold timer
-    CMPI.W  #BOARD_WIDTH-1, 8(a2) ; CURSOR_X
+    MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2) ; reset hold timer
+    CMPI.W  #BOARD_WIDTH-1, (CURSOR_X_OFF, a2) ; CURSOR_X
     BEQ     @SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
-    ADDI.W  #1, 8(a2)
+    ADDI.W  #1, (CURSOR_X_OFF, a2)
 @SKIP_MOVE_RIGHT:
 
 
@@ -100,13 +100,13 @@ PLAYER_ACTIONS:
     BNE     @MOVE_LEFT ; if pressed for first frame, move
     BTST    #2, d0  ; left held
     BEQ     @SKIP_MOVE_LEFT ; if not held either, skip moving
-    SUB.W   #1, 12(a2) ; JOY_H_TIMER countdown
+    SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
     BNE     @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
 @MOVE_LEFT:
-    MOVE.W  #HOLD_LENGTH, 12(a2)
-    TST.W   8(a2)   ; CURSOR_X
+    MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2)
+    TST.W   (CURSOR_X_OFF, a2)   ; CURSOR_X
     BEQ     @SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
-    SUBI.W  #1, 8(a2)
+    SUBI.W  #1, (CURSOR_X_OFF, a2)
 @SKIP_MOVE_LEFT:
 
     ; vertical movement
@@ -114,13 +114,13 @@ PLAYER_ACTIONS:
     BNE     @MOVE_DOWN
     BTST    #1, d0  ; down held
     BEQ     @SKIP_MOVE_DOWN
-    SUB.W   #1, 14(a2) ; JOY_V_TIMER countdown
+    SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
     BNE     @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
 @MOVE_DOWN:
-    MOVE.W  #HOLD_LENGTH, 14(a2)
-    CMPI.W  #BOARD_HEIGHT-1, 10(a2) ; CURSOR_Y
+    MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
+    CMPI.W  #BOARD_HEIGHT-1, (CURSOR_Y_OFF, a2) ; CURSOR_Y
     BEQ     @SKIP_MOVE_DOWN
-    ADDI.W  #1, 10(a2)
+    ADDI.W  #1, (CURSOR_Y_OFF, a2)
 @SKIP_MOVE_DOWN:
 
 
@@ -128,13 +128,13 @@ PLAYER_ACTIONS:
     BNE     @MOVE_UP
     BTST    #0, d0  ; up held
     BEQ     @SKIP_MOVE_UP
-    SUB.W   #1, 14(a2) ; JOY_V_TIMER countdown
+    SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
     BNE     @SKIP_MOVE_UP ; if hold timer not at 0, don't move
 @MOVE_UP:
-    MOVE.W  #HOLD_LENGTH, 14(a2)
-    TST.W   10(a2)   ; CURSOR_Y
+    MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
+    TST.W   (CURSOR_Y_OFF, a2)   ; CURSOR_Y
     BEQ     @SKIP_MOVE_UP
-    SUBI.W  #1, 10(a2)
+    SUBI.W  #1, (CURSOR_Y_OFF, a2)
 @SKIP_MOVE_UP:
 
     ; d0 not needed for inputs from here on - only D-pad can be held
@@ -144,7 +144,7 @@ PLAYER_ACTIONS:
     BEQ     @SKIP_A_PRESS
 
     ; get cursor pos, convert to RAM offset
-    MOVE.W  8(a2), d0 ; horizontal position
+    MOVE.W  (CURSOR_X_OFF, a2), d0 ; horizontal position
     ; if cursor is all the way to the right, the
     ; horizontal component is shifted to the left
     CMPI.W  #BOARD_WIDTH-1, d0
@@ -155,7 +155,7 @@ PLAYER_ACTIONS:
     MOVE.W  d0, d3
 
     ; get vertical pos
-    MOVE.W  10(a2), d2
+    MOVE.W  (CURSOR_Y_OFF, a2), d2
     MOVE.W  d2, d4
     ; multiply it by row width
     MULU.W  #BOARD_WIDTH, d2
@@ -203,10 +203,10 @@ PLAYER_ACTIONS:
     BEQ     @SKIP_B_PRESS
 
     ; get cursor pos, convert to RAM offset
-    MOVE.W  8(a2), d0 ; horizontal position
+    MOVE.W  (CURSOR_X_OFF, a2), d0 ; horizontal position
     MOVE.W  d0, d3
     ; get vertical pos
-    MOVE.W  10(a2), d2
+    MOVE.W  (CURSOR_Y_OFF, a2), d2
     ; if cursor is at top, move it down by 1
     BNE     @B_PRESS_NO_ADD
     ADDQ    #1, d2
@@ -326,25 +326,6 @@ CHECK_ALL_MATCHES:
     DBRA    d3, @CHECK_CELL_LOOP
     DBRA    d4, @CHECK_ROW_LOOP
     RTS
-
-; OLD
-    ; MOVE.L  a1, a0
-    ; MOVE.W  #0, d4 ; y pos
-    ; MOVE.W  #BOARD_HEIGHT-1, d7
-; @CHECK_ALL_LOOP:
-    ; MOVE.W  #0, d3 ; x pos
-    ; MOVE.W  #BOARD_WIDTH-1, d6
-; @CHECK_ROW_LOOP:
-    ; TST.W   (a0)
-    ; BEQ     @SKIP_CHECK_MATCH
-    ; JSR     CHECK_MATCH
-; @SKIP_CHECK_MATCH:
-    ; ADDA.W  #2, a0
-    ; ADDQ    #1, d3
-    ; DBRA    d6, @CHECK_ROW_LOOP
-    ; ADDQ    #1, d4
-    ; DBRA    d7, @CHECK_ALL_LOOP
-    ; RTS
 
 PLACE_NEW_JUNK:
     NOP

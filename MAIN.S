@@ -145,7 +145,7 @@ GAME_LOOP:
 
     ; needed addresses:
     LEA.L   PLAYER_1_DATA, a1   ; start of board for P1
-    LEA.L   NEW_ROWS_1, a2      ; start of game state for P1
+    LEA.L   GAME_STATE_1, a2      ; start of game state for P1
     LEA.L   JOY1, a3            ; joypad inputs for P1
     LEA.L   BUFF_PLANE+BOARD1_OFFSET, a4 ; scroll plane buffer for P1's board
     LEA.L   P1_SPRITE, a5
@@ -156,7 +156,7 @@ GAME_LOOP:
     BSR     @LOOP_START
     ; re-configure pointers for P2 data
     LEA.L   PLAYER_2_DATA, a1
-    LEA.L   NEW_ROWS_2, a2
+    LEA.L   GAME_STATE_2, a2
     LEA.L   JOY2, a3
     LEA.L   BUFF_PLANE+BOARD2_OFFSET, a4
     LEA.L   P2_SPRITE, a5

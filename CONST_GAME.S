@@ -29,3 +29,13 @@ BOARD_ROW_OFFSET = 108
 
 HOLD_LENGTH = 6 ; held buttons are handled every HOLD_LENGTH frames
 SCROLL_DIV = 2  ; divisor for background scroll amount per frame
+
+; game state offsets
+NEW_ROWS_OFF = 0
+SCORE_OFF = 2
+LIVES_OFF = 6
+CURSOR_X_OFF = 8
+CURSOR_Y_OFF = 10
+JOY_H_TIMER_OFF = 12
+JOY_V_TIMER_OFF = 14
+UPDATED_OFF = 32

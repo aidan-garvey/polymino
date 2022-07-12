@@ -29,11 +29,11 @@ DMA_QUEUE_END = $FF06A2 ; 12B: Space for queue overflow (1 extra cmd + LONG of z
 ; $FF06AE - 2B of extra space
 
 BUFF_PALETTES = $FF06B0 ; 128B: Palettes on screen
-BUFF_SPRITES = $FF0730  ; $400B: Sprite Table Buffer
+BUFF_SPRITES = $FF0730  ; $400 Bytes: Sprite Table Buffer
 P1_SPRITE = $FF0730     ; 8B: player 1 cursor
 P2_SPRITE = $FF0738     ; 8B: player 2 cursor
 VAR_SPRITES = $FF0740   ; Variable-length list of sprites
-BUFF_PLANE = $FF0B30    ; $1000B: Playfield buffer for writing to VRAM
+BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
 BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)
                         ; 28 rows * 2 planes * 2 bytes = 112B
 BUFF_HSCROLLA = $FF1B30
@@ -59,7 +59,8 @@ JUNK_TIMER = $FF2008    ; 2B: number of updates since last junk
 
 ; Data for each player's game state including the board
 PLAYER_1_DATA = $FF3000
-BOARD_1 = $FF3000       ; $1E0B: 240 cells * 2B
+BOARD_1 = $FF3000       ; $1E0 Bytes: 240 cells * 2B
+GAME_STATE_1 = $FF31E0
 NEW_ROWS_1 = $FF31E0    ; 2B: Rows of blocks to place next frame
 SCORE_1 = $FF31E2       ; 4B: BCD 7-digit score
 LIVES_1 = $FF31E6       ; 2B: Number of lifelines, BCD or bimary w/ limit of 9
@@ -67,9 +68,12 @@ CURSOR_1_X = $FF31E8    ; 2B: horizontal position of cursor
 CURSOR_1_Y = $FF31EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
+; 16B of free space
+UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
 
 PLAYER_2_DATA = $FF4000
-BOARD_2 = $FF4000       ; $1E0B: 240 cells * 2B
+BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
+GAME_STATE_2 = $FF41E0
 NEW_ROWS_2 = $FF41E0    ; 2B: Rows of blocks to place next frame
 SCORE_2 = $FF41E2       ; 4B: BCD 7-digit score
 LIVES_2 = $FF41E6       ; 2B: Number of lifelines, BCD or bimary w/ limit of 9
@@ -77,5 +81,7 @@ CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
+; 16B free space
+UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
 
 SCRATCH = $FFFFF0

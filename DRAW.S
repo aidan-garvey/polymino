@@ -72,7 +72,7 @@ DRAW_CURSOR:
     ; VDP_ACCESS VDP_W_VRAM, VRAM_SPRITETBL
     
     ; get vertical position
-    MOVE.W  10(a2), d0
+    MOVE.W  (CURSOR_Y_OFF, a2), d0
     BEQ     @CURSOR_NO_V_SUB
     ; if cursor not at top, don't vflip, decrease sprite's y
     SUBQ    #1, d0
@@ -88,7 +88,7 @@ DRAW_CURSOR:
     ADDA.W  #2, a0
     ; MOVE.W  #$0500, (a0) ; hsize = 2, vsize = 2, link = 0
     ; horizontal position
-    MOVE.W  8(a2), d0
+    MOVE.W  (CURSOR_X_OFF, a2), d0
     CMPI.W  #BOARD_WIDTH-1, d0
     BNE     @CURSOR_NO_H_SUB
     SUBQ    #1, d0
