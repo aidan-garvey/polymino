@@ -6,11 +6,10 @@
 ; ***************************
 
 ; Format of each cell in the board:
-; JNU- -CCC IIII IIII
+; JN-- -CCC IIII IIII
 ; J: 1 = junk, 0 = not junk
 ; N: J & !N = gray junk, J & N = coloured junk,
 ;    !J & !N = empty cell, !J & N = block
-; U: 0 = not updated this frame, 1 = updated this frame
 ; C: 3 bits for colour
 ; I: 8-bit junk piece ID if J
 
@@ -270,12 +269,6 @@ PLAYER_ACTIONS:
 ; =====================================
 UPDATE_PHYSICS:
     PUSH    a1
-    ; clear updated flag for all blocks
-    ; do 2 blocks (4 bytes) per iteration
-    MOVE.W  #BOARD_SIZE/4, d0
-@CLEAR_UPDATE_FLAG:
-    ANDI.L  #$DFFFDFFF, (a1)+ ; clears update bit
-    DBRA    d0, @CLEAR_UPDATE_FLAG
 
     ; a1 will point 1 row above a0
     MOVE.L  a2, a0
@@ -292,7 +285,6 @@ UPDATE_PHYSICS:
     ; move (a1) downwards
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
-    ; ORI.W   #$2000, (a0) ; set update bit
 @UPDATE_BLOCK_STEP:
     DBRA    d0, @UPDATE_BLOCK_LOOP
 
