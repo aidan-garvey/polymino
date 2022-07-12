@@ -41,7 +41,8 @@ BUFF_HSCROLLB = $FF1B68
 ; $FF1BA0
 
 MAIN_VECTOR = $FF1F00   ; 4B: Address of current main loop subroutine
-GAME_TICK = $FF1F04     ; 2B/4B: Game tick (frame counter)
+MAIN_TICK = $FF1F04     ; 2B: Main loop counter
+FRAME_TICK = $FF1F06    ; 2B: Frame counter
 RAND_STATE = $FF1F08    ; 8B: PRNG state
 SCROLL_Y = $FF1F10      ; 4B: Y scroll values for each playfield
 SCROLLA_Y = $FF1F10
@@ -74,7 +75,7 @@ SCORE_2 = $FF41E2       ; 4B: BCD 7-digit score
 LIVES_2 = $FF41E6       ; 2B: Number of lifelines, BCD or bimary w/ limit of 9
 CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
-JOY_H_TIMER_2 = $FF31EC ; 2B: frames until held L/R will take effect again
-JOY_V_TIMER_2 = $FF31EE ; 2B: frames until held U/D will take effect again
+JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
+JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 
 SCRATCH = $FFFFF0

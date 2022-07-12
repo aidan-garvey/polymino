@@ -61,7 +61,6 @@ MAIN_INIT:
     
     ; global:
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
-    MOVE.L  #0, (GAME_TICK)
     LEA.L   GLOBAL_STATE, a0
     MOVE.W  #2, (a0)+   ; number of players
     MOVE.W  #15, (a0)+  ; frames b/w physics updates
@@ -93,6 +92,8 @@ MAIN_INIT:
     JSR     INIT_SCROLLA
     JSR     INIT_CURSOR ; initialize cursors for both players
 
+    MOVE.L  #0, (MAIN_TICK) ; init main and frame tick, each is 2B
+
     RTS
 
 ; =================================================
@@ -104,7 +105,7 @@ MAIN_INIT:
 MAIN_LOOP:
     ; only execute once per frame
     WAIT_VB
-    ADD.L   #1, (GAME_TICK)
+    ADD.W   #1, (MAIN_TICK)
     JSR     READ_INPUT
     MOVE.L  (MAIN_VECTOR), a0
     JSR     (a0)

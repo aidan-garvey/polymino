@@ -170,12 +170,18 @@ PLAYER_ACTIONS:
     MOVE.L  d2, (a4)
 
     ; check for matches at swapped blocks
+    TST.W   (a4)
+    BEQ     @SKIP_CHECK_A_1
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
+@SKIP_CHECK_A_1:
     MOVE.L  a4, a0
     ADDA.W  #2, a0
+    TST.W   (a4)
+    BEQ     @SKIP_CHECK_A_2
     ADDQ    #1, d3
     JSR     CHECK_MATCH
+@SKIP_CHECK_A_2:
 @SKIP_A_PRESS:
 
     ; if B pressed, swap veritcally
@@ -210,11 +216,17 @@ PLAYER_ACTIONS:
     MOVE.W  d2, (a5)
 
     ; check for matches at swapped blocks
+    TST.W   (a4)
+    BEQ     @SKIP_CHECK_B_1
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
+@SKIP_CHECK_B_1:
+    TST.W   (a5)
+    BEQ     @SKIP_CHECK_B_2
     MOVE.L  a5, a0
     SUB.W   #1, d4
     JSR     CHECK_MATCH
+@SKIP_CHECK_B_2:
 @SKIP_B_PRESS:
 
     POP     a4-a5
@@ -285,7 +297,10 @@ CHECK_ALL_MATCHES:
     MOVE.W  #0, d3 ; x pos
     MOVE.W  #BOARD_WIDTH-1, d6
 @CHECK_ROW_LOOP:
+    TST.W   (a0)
+    BEQ     @SKIP_CHECK_MATCH
     JSR     CHECK_MATCH
+@SKIP_CHECK_MATCH:
     ADDA.W  #2, a0
     ADDQ    #1, d3
     DBRA    d6, @CHECK_ROW_LOOP
@@ -323,6 +338,7 @@ SHATTER_JUNK:
 ; ==========================
 CHECK_MATCH:
     PUSH    a1/a3/d0-d4
+
     MOVE.L  a0, a1
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
