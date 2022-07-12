@@ -164,6 +164,20 @@ PLAYER_ACTIONS:
     ASL.W   #1, d0
     MOVE.L  a1, a4
     ADDA.W  d0, a4
+    ; a0 will check if the space below a block is empty
+    MOVE.L  a4, a0
+    ADDA.W  #BOARD_WIDTH*2, a0
+    ; if a block is falling, and it is not empty, it is immovable
+    TST.W   (a0)+
+    BNE     @H_FALL_CHECK_1 ; if block below is occupied, check passes
+    TST.W   (a4)
+    BNE     @SKIP_A_PRESS ; if block below is empty and block above isn't, check fails
+@H_FALL_CHECK_1:
+    TST.W   (a0)+
+    BNE     @H_FALL_CHECK_2
+    TST.W   2(a4)
+    BNE     @SKIP_A_PRESS
+@H_FALL_CHECK_2:
     ; swap the blocks
     MOVE.L  (a4), d2
     SWAP    d2
@@ -177,7 +191,7 @@ PLAYER_ACTIONS:
 @SKIP_CHECK_A_1:
     MOVE.L  a4, a0
     ADDA.W  #2, a0
-    TST.W   (a4)
+    TST.W   (a0)
     BEQ     @SKIP_CHECK_A_2
     ADDQ    #1, d3
     JSR     CHECK_MATCH
@@ -206,10 +220,20 @@ PLAYER_ACTIONS:
     ADD.W   d2, d0
     ASL.W   #1, d0
     MOVE.L  a1, a4
-    MOVE.L  a1, a5
+    ; MOVE.L  a1, a5
     ADDA.W  d0, a4
-    SUBI.W  #BOARD_WIDTH*2, d0
-    ADDA.W  d0, a5
+    ; SUBI.W  #BOARD_WIDTH*2, d0
+    ; ADDA.W  d0, a5
+    MOVE.L  a4, a5
+    SUBA.W  #BOARD_WIDTH*2, a5
+    ; don't allow a vertical swap b/w a falling block and a space
+    MOVE.L  a4, a0
+    ADDA.W  #BOARD_WIDTH*2, a0
+    TST.W   (a0)
+    BNE     @DO_V_SWAP
+    TST.W   (a5)
+    BEQ     @SKIP_B_PRESS
+@DO_V_SWAP:
     ; swap the blocks
     MOVE.W  (a4), d2
     MOVE.W  (a5), (a4)
@@ -268,7 +292,7 @@ UPDATE_PHYSICS:
     ; move (a1) downwards
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
-    ORI.W   #$2000, (a0) ; set update bit
+    ; ORI.W   #$2000, (a0) ; set update bit
 @UPDATE_BLOCK_STEP:
     DBRA    d0, @UPDATE_BLOCK_LOOP
 
@@ -290,23 +314,37 @@ UPDATE_PHYSICS:
 ; x/y pos as loop counters
 ; ==================================
 CHECK_ALL_MATCHES:
-    MOVE.L  a1, a0
-    MOVE.W  #0, d4 ; y pos
-    MOVE.W  #BOARD_HEIGHT-1, d7
-@CHECK_ALL_LOOP:
-    MOVE.W  #0, d3 ; x pos
-    MOVE.W  #BOARD_WIDTH-1, d6
+    MOVE.L  a2, a0
+    MOVE.W  #BOARD_HEIGHT-1, d4 ; y pos
 @CHECK_ROW_LOOP:
-    TST.W   (a0)
+    MOVE.W  #BOARD_WIDTH-1, d3 ; x pos
+@CHECK_CELL_LOOP:
+    TST.W   -(a0)
     BEQ     @SKIP_CHECK_MATCH
     JSR     CHECK_MATCH
 @SKIP_CHECK_MATCH:
-    ADDA.W  #2, a0
-    ADDQ    #1, d3
-    DBRA    d6, @CHECK_ROW_LOOP
-    ADDQ    #1, d4
-    DBRA    d7, @CHECK_ALL_LOOP
+    DBRA    d3, @CHECK_CELL_LOOP
+    DBRA    d4, @CHECK_ROW_LOOP
     RTS
+
+; OLD
+    ; MOVE.L  a1, a0
+    ; MOVE.W  #0, d4 ; y pos
+    ; MOVE.W  #BOARD_HEIGHT-1, d7
+; @CHECK_ALL_LOOP:
+    ; MOVE.W  #0, d3 ; x pos
+    ; MOVE.W  #BOARD_WIDTH-1, d6
+; @CHECK_ROW_LOOP:
+    ; TST.W   (a0)
+    ; BEQ     @SKIP_CHECK_MATCH
+    ; JSR     CHECK_MATCH
+; @SKIP_CHECK_MATCH:
+    ; ADDA.W  #2, a0
+    ; ADDQ    #1, d3
+    ; DBRA    d6, @CHECK_ROW_LOOP
+    ; ADDQ    #1, d4
+    ; DBRA    d7, @CHECK_ALL_LOOP
+    ; RTS
 
 PLACE_NEW_JUNK:
     NOP
@@ -342,6 +380,9 @@ CHECK_MATCH:
     MOVE.L  a0, a1
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
+    ; if piece is junk, it can't be matched, so return
+    BTST    #15, d0
+    BNE     @CHECK_MATCH_RET
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
     MOVE.W  d3, d1
@@ -440,6 +481,6 @@ CHECK_MATCH:
     CMP.L   a1, a3
     BGE     @V_CLEAR_LOOP
 @NO_V_MATCH:
-
+@CHECK_MATCH_RET:
     POP     a1/a3/d0-d4
     RTS

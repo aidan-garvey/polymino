@@ -171,8 +171,10 @@ GAME_LOOP:
     JSR     UPDATE_PHYSICS
     BRA     @SKIP_MATCH_ALL
 @SKIP_UPDATE_PHYSICS:
-    ; to spread the load, update matches the frame after physics
-    CMPI.W  #1, (UPDATE_TIMER)
+    ; to spread the load, update matches the frame before physics
+    MOVE.W  (UPDATE_MAX), d0
+    SUBQ    #1, d0
+    CMP.W   (UPDATE_TIMER), d0
     BNE     @SKIP_MATCH_ALL
     JSR     CHECK_ALL_MATCHES
 @SKIP_MATCH_ALL:
