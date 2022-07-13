@@ -24,23 +24,23 @@
 ; Thrashed:
 ;   none
 ; ========================================
-RESET_UPDATED:
-    TST.W   (UP_RESET_OFF, a2)
-    BNE     @RESET_UPDATED_RET
+;RESET_UPDATED:
+;    TST.W   (UP_RESET_OFF, a2)
+;    BNE     @RESET_UPDATED_RET
 
-    MOVE.W  #$FFFF, (UP_RESET_OFF, a2)
-    PUSH    a0/d0-d1
-    MOVE.L  a2, a0
-    ADDA.W  #UPDATED_OFF, a0
-    MOVEQ   #11, d0
-    MOVEQ   #0, d1
-@RESET_UPDATED_LOOP:
-    MOVE.L  d1, (a0)+
-    DBRA    d0, @RESET_UPDATED_LOOP
+;    MOVE.W  #$FFFF, (UP_RESET_OFF, a2)
+;    PUSH    a0/d0-d1
+;    MOVE.L  a2, a0
+;    ADDA.W  #UPDATED_OFF, a0
+;    MOVEQ   #11, d0
+;    MOVEQ   #0, d1
+;@RESET_UPDATED_LOOP:
+;    MOVE.L  d1, (a0)+
+;    DBRA    d0, @RESET_UPDATED_LOOP
 
-    POP     a0/d0-d1
-@RESET_UPDATED_RET:
-    RTS
+;    POP     a0/d0-d1
+;@RESET_UPDATED_RET:
+;    RTS
 
 ; ==========================================
 ; RESET_TO_CLEAR
@@ -53,23 +53,23 @@ RESET_UPDATED:
 ; Thrashed:
 ;   none
 ; ==========================================
-RESET_TO_CLEAR:
-    TST.W   (TC_RESET_OFF, a2)
-    BNE     @RESET_TO_CLEAR_RET
+;RESET_TO_CLEAR:
+;    TST.W   (TC_RESET_OFF, a2)
+;    BNE     @RESET_TO_CLEAR_RET
 
-    MOVE.W  #$FFFF, (TC_RESET_OFF, a2)
-    PUSH    a0/d0-d1
-    MOVE.L  a2, a0
-    ADDA.W  #TO_CLEAR_OFF, a0
-    MOVEQ   #11, d0
-    MOVEQ   #0, d1
-@RESET_TO_CLEAR_LOOP:
-    MOVE.L  d1, (a0)+
-    DBRA    d0, @RESET_TO_CLEAR_LOOP
+;    MOVE.W  #$FFFF, (TC_RESET_OFF, a2)
+;    PUSH    a0/d0-d1
+;    MOVE.L  a2, a0
+;    ADDA.W  #TO_CLEAR_OFF, a0
+;    MOVEQ   #11, d0
+;    MOVEQ   #0, d1
+;@RESET_TO_CLEAR_LOOP:
+;    MOVE.L  d1, (a0)+
+;    DBRA    d0, @RESET_TO_CLEAR_LOOP
 
-    POP     a0/d0-d1
-@RESET_TO_CLEAR_RET:
-    RTS
+;    POP     a0/d0-d1
+;@RESET_TO_CLEAR_RET:
+;    RTS
 
 ; ===============================================
 ; GENERATE_ROWS
@@ -243,7 +243,7 @@ PLAYER_ACTIONS:
     ; check for matches at swapped blocks
     TST.W   (a4)
     BEQ     @SKIP_CHECK_A_1
-    JSR     RESET_TO_CLEAR
+    ; JSR     RESET_TO_CLEAR
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_1:
@@ -251,7 +251,7 @@ PLAYER_ACTIONS:
     ADDA.W  #2, a0
     TST.W   (a0)
     BEQ     @SKIP_CHECK_A_2
-    JSR     RESET_TO_CLEAR
+    ; JSR     RESET_TO_CLEAR
     ADDQ    #1, d3
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_2:
@@ -301,13 +301,13 @@ PLAYER_ACTIONS:
     ; check for matches at swapped blocks
     TST.W   (a4)
     BEQ     @SKIP_CHECK_B_1
-    JSR     RESET_TO_CLEAR
+    ; JSR     RESET_TO_CLEAR
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_1:
     TST.W   (a5)
     BEQ     @SKIP_CHECK_B_2
-    JSR     RESET_TO_CLEAR
+    ; JSR     RESET_TO_CLEAR
     MOVE.L  a5, a0
     SUB.W   #1, d4
     JSR     CHECK_MATCH
@@ -365,7 +365,7 @@ UPDATE_PHYSICS:
 ;   a0, d0-d7
 ; ==================================
 CHECK_ALL_MATCHES:
-    JSR     RESET_TO_CLEAR
+    ; JSR     RESET_TO_CLEAR
 
     MOVE.L  a2, a0
     MOVE.W  #BOARD_HEIGHT-1, d4 ; y pos
@@ -581,7 +581,7 @@ CHECK_MATCH:
 ;   a2 - game state
 ; ==================================
 CLEAR_BLOCKS:
-    JSR     RESET_TO_CLEAR
+    ; JSR     RESET_TO_CLEAR
 
     PUSH    a0-a1/d0-d2
     MOVE.L  a2, a0
@@ -589,7 +589,8 @@ CLEAR_BLOCKS:
     MOVEQ   #BOARD_HEIGHT-1, d0
 @CLEAR_ROWS_LOOP:
     ; get 2 rows
-    MOVE.W  (a0)+, d1
+    MOVE.W  (a0), d1
+    CLR.W   (a0)+
     ; start at x = 0
     MOVEQ   #0, d2
 @CLEAR_BLOCK_LOOP:

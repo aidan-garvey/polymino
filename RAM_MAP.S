@@ -70,9 +70,9 @@ JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 ; 16B of free space
 UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
-UP_RESET_1 = $FF3230    ; 2B: have update flags been refreshed this frame?
-TO_CLEAR_1 = $FF3232    ; $30 Bytes: flags for blocks being cleared from the board
-TC_RESET_1 = $FF3262    ; 2B: have TO_CLEAR flags been refreshed this frame?
+; UP_RESET_1 = $FF3230    ; 2B: have update flags been refreshed this frame?
+TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
+; TC_RESET_1 = $FF3262    ; 2B: have TO_CLEAR flags been refreshed this frame?
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
@@ -86,8 +86,8 @@ JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 ; 16B free space
 UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
-UP_RESET_2 = $FF4230    ; 2B: have update flags been refreshed this frame?
-TO_CLEAR_2 = $FF4232    ; $30 Bytes: flags for blocks being cleared from the board
-TC_RESET_2 = $FF4262    ; 2B: have TO_CLEAR flags been refreshed this frame?
+; UP_RESET_2 = $FF4230    ; 2B: have update flags been refreshed this frame?
+TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
+; TC_RESET_2 = $FF4262    ; 2B: have TO_CLEAR flags been refreshed this frame?
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed, like DMA
