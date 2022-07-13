@@ -166,7 +166,13 @@ PLAYER_ACTIONS:
     ; a0 will check if the space below a block is empty
     MOVE.L  a4, a0
     ADDA.W  #BOARD_WIDTH*2, a0
+
     ; if a block is falling, and it is not empty, it is immovable
+
+    ; don't do check for bottom row
+    CMP.W   #BOARD_HEIGHT-1, d4
+    BEQ     @H_FALL_CHECK_2
+
     TST.W   (a0)+
     BNE     @H_FALL_CHECK_1 ; if block below is occupied, check passes
     TST.W   (a4)
@@ -222,7 +228,13 @@ PLAYER_ACTIONS:
     ADDA.W  d0, a4
     MOVE.L  a4, a5
     SUBA.W  #BOARD_WIDTH*2, a5
+
     ; don't allow a vertical swap b/w a falling block and a space
+    
+    ; don't do check for the bottom row
+    CMP.W   #BOARD_HEIGHT-1, d4
+    BEQ     @DO_V_SWAP
+
     MOVE.L  a4, a0
     ADDA.W  #BOARD_WIDTH*2, a0
     TST.W   (a0)
