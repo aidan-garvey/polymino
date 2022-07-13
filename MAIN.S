@@ -48,8 +48,8 @@ MAIN_INIT:
 
     JSR     DUMP_PALETTES
 
-    ; background: palette 3, color 0 (background palette)
-    VDP_REG 7, $00
+    ; background: palette 0, color 6 (color of SCROLLA mask)
+    VDP_REG 7, $06
 
     ; load block graphics into VRAM
     MOVE.L  #BLOCK_CHARS, d0    ; address
@@ -70,7 +70,7 @@ MAIN_INIT:
 
     ; p1:
     LEA.L   NEW_ROWS_1, a0
-    MOVE.W  #6, (a0)+
+    MOVE.W  #6, (a0)+       ; starting rows
     MOVE.L  #$0123456, (a0)+; bcd score
     MOVE.W  #3, (a0)+       ; lifelines
     MOVE.W  #1, (a0)+       ; cursor x
@@ -79,7 +79,7 @@ MAIN_INIT:
 
     ; p2:
     LEA.L   NEW_ROWS_2, a0
-    MOVE.W  #4, (a0)+
+    MOVE.W  #4, (a0)+       ; starting rows
     MOVE.L  #$9876543, (a0)+; bcd score
     MOVE.W  #4, (a0)+       ; lifelines
     MOVE.W  #9, (a0)+       ; cursor x
@@ -96,12 +96,12 @@ MAIN_INIT:
 
     RTS
 
-; =================================================
+; ===============================================
 ; MAIN_LOOP
-; -------------------------------------------------
-; Executed once per frame. Reads joypad input
-; and calls whichever subroutine is in MAIN_VECTOR.
-; =================================================
+; -----------------------------------------------
+; Executed once per frame. Reads joypad input and
+; calls whichever subroutine is in MAIN_VECTOR.
+; ===============================================
 MAIN_LOOP:
     ; only execute once per frame
     WAIT_VB
@@ -142,6 +142,13 @@ GAME_LOOP:
     BLT     @SKIP_JUNK_RESET
     CLR.W   2(a0)
 @SKIP_JUNK_RESET:
+
+    ; clear flags to indicate things haven't happened this frame
+    MOVEQ   #0, d0
+    MOVE.W  d0, (UP_RESET_1)
+    MOVE.W  d0, (TC_RESET_1)
+    MOVE.W  d0, (UP_RESET_2)
+    MOVE.W  d0, (TC_RESET_2)
 
     ; needed addresses:
     LEA.L   PLAYER_1_DATA, a1   ; start of board for P1
@@ -184,6 +191,8 @@ GAME_LOOP:
     BNE.B   @SKIP_PLACE_JUNK
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
 @SKIP_PLACE_JUNK:
+
+    JSR     CLEAR_BLOCKS
 
     ; if any junk is in contact with a projectile, shatter it
     JSR     SHATTER_JUNK
