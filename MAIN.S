@@ -188,6 +188,7 @@ GAME_LOOP:
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
 @SKIP_PLACE_JUNK:
 
+    ; remove any matched blocks from the board
     JSR     CLEAR_BLOCKS
 
     ; if any junk is in contact with a projectile, shatter it
@@ -196,11 +197,11 @@ GAME_LOOP:
     ; convert game board to graphics, place in scroll plane buffer
     JSR     DRAW_BOARD
 
-    ; write info such as score to scroll plane buffer
-    JSR     DRAW_INFO
-
     ; write to sprite buffer
     JSR     DRAW_CURSOR
+
+    ; write digit characters to where score sprites get their chars
+    JSR     DRAW_SCORE
 
     RTS
 

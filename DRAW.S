@@ -48,10 +48,6 @@ DRAW_BOARD:
 
     RTS
 
-DRAW_INFO:
-    NOP
-    RTS
-
 ; =======================================
 ; DRAW_CURSOR
 ; ---------------------------------------
@@ -108,3 +104,57 @@ DRAW_CURSOR:
     MOVE.W  d0, (a0)
 
     RTS
+
+
+; ========================================
+; DRAW_SCORE
+; ----------------------------------------
+; Copy the digits of the player's score to
+; VRAM so the score sprites display them
+; ----------------------------------------
+; Parameters:
+;   a2 - player state
+; ----------------------------------------
+; Thrashed:
+;   a0, d0-d2
+; ========================================
+DRAW_SCORE:
+    PUSH    a1/a3
+    LEA.L   TEXT_DIGITS, a0 ;= score graphics source
+    MOVE.L  a2, a1
+    ADDA.W  #SCORE_BUFF_OFF, a1 ;= score graphics dest
+    MOVE.L  a2, a3
+    ADDA.W  #SCORE_OFF, a3 ;= BCD score
+
+    ; first byte only uses lower 4b
+    MOVE.B  (a3)+, d1
+    ANDI.W  #$F, d1
+    ; multiply by 32 to get character location
+    LSL.W   #5, d1
+    ADDA.W  d1, a0
+
+    JSR     CopyCharRAM
+
+    MOVEQ   #2, d3
+@DRAW_SCORE_LOOP:
+    MOVE.B  (a3)+, d1
+    LSL.W   #5, d1
+    MOVE.W  d1, d2
+    ANDI.W  #$F0<<5, d2 ; first digit
+    LSR.W   #4, d2
+    ANDI.W  #$0F<<5, d1 ; second digit
+    
+    LEA.L   TEXT_DIGITS, a0
+    ADDA.W  d2, a0
+    JSR     CopyCharRAM
+    LEA.L   TEXT_DIGITS, a0
+    ADDA.W  d1, a0
+    JSR     CopyCharRAM
+
+    DBRA    d3, @DRAW_SCORE_LOOP
+
+    POP     a1/a3
+    RTS
+
+
+

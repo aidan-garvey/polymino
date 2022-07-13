@@ -36,14 +36,16 @@ P1_SPRITE = $FF0730     ; 8B: player 1 cursor
 P1_T_NEXT = $FF0738     ; 8B: "NEXT"
 P1_T_SCORE = $FF0740    ; 8B: "SCORE"
 P1_T_LLINES = $FF0748   ; 8B: "LIFE\nLINES"
+P1_SCORE_DGTS = $FF0750 ; 16B: player 1 score, 2 sprites
 ; player 2 HUD (if applicable):
-HUD_SPRITES_2 = $FF0750
-P2_SPRITE = $FF0750     ; 8B: player 2 cursor
-P2_T_NEXT = $FF0758     ; 8B: "NEXT"
-P2_T_SCORE = $FF0760    ; 8B: "SCORE"
-P2_T_LLINES = $FF0768   ; 8B: "LIFE\nLINES"
+HUD_SPRITES_2 = $FF0760
+P2_SPRITE = $FF0760     ; 8B: player 2 cursor
+P2_T_NEXT = $FF0768     ; 8B: "NEXT"
+P2_T_SCORE = $FF0770    ; 8B: "SCORE"
+P2_T_LLINES = $FF0778   ; 8B: "LIFE\nLINES"
+P2_SCORE_DGTS = $FF0780 ; 16B: player 2 score, 2 sprites
 ; non-persistent sprites:
-VAR_SPRITES = $FF0770   ; Variable-length list of sprites
+VAR_SPRITES = $FF0790   ; Variable-length list of sprites
 
 BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
 BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)
@@ -83,6 +85,7 @@ JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 ; 16B of free space
 UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
+SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
@@ -97,5 +100,6 @@ JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 ; 16B free space
 UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
+SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed, like DMA

@@ -256,39 +256,21 @@ INIT_HUD:
     ; copy right char
     JSR     CopyCharRAM
 
-    ; copy text chars
-    MOVEQ   #15, d1
-    LEA.L   TEXT_NEXT, a0 ; we're copying all, not just "NEXT"
+    ; copy all chars from TEXT_GFX.S
+    MOVEQ   #25, d1
+    LEA.L   TEXT_NEXT, a0
 @TEXT_LOOP:
     JSR     CopyCharRAM
     DBRA    d1, @TEXT_LOOP
 
     MOVE.L  #BUFF_PLANE, d0
-    MOVE.W  #20*16, d1
+    MOVE.W  #16*20, d1 ; 16 chars in TEXT_GFX + 4 for cursor, 16 words per char
     MOVE.W  #VRAM_SPRITE_GFX, d2
     JSR     DMADump
 
-    ;VDP_ACCESS VDP_W_VRAM, VRAM_SPRITE_GFX
-    ;LEA.L   VDP_DATA, a1
-    ;LEA.L   GAME_CURSOR_V, a0
-    ;; copy top and centre
-    ;JSR     CopyChar
-    ;JSR     CopyChar
-    ;; copy a blank char
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;MOVE.L  #0, (a1)
-    ;; copy right
-    ;JSR     CopyChar
-
     ; initialize size and link data for P1 and P2 cursors
     MOVE.W  #$0501, (P1_SPRITE+2)
-    MOVE.W  #$0505, (P2_SPRITE+2)
+    MOVE.W  #$0507, (P2_SPRITE+2)
 
     ; initialize HUD text for P1
 
@@ -311,26 +293,48 @@ INIT_HUD:
     MOVE.W  #T_LLINES_CHAR, (a0)+
     MOVE.W  #T_LLINES_HPOS_1, (a0)+
 
+    ; upper 3 digits of score
+    MOVE.W  #SCORE_DGTS_VPOS, (a0)+
+    MOVE.W  #$0805, (a0)+ ; 3x1
+    MOVE.W  #P1_SCOREH_DGTS, (a0)+
+    MOVE.W  #SCORE_DGTS_HPOS_1, (a0)+
+    ; lower 3 digits of score
+    MOVE.W  #SCORE_DGTS_VPOS, (a0)+
+    MOVE.W  #$0C06, (a0)+ ; 4x1
+    MOVE.W  #P1_SCOREL_DGTS, (a0)+
+    MOVE.W  #SCORE_DGTS_HLOW_1, (a0)+
+
     ; initialize HUD text for P2
 
     ; "NEXT"
     LEA.L   P2_T_NEXT, a0
     MOVE.W  #T_NEXT_VPOS, (a0)+
-    MOVE.W  #$0C06, (a0)+ ; 4x1
+    MOVE.W  #$0C08, (a0)+ ; 4x1
     MOVE.W  #T_NEXT_CHAR, (a0)+
     MOVE.W  #T_NEXT_HPOS_2, (a0)+
 
     ; "SCORE"
     MOVE.W  #T_SCORE_VPOS, (a0)+
-    MOVE.W  #$0C07, (a0)+ ; 4x1
+    MOVE.W  #$0C09, (a0)+ ; 4x1
     MOVE.W  #T_SCORE_CHAR, (a0)+
     MOVE.W  #T_SCORE_HPOS_2, (a0)+
 
     ; "LIFE\nLINES"
     MOVE.W  #T_LLINES_VPOS, (a0)+
-    MOVE.W  #$0D08, (a0)+ ; 4x2
+    MOVE.W  #$0D0A, (a0)+ ; 4x2
     MOVE.W  #T_LLINES_CHAR, (a0)+
     MOVE.W  #T_LLINES_HPOS_2, (a0)+
+
+    ; upper 3 digits of score
+    MOVE.W  #SCORE_DGTS_VPOS, (a0)+
+    MOVE.W  #$080B, (a0)+ ; 3x1
+    MOVE.W  #P2_SCOREH_DGTS, (a0)+
+    MOVE.W  #SCORE_DGTS_HPOS_2, (a0)+
+    ; lower 3 digits of score
+    MOVE.W  #SCORE_DGTS_VPOS, (a0)+
+    MOVE.W  #$0C0C, (a0)+ ; 4x1
+    MOVE.W  #P2_SCOREL_DGTS, (a0)+
+    MOVE.W  #SCORE_DGTS_HLOW_2, (a0)+
 
     ; place empty sprite in buffer afterwards
     ; LEA.L   VAR_SPRITES, a0

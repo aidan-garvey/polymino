@@ -30,18 +30,27 @@ VBMAIN:
     MOVE.L  #BUFF_SPRITES, d0           ; source address
     MOVE.W  #VRAM_SPRITETBL_SIZE/2, d1  ; size of data (in words)
     MOVE.W  #VRAM_SPRITETBL, d2         ; VDP dest address
-    
     JSR     DMADump
 
     ; Dump plane buffer to VRAM
     MOVE.L  #BUFF_PLANE, d0             ; source address
     MOVE.W  #VRAM_SCROLLA_SIZE/2, d1    ; size of data in words
     MOVE.W  #VRAM_SCROLLA, d2           ; VDP dest address
+    JSR     DMADump
 
+    ; Dump player score buffers
+    MOVE.L  #SCORE_BUFF_1, d0
+    MOVE.W  #SCORE_BUFF_SIZE/2, d1
+    MOVE.W  #VRAM_SCORE_GFX_1, d2
+    JSR     DMADump
+
+    MOVE.L  #SCORE_BUFF_2, d0
+    MOVE.W  #SCORE_BUFF_SIZE/2, d1
+    MOVE.W  #VRAM_SCORE_GFX_2, d2
     JSR     DMADump
 
     ; perform other DMAs in queue
-    JSR     FlushDMAQueue
+    ; JSR     FlushDMAQueue
 
     ; horizontally scroll background
     ADD.W   #1, (BUFF_HSCROLLB)

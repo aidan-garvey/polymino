@@ -1,15 +1,17 @@
 
 ; For this game, each plane should only need to be big enough to
-; cover the screen, scrolling won't be necessary. So, each plane
-; is 64 x 32 cells = 2048 cells = $1000 bytes
+; cover the screen, so each plane is 64 x 32 cells = $1000 bytes
 VRAM_BLOCK_GFX = $0000
 VRAM_UI_GFX = $1000
 VRAM_BCKGND_GFX = $2000
 VRAM_SPRITE_GFX = $3000
+VRAM_SCORE_GFX_1 = $3280 ; P1_SCORE_DGTS
+VRAM_SCORE_GFX_2 = $3360 ; P2_SCORE_DGTS
 VRAM_SPRITETBL = $B800
 VRAM_HSCROLL = $BC00
 VRAM_WINDOW = $C000
 VRAM_SCROLLA = $C000
+; Free space: $D000 - $DFFF
 VRAM_SCROLLB = $E000
 
 VRAM_SPRITETBL_SIZE = $400
@@ -30,9 +32,6 @@ CURSOR_Y_OFF = 10
 JOY_H_TIMER_OFF = 12
 JOY_V_TIMER_OFF = 14
 UPDATED_OFF = 32
-; UP_RESET_OFF = 80
 TO_CLEAR_OFF = 80
-; TC_RESET_OFF = 130
-
-
+SCORE_BUFF_OFF = 128
 
