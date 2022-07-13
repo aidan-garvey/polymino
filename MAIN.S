@@ -143,13 +143,6 @@ GAME_LOOP:
     CLR.W   2(a0)
 @SKIP_JUNK_RESET:
 
-    ; clear flags to indicate things haven't happened this frame
-    ;MOVEQ   #0, d0
-    ;MOVE.W  d0, (UP_RESET_1)
-    ;MOVE.W  d0, (TC_RESET_1)
-    ;MOVE.W  d0, (UP_RESET_2)
-    ;MOVE.W  d0, (TC_RESET_2)
-
     ; needed addresses:
     LEA.L   PLAYER_1_DATA, a1   ; start of board for P1
     LEA.L   GAME_STATE_1, a2      ; start of game state for P1

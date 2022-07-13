@@ -13,64 +13,6 @@
 ; C: 3 bits for colour
 ; I: 8-bit junk piece ID if J
 
-; ========================================
-; RESET_UPDATED
-; ----------------------------------------
-; If UP_RESET is false, set to true and
-; clear all flags in UPDATED_1 / UPDATED_2
-; ----------------------------------------
-; Parameters:
-;   a2 - points to game state
-; Thrashed:
-;   none
-; ========================================
-;RESET_UPDATED:
-;    TST.W   (UP_RESET_OFF, a2)
-;    BNE     @RESET_UPDATED_RET
-
-;    MOVE.W  #$FFFF, (UP_RESET_OFF, a2)
-;    PUSH    a0/d0-d1
-;    MOVE.L  a2, a0
-;    ADDA.W  #UPDATED_OFF, a0
-;    MOVEQ   #11, d0
-;    MOVEQ   #0, d1
-;@RESET_UPDATED_LOOP:
-;    MOVE.L  d1, (a0)+
-;    DBRA    d0, @RESET_UPDATED_LOOP
-
-;    POP     a0/d0-d1
-;@RESET_UPDATED_RET:
-;    RTS
-
-; ==========================================
-; RESET_TO_CLEAR
-; ------------------------------------------
-; If TC_RESET is false, set to true and
-; clear all flags in TO_CLEAR_1 / TO_CLEAR_2
-; ------------------------------------------
-; Parameters:
-;   a2 - points to game state
-; Thrashed:
-;   none
-; ==========================================
-;RESET_TO_CLEAR:
-;    TST.W   (TC_RESET_OFF, a2)
-;    BNE     @RESET_TO_CLEAR_RET
-
-;    MOVE.W  #$FFFF, (TC_RESET_OFF, a2)
-;    PUSH    a0/d0-d1
-;    MOVE.L  a2, a0
-;    ADDA.W  #TO_CLEAR_OFF, a0
-;    MOVEQ   #11, d0
-;    MOVEQ   #0, d1
-;@RESET_TO_CLEAR_LOOP:
-;    MOVE.L  d1, (a0)+
-;    DBRA    d0, @RESET_TO_CLEAR_LOOP
-
-;    POP     a0/d0-d1
-;@RESET_TO_CLEAR_RET:
-;    RTS
-
 ; ===============================================
 ; GENERATE_ROWS
 ; -----------------------------------------------
@@ -243,7 +185,6 @@ PLAYER_ACTIONS:
     ; check for matches at swapped blocks
     TST.W   (a4)
     BEQ     @SKIP_CHECK_A_1
-    ; JSR     RESET_TO_CLEAR
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_1:
@@ -251,7 +192,6 @@ PLAYER_ACTIONS:
     ADDA.W  #2, a0
     TST.W   (a0)
     BEQ     @SKIP_CHECK_A_2
-    ; JSR     RESET_TO_CLEAR
     ADDQ    #1, d3
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_2:
@@ -279,10 +219,7 @@ PLAYER_ACTIONS:
     ADD.W   d2, d0
     ASL.W   #1, d0
     MOVE.L  a1, a4
-    ; MOVE.L  a1, a5
     ADDA.W  d0, a4
-    ; SUBI.W  #BOARD_WIDTH*2, d0
-    ; ADDA.W  d0, a5
     MOVE.L  a4, a5
     SUBA.W  #BOARD_WIDTH*2, a5
     ; don't allow a vertical swap b/w a falling block and a space
@@ -301,13 +238,11 @@ PLAYER_ACTIONS:
     ; check for matches at swapped blocks
     TST.W   (a4)
     BEQ     @SKIP_CHECK_B_1
-    ; JSR     RESET_TO_CLEAR
     MOVE.L  a4, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_1:
     TST.W   (a5)
     BEQ     @SKIP_CHECK_B_2
-    ; JSR     RESET_TO_CLEAR
     MOVE.L  a5, a0
     SUB.W   #1, d4
     JSR     CHECK_MATCH
@@ -463,7 +398,6 @@ CHECK_MATCH:
     ; >= 4 words is >= 2 blocks of space, is >= 2+1 blocks to clear
     LSR.W   #1, d1
     
-    ; **
     ; d2 will be x coordinate of leftmost block in the match
     MOVE.W  a1, d2
     SUB.W   a0, d2  ; d2 := address of left block - address of cursor
@@ -474,11 +408,7 @@ CHECK_MATCH:
     ADD.W   d4, a4
     ADD.W   d4, a4  ; a4 := pointer to word in TO_CLEAR for current row
     MOVE.W  (a4), d5; d5 := contents of TO_CLEAR for current row
-    ; **
 
-; @H_CLEAR_LOOP:
-;     CLR.W   (a1)+
-;     DBRA    d1, @H_CLEAR_LOOP
 @H_CLEAR_LOOP:
     BSET    d2, d5
     ADDQ    #1, d2
@@ -537,20 +467,12 @@ CHECK_MATCH:
     JSR     SPAWN_V_PROJ
 
     ; clear the blocks
-
-    ; **
-    ; d2 will be y coordinate of leftmost block in the match
-    ; MOVE.W  a1, d2
-    ; SUB.W   a0, d2  ; d2 := address of top block - address of cursor
-    ; ASR.W   #1, d2  ; d2 := pos of top block - pos of cursor
-    ; ADD.W   d4, d2  ; d2 := pos of top block
     MOVE.L  a2, a4
     ADD.W   #TO_CLEAR_OFF, a4
-    ADDA.W  d5, a4
+    ADDA.W  d5, a4  ; d5 is the pos of the top block, saved in CHECK_UP_LOOP
     ADDA.W  d5, a4  ; a4 := pointer to word in TO_CLEAR for current row
     LSR.W   #1, d1  ; d1 := BOARD_WIDTH * (MATCH_HEIGHT-1)
     ADD.W   #BOARD_WIDTH, d1 ;= BOARD_WIDTH * MATCH_HEIGHT
-    ; **
 
 @V_CLEAR_LOOP:
     MOVE.W  (a4), d5    ; d5 := current row in TO_CLEAR
@@ -559,11 +481,6 @@ CHECK_MATCH:
     SUB.W   #BOARD_WIDTH, d1
     BGT     @V_CLEAR_LOOP
 
-;@V_CLEAR_LOOP:
-;    CLR.W   (a1)
-;    ADDA.W  #BOARD_WIDTH*2, a1
-;    CMP.L   a1, a3
-;    BGE     @V_CLEAR_LOOP
 @NO_V_MATCH:
 @CHECK_MATCH_RET:
     POP     a1/a3-a4/d0-d5
@@ -581,8 +498,6 @@ CHECK_MATCH:
 ;   a2 - game state
 ; ==================================
 CLEAR_BLOCKS:
-    ; JSR     RESET_TO_CLEAR
-
     PUSH    a0-a1/d0-d2
     MOVE.L  a2, a0
     ADD.W   #TO_CLEAR_OFF, a0
