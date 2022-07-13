@@ -1,4 +1,6 @@
 
+; total chars: 16
+
 ; doesn't have its own palette, only uses 2 colors
 ; meant to use UI_PALETTE:
 ; 0: transparent
@@ -43,7 +45,7 @@ TEXT_NEXT:  ; 4x1 chars => 128B
     DC.L    $22222200
     DC.L    $21221210
     DC.L    $21221210
-    DC.L    $01221210
+    DC.L    $01221010
     
     DC.L    $00221000
     DC.L    $00221000
@@ -87,7 +89,7 @@ TEXT_SCORE: ; 4x1 chars => 128B
     ; E
     DC.L    $02222220
     DC.L    $00221121
-    DC.L    $10221202
+    DC.L    $10221201
     DC.L    $10222210
 
     DC.L    $00221210

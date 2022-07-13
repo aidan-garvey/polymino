@@ -132,25 +132,48 @@ DUMP_PALETTES_LOOP:
     RTS
 
 ; ----------------------------------
-; CopyChar:
+; CopyCharVRAM:
 ; Copy a single character into VRAM.
 ; For larger amount of chars, DMA
 ; should be used instead, especially
 ; during gameplay.
-; 
-; Parameters:
-; a0: starting address of first char
-; a1: address of VDP_DATA register
 ;
-; Thrashed: a0
+; Parameters:
+; a0: starting address of char
+; a1: address of VDP_DATA register
+;     or RAM destination
+;
+; Preconditions:
+;   VDP is ready to write to desired
+;   address.
+;
+; On exit:
+; a0: address after char
+; d0: -1
 ; ----------------------------------
-CopyChar:
+CopyCharVRAM:
+    MOVEQ   #7, d0
+@CCVLoop:
     MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
-    MOVE.L  (a0)+, (a1)
+    DBRA    d0, @CCVLoop
+    RTS
+
+; ---------------------------------
+; CopyCharRAM:
+; Copy a single character into RAM.
+;
+; Parameters:
+; a0: starting address of char
+; a1: destination address for char
+; 
+; On exit:
+; a0: address after source char
+; a1: address after written char
+; d0: -1
+; --------------------------------
+CopyCharRAM:
+    MOVEQ   #7, d0
+@CCRLoop:
+    MOVE.L  (a0)+, (a1)+
+    DBRA    d0, @CCRLoop
     RTS

@@ -4,7 +4,8 @@
 ; ****************************************
 ; Include files which don't take up memory
 ; ****************************************
-    INCLUDE CONST_GAME.S 
+    INCLUDE CONST_ADDR.S
+    INCLUDE CONST_GAME.S
     INCLUDE CONST_HW.S 
     INCLUDE RAM_MAP.S 
     INCLUDE MACROS.S
@@ -89,8 +90,10 @@ MAIN_INIT:
     JSR     RAND_SEED   ; initialize pseudorandom number generator
 
     JSR     INIT_BACKGROUND ; copy background to VRAM
+    JSR     INIT_HUD        ; initialize UI sprites for both players
+    ; must be done last since SCROLLA needs to be persistent
+    ; in BUFF_PLANE for the duration of a game
     JSR     INIT_SCROLLA
-    JSR     INIT_CURSOR ; initialize cursors for both players
 
     MOVE.L  #0, (MAIN_TICK) ; init main and frame tick, each is 2B
 
@@ -215,3 +218,4 @@ GAME_LOOP:
     INCLUDE UI_GFX.S 
     INCLUDE BLOCK_GFX.S 
     INCLUDE BCKGND_GFX.S
+    INCLUDE TEXT_GFX.S

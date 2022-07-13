@@ -30,9 +30,21 @@ DMA_QUEUE_END = $FF06A2 ; 12B: Space for queue overflow (1 extra cmd + LONG of z
 
 BUFF_PALETTES = $FF06B0 ; 128B: Palettes on screen
 BUFF_SPRITES = $FF0730  ; $400 Bytes: Sprite Table Buffer
+; player 1 HUD:
+HUD_SPRITES_1 = $FF0730
 P1_SPRITE = $FF0730     ; 8B: player 1 cursor
-P2_SPRITE = $FF0738     ; 8B: player 2 cursor
-VAR_SPRITES = $FF0740   ; Variable-length list of sprites
+P1_T_NEXT = $FF0738     ; 8B: "NEXT"
+P1_T_SCORE = $FF0740    ; 8B: "SCORE"
+P1_T_LLINES = $FF0748   ; 8B: "LIFE\nLINES"
+; player 2 HUD (if applicable):
+HUD_SPRITES_2 = $FF0750
+P2_SPRITE = $FF0750     ; 8B: player 2 cursor
+P2_T_NEXT = $FF0758     ; 8B: "NEXT"
+P2_T_SCORE = $FF0760    ; 8B: "SCORE"
+P2_T_LLINES = $FF0768   ; 8B: "LIFE\nLINES"
+; non-persistent sprites:
+VAR_SPRITES = $FF0770   ; Variable-length list of sprites
+
 BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
 BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)
                         ; 28 rows * 2 planes * 2 bytes = 112B
@@ -70,9 +82,7 @@ JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 ; 16B of free space
 UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
-; UP_RESET_1 = $FF3230    ; 2B: have update flags been refreshed this frame?
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
-; TC_RESET_1 = $FF3262    ; 2B: have TO_CLEAR flags been refreshed this frame?
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
@@ -86,8 +96,6 @@ JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 ; 16B free space
 UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
-; UP_RESET_2 = $FF4230    ; 2B: have update flags been refreshed this frame?
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
-; TC_RESET_2 = $FF4262    ; 2B: have TO_CLEAR flags been refreshed this frame?
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed, like DMA

@@ -235,29 +235,105 @@ INIT_SCROLLA:
 
     RTS
 
-INIT_CURSOR:
-    VDP_ACCESS VDP_W_VRAM, VRAM_SPRITE_GFX
-    LEA.L   VDP_DATA, a1
+; =====================================
+; INIT_HUD
+; -------------------------------------
+; Load HUD sprites into VRAM. Writes to
+; BUFF_PLANE before calling DMA.
+; =====================================
+INIT_HUD:
+    ; copy cursor chars
+    LEA.L   BUFF_PLANE, a1
     LEA.L   GAME_CURSOR_V, a0
     ; copy top and centre
-    JSR     CopyChar
-    JSR     CopyChar
+    JSR     CopyCharRAM
+    JSR     CopyCharRAM
     ; copy a blank char
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    MOVE.L  #0, (a1)
-    ; copy right
-    JSR     CopyChar
-    ; initialize size and link data for P1 and P2 cursors (remain constant)
+    MOVEQ   #7, d0
+@BLANK_LOOP_1:
+    MOVE.L  #0, (a1)+
+    DBRA    d0, @BLANK_LOOP_1
+    ; copy right char
+    JSR     CopyCharRAM
+
+    ; copy text chars
+    MOVEQ   #15, d1
+    LEA.L   TEXT_NEXT, a0 ; we're copying all, not just "NEXT"
+@TEXT_LOOP:
+    JSR     CopyCharRAM
+    DBRA    d1, @TEXT_LOOP
+
+    MOVE.L  #BUFF_PLANE, d0
+    MOVE.W  #20*16, d1
+    MOVE.W  #VRAM_SPRITE_GFX, d2
+    JSR     DMADump
+
+    ;VDP_ACCESS VDP_W_VRAM, VRAM_SPRITE_GFX
+    ;LEA.L   VDP_DATA, a1
+    ;LEA.L   GAME_CURSOR_V, a0
+    ;; copy top and centre
+    ;JSR     CopyChar
+    ;JSR     CopyChar
+    ;; copy a blank char
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;MOVE.L  #0, (a1)
+    ;; copy right
+    ;JSR     CopyChar
+
+    ; initialize size and link data for P1 and P2 cursors
     MOVE.W  #$0501, (P1_SPRITE+2)
-    MOVE.W  #$0502, (P2_SPRITE+2)
+    MOVE.W  #$0505, (P2_SPRITE+2)
+
+    ; initialize HUD text for P1
+
+    ; "NEXT"
+    LEA.L   P1_T_NEXT, a0
+    MOVE.W  #T_NEXT_VPOS, (a0)+
+    MOVE.W  #$0C02, (a0)+ ; 4x1
+    MOVE.W  #T_NEXT_CHAR, (a0)+
+    MOVE.W  #T_NEXT_HPOS_1, (a0)+
+
+    ; "SCORE"
+    MOVE.W  #T_SCORE_VPOS, (a0)+
+    MOVE.W  #$0C03, (a0)+ ; 4x1
+    MOVE.W  #T_SCORE_CHAR, (a0)+
+    MOVE.W  #T_SCORE_HPOS_1, (a0)+
+
+    ; "LIFE\nLINES"
+    MOVE.W  #T_LLINES_VPOS, (a0)+
+    MOVE.W  #$0D04, (a0)+ ; 4x2
+    MOVE.W  #T_LLINES_CHAR, (a0)+
+    MOVE.W  #T_LLINES_HPOS_1, (a0)+
+
+    ; initialize HUD text for P2
+
+    ; "NEXT"
+    LEA.L   P2_T_NEXT, a0
+    MOVE.W  #T_NEXT_VPOS, (a0)+
+    MOVE.W  #$0C06, (a0)+ ; 4x1
+    MOVE.W  #T_NEXT_CHAR, (a0)+
+    MOVE.W  #T_NEXT_HPOS_2, (a0)+
+
+    ; "SCORE"
+    MOVE.W  #T_SCORE_VPOS, (a0)+
+    MOVE.W  #$0C07, (a0)+ ; 4x1
+    MOVE.W  #T_SCORE_CHAR, (a0)+
+    MOVE.W  #T_SCORE_HPOS_2, (a0)+
+
+    ; "LIFE\nLINES"
+    MOVE.W  #T_LLINES_VPOS, (a0)+
+    MOVE.W  #$0D08, (a0)+ ; 4x2
+    MOVE.W  #T_LLINES_CHAR, (a0)+
+    MOVE.W  #T_LLINES_HPOS_2, (a0)+
+
     ; place empty sprite in buffer afterwards
-    LEA.L   P2_SPRITE+8, a0
+    ; LEA.L   VAR_SPRITES, a0
     MOVE.L  #0, (a0)+
     MOVE.L  #0, (a0)
 

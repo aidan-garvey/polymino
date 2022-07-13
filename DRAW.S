@@ -66,7 +66,7 @@ DRAW_INFO:
 DRAW_CURSOR:
     ; LEA.L   VDP_DATA, a0
     MOVEA.L a5, a0
-    MOVE.W  #$1000+SPRITE_GFX_CHAR, d1 ; pri = 0, pal = 0,
+    MOVE.W  #$1000+CURSOR_CHAR, d1 ; pri = 0, pal = 0,
                         ; vflip = 1, hflip = 0, gfx location
     ; cursor sprite
     ; VDP_ACCESS VDP_W_VRAM, VRAM_SPRITETBL
