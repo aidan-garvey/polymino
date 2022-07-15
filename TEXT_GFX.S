@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; TEXT_GFX.S
+; Graphics for text, both whole phrases and individual characters.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; total chars: 26
 
 ; doesn't have its own palette, only uses 2 colors

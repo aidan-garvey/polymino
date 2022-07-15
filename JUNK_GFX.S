@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; JUNK_GFX.S
+; Graphics for the junk pieces that the player must shatter.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; gray junk uses the UI palette, the others use the blocks palette
 
 JUNK_DARK EQU 6

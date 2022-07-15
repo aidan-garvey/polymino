@@ -1,11 +1,10 @@
-; ******************
-; INTERRUPT HANDLING
-; ------------------
-; Code that gets
-; executed upon an
-; interrupt occuring
-; (see ROM header)
-; ******************
+
+; *****************************************************************
+; INTERRUPT.S
+; Interrupt routines, mainly for the vertical blanking interrupt.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
 
 ; ------------------------
 ; VERTICAL BLANK INTERRUPT

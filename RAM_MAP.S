@@ -1,13 +1,10 @@
-; *******************
-; ***** RAM MAP *****
-; -------------------
-;  Allocation of RAM
-; ($FF0000 - $FFFFFF)
-; *******************
 
-; as defined in HW_CONST:
-; RAM_BASE = $FF0000
-; RAM_SIZE = $10000
+; *****************************************************************
+; RAM_MAP.S
+; Addresses for all data stored in work RAM.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
 
 STACK_END = $FF0400     ; 1KB stack
 VBLANKON = $FF0400      ; WORD: Has VBlank routine finished?

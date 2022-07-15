@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; UI_GFX.S
+; Grahpics for the user interface / game borders.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 UI_PALETTE:
 ;             BGR
     DC.W    $0000   ; 0: black/transparent

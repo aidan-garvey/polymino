@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; BLOCK_GFX.S
+; Graphics for the blocks the player interacts with in the game.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; Use as palette 1
 BLOCK_PALETTE:
     DC.W    $0000   ; 0

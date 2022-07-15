@@ -1,26 +1,10 @@
-; *******************
-;  * DMA ROUNTINES *
-; -------------------
-; Routines for adding
-; DMA requests to a
-; queue in RAM and
-; passing requests
-; from the queue to
-; the VDP.
-; *******************
 
-; ---- NOTE: ------------------------------------
-; For now, all of this code should be able to
-; stay in ROM. The Genesis manual says that to
-; avoid failure, the destination address must be
-; 2 word writes and either (1) the DMA code
-; itself is in RAM or (2) the final write to
-; VDP_CTRL is from work RAM. Since the queued
-; commands are stored in RAM, I believe this
-; code can be in ROM. However, if DMA starts
-; failing, copying this code to RAM is a possible
-; fix.
-; -----------------------------------------------
+; *****************************************************************
+; DMA.S
+; Subroutines for enqueuing and performing DMA requests.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
 
 ; ---- NOTE: --------------------------------------
 ; Having a0 be the next empty DMA queue space might

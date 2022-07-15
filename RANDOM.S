@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; RANDOM.S
+; Pseudo-random number generator, must be seeded before use.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; Seed the random number generator
 ; Thrashes d0-d2
 RAND_SEED:

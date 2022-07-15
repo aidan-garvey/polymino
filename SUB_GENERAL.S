@@ -1,10 +1,10 @@
-; *******************
-; GENERAL SUBROUTINES
-; -------------------
-; General purpose
-; subroutines, not
-; game-specific.
-; *******************
+
+; *********************************************************************
+; SUB_GENERAL.S
+; General purpose subroutines intended to be usable for multiple games.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *********************************************************************
 
 ; ---------------------------
 ; CLEAR_CRAM: clears all CRAM

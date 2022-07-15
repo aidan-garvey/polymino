@@ -1,3 +1,11 @@
+
+; *****************************************************************
+; INPUT.S
+; Subroutine for reading joypad inputs from both ports.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 READ_INPUT:
     REMOVE_Z80
     BSR.B   @READ_BOTH

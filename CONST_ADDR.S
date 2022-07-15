@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; CONST_ADDR.S
+; VRAM addresses and RAM address offsets used throughout the game.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; For this game, each plane should only need to be big enough to
 ; cover the screen, so each plane is 64 x 32 cells = $1000 bytes
 VRAM_BLOCK_GFX = $0020

@@ -1,9 +1,10 @@
-; ***************************
-; ********* BOARD.S *********
-; ---------------------------
-; Contains subroutines for
-; operating on the game board
-; ***************************
+
+; *****************************************************************
+; BOARD.S
+; Contains subroutines for manipulating on the game board.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
 
 ; Format of each cell in the board:
 ; JN-- -CCC IIII IIII

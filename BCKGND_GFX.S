@@ -1,4 +1,11 @@
 
+; *******************************************************************
+; BCKGND_GFX.S
+; Contains graphics for the game's backgrounds shown during gameplay.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *******************************************************************
+
 BCKGND_NIGHT_PAL:
             ; BGR
     DC.W    $0000 ; 0: black/transparent

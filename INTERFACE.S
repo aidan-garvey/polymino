@@ -1,10 +1,10 @@
-; *******************
-; **** INTERFACE ****
-; -------------------
-; Subroutines for the
-; user interface and
-; background
-; *******************
+
+; *******************************************************************
+; INTERFACE.S
+; Subroutines for initializing different parts of the user interface.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *******************************************************************
 
 SCROLLA_FILLER:
     MOVEQ   #11, d4

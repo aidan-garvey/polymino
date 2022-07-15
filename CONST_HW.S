@@ -1,11 +1,10 @@
-; *******************************
-; SEGA GENESIS HARDWARE CONSTANTS
-; -------------------------------
-; Locations of various registers
-; and memory locations in the
-; Genesis, as well as important
-; numerical values.
-; *******************************
+
+; *****************************************************************
+; CONST_HW.S
+; Addresses and values pertaining to the Genesis hardware.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
 
 ; --------------
 ; 68K SYSTEM I/O

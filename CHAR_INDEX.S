@@ -1,4 +1,12 @@
 
+; *****************************************************************
+; CHAR_INDEX.S
+; Constants used for pattern generator indices. Calculated from
+; constants contained in CONST_ADDR.S
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 BLOCK_GFX_CHAR = VRAM_BLOCK_GFX/32
 JUNK_GFX_CHAR = VRAM_JUNK_GFX/32
 UI_GFX_CHAR = VRAM_UI_GFX/32

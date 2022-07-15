@@ -1,13 +1,10 @@
-; ******************
-;   **  MACROS  **  
-; ------------------
-; General-purpose
-; macros for common
-; tasks including
-; taking the Z80 off
-; the bus or waiting
-; for DMA or VBLANK.
-; ******************
+
+; *****************************************************************
+; MACROS.S
+; Assembler macros used throughout the source code.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
 
 ; Wait for VDP to finish queued DMA tasks
 WAIT_DMA: MACRO

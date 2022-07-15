@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; SPRITES.S
+; Subroutines for creating and updating game sprites.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; ===========================
 ; SPAWN_V_PROJ
 ; ---------------------------

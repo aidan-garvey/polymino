@@ -1,4 +1,11 @@
 
+; ********************************************************************
+; CONST_GAME.S
+; Constant values that don't fit into other CONST files or CHAR_INDEX.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; ********************************************************************
+
 BOARD_HEIGHT = 24 ; in cells
 BOARD_WIDTH = 10 ; in cells
 BOARD_SIZE = 480 ; size of board in bytes
