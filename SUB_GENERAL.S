@@ -153,9 +153,9 @@ DUMP_PALETTES_LOOP:
 ; ----------------------------------
 CopyCharVRAM:
     MOVEQ   #7, d0
-@CCVLoop:
+@CCVRAMLoop:
     MOVE.L  (a0)+, (a1)
-    DBRA    d0, @CCVLoop
+    DBRA    d0, @CCVRAMLoop
     RTS
 
 ; ---------------------------------
@@ -173,7 +173,7 @@ CopyCharVRAM:
 ; --------------------------------
 CopyCharRAM:
     MOVEQ   #7, d0
-@CCRLoop:
+@CCRAMLoop:
     MOVE.L  (a0)+, (a1)+
-    DBRA    d0, @CCRLoop
+    DBRA    d0, @CCRAMLoop
     RTS

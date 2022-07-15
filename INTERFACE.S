@@ -17,7 +17,7 @@ SCROLLA_FILLER:
 ; INIT_WINDOW
 ; ---------------------
 ; Copy patterns to VRAM
-; for the WINDOW layer.
+; for SCROLLA
 ; ---------------------
 ; Thrashed:
 ;   d0-d6
@@ -298,7 +298,7 @@ INIT_HUD:
     MOVE.W  #$0805, (a0)+ ; 3x1
     MOVE.W  #P1_SCOREH_DGTS, (a0)+
     MOVE.W  #SCORE_DGTS_HPOS_1, (a0)+
-    ; lower 3 digits of score
+    ; lower 4 digits of score
     MOVE.W  #SCORE_DGTS_VPOS, (a0)+
     MOVE.W  #$0C06, (a0)+ ; 4x1
     MOVE.W  #P1_SCOREL_DGTS, (a0)+
@@ -330,7 +330,7 @@ INIT_HUD:
     MOVE.W  #$080B, (a0)+ ; 3x1
     MOVE.W  #P2_SCOREH_DGTS, (a0)+
     MOVE.W  #SCORE_DGTS_HPOS_2, (a0)+
-    ; lower 3 digits of score
+    ; lower 4 digits of score
     MOVE.W  #SCORE_DGTS_VPOS, (a0)+
     MOVE.W  #$0C0C, (a0)+ ; 4x1
     MOVE.W  #P2_SCOREL_DGTS, (a0)+
@@ -346,8 +346,8 @@ INIT_HUD:
 INIT_BACKGROUND:
     ; load star graphics into VRAM
     MOVE.L  #BCKGND_NIGHT_CHARS, d0 ; address
-    MOVE.W  #32, d1     ; 16 words * 2 chars
-    MOVE.W  #$2000, d2  ; start at tile $100 (address $2000)
+    MOVE.W  #32, d1                 ; 16 words * 2 chars
+    MOVE.W  #VRAM_BCKGND_GFX, d2    ; start at tile $100 (address $2000)
     JSR     DMADump
 
     ; *******************************
@@ -416,4 +416,127 @@ INIT_BACKGROUND:
     JSR     DMADump
 
     RTS
+
+; ===========================
+; INIT_JUNK
+; ---------------------------
+; Generate characters for the
+; junk pieces and copy them
+; to VRAM. The existing chars
+; in ROM are for gray junk,
+; so this code makes modified
+; copies in different colors.
+; ===========================
+INIT_JUNK:
+    ; chars will be put in RAM before DMA
+    
+    ; gray is ready to be used as-is
+    LEA.L   BUFF_PLANE, a1
+    LEA.L   JUNK_CHARS, a0
+    JSR     CopyCharRAM
+    JSR     CopyCharRAM
+    JSR     CopyCharRAM
+    JSR     CopyCharRAM
+
+    ; blue
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$9, d0
+    MOVE.W  #$1, d1
+    BSR     @INIT_JUNK_SR
+
+    ; red
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$A, d0
+    MOVE.W  #$2, d1
+    BSR     @INIT_JUNK_SR
+
+    ; green
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$B, d0
+    MOVE.W  #$3, d1
+    BSR     @INIT_JUNK_SR
+
+    ; yellow
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$C, d0
+    MOVE.W  #$4, d1
+    BSR     @INIT_JUNK_SR
+
+    ; orange
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$D, d0
+    MOVE.W  #$5, d1
+    BSR     @INIT_JUNK_SR
+
+    ; violet
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$E, d0
+    MOVE.W  #$6, d1
+    BSR     @INIT_JUNK_SR
+
+    ; teal
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$F, d0
+    MOVE.W  #$7, d1
+    BSR     @INIT_JUNK_SR
+
+    ; dark green
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$8, d0
+    MOVE.W  #$B, d1
+    BSR     @INIT_JUNK_SR
+
+    ; dma characters to VRAM
+    MOVE.L  #BUFF_PLANE, d0
+    MOVE.W  #VRAM_JUNK_SIZE/2, d1
+    MOVE.W  #VRAM_JUNK_GFX, d2
+    JSR     DMADump
+
+    ; dma patterns to VRAM
+
+    RTS
+
+; a0 points to source character
+; a1 points to destination
+; d0 contains the color to replace dark gray with
+; d1 contains the color to replace light gray with
+@INIT_JUNK_SR:
+    ; for 8 long words -> d7
+        ; copy long to data register -> d2
+        ; clear another data register to be our destination -> d3
+        ; for 8 groups of 4 bits -> d6
+            ; transfer 4 bits to another data reg -> d4
+            ; compare with dark/light
+            ; OR d0/d1 with dest register
+            ; shift source right by 4, rotate dest right by 4
+        ; copy dest register to (a1)+
+    
+    ; for 4 chars * 8 long words
+    MOVEQ   #31, d7
+@IJ_CHAR_LOOP:
+        MOVE.L  (a0)+, d2   ; d2 := source row
+        MOVEQ   #0, d3      ; d3 modified source row
+        MOVEQ   #0, d4      ; d4 is for intermediate comparisons
+        ; for 8 4-bit pixels
+        MOVEQ   #7, d6
+@IJ_ROW_LOOP:
+            MOVE.B  d2, d4
+            ANDI.B  #$0F, d4    ; d4 := current pixel
+            CMPI.B  #JUNK_DARK, d4
+            BEQ     @IJ_DARK
+            OR.B    d1, d3      ; copy light pixel
+            BRA     @IJ_ROW_STEP
+@IJ_DARK:
+            OR.B    d0, d3      ; copy dark pixel
+@IJ_ROW_STEP:
+            LSR.L   #4, d2      ; get next pixel in lower 4 bits
+            ROR.L   #4, d3      ; do same for d3, but preserve bits
+            DBRA    d6, @IJ_ROW_LOOP
+        MOVE.L  d3, (a1)+
+        DBRA    d7, @IJ_CHAR_LOOP
+    RTS
+
+    
+
+
 

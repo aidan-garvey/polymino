@@ -8,8 +8,8 @@ UI_PALETTE:
 
     DC.W    $0A46   ; 4: royal purple
     DC.W    $0E84   ; 5: light blue
-    DC.W    $0000   ; 6: black
-    DC.W    $0EEE
+    DC.W    $0666   ; 6: dark gray
+    DC.W    $0888   ; 7: light gray
 
     ; dotted lines, colours will be swapped to create movement effect
     DC.W    $048A
@@ -59,7 +59,7 @@ GAME_CURSOR_H:
     
 UI_BRDR_CHARS:
     ; expected position in VRAM: $1000 (char 80)
-NUM_UI_CHARS = 7
+NUM_UI_CHARS EQU 7
 UI_BRDR_CORNER_C:   ; 80
     ; top-left corner
     DC.L    $55555555
@@ -132,26 +132,15 @@ UI_FILLER_C:        ; 85
     DC.L    $55555555
 
 UI_DITHER_C:        ; 86
-    DC.L    $66660660
-    DC.L    $60006660
-    DC.L    $06666606
-    DC.L    $06606066
+    DC.L    $11110110
+    DC.L    $10001110
+    DC.L    $01111101
+    DC.L    $01101011
     
-    DC.L    $66060660
-    DC.L    $60666660
-    DC.L    $06660006
-    DC.L    $06606666
-
-; UI_DITHER_C:        ; 86
-    DC.L    $00660066
-    DC.L    $06600660
-    DC.L    $66006600
-    DC.L    $60066006
-    
-    DC.L    $00660066
-    DC.L    $06600660
-    DC.L    $66006600
-    DC.L    $60066006
+    DC.L    $11010110
+    DC.L    $10111110
+    DC.L    $01110001
+    DC.L    $01101111
 
 UI_BRDR_PAT:
 

@@ -49,13 +49,13 @@ MAIN_INIT:
 
     JSR     DUMP_PALETTES
 
-    ; background: palette 0, color 6 (color of SCROLLA mask)
-    VDP_REG 7, $06
+    ; background: palette 0, color 1 (color of SCROLLA mask)
+    VDP_REG 7, $01
 
     ; load block graphics into VRAM
     MOVE.L  #BLOCK_CHARS, d0    ; address
     MOVE.W  #16*8, d1           ; 16 words * 8 chars
-    MOVE.W  #$20, d2            ; start at tile 1 (address $20)
+    MOVE.W  #VRAM_BLOCK_GFX, d2 ; start at tile 1 (address $20)
     JSR     DMADump
 
     ; temporary hard-coded game setup
@@ -91,6 +91,7 @@ MAIN_INIT:
 
     JSR     INIT_BACKGROUND ; copy background to VRAM
     JSR     INIT_HUD        ; initialize UI sprites for both players
+    JSR     INIT_JUNK       ; generate chars for junk, copy to VRAM
     ; must be done last since SCROLLA needs to be persistent
     ; in BUFF_PLANE for the duration of a game
     JSR     INIT_SCROLLA
@@ -220,3 +221,4 @@ GAME_LOOP:
     INCLUDE BLOCK_GFX.S 
     INCLUDE BCKGND_GFX.S
     INCLUDE TEXT_GFX.S
+    INCLUDE JUNK_GFX.S
