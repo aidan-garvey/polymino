@@ -88,6 +88,7 @@ MAIN_INIT:
     MOVE.W  #0, (a0)+   ; counter for above
     MOVE.W  #40, (a0)+  ; physics updates b/w junk
     MOVE.W  #0, (a0)+   ; counter for above
+    MOVE.W  #0, (a0)+   ; game is not paused
 
     ; p1:
     LEA.L   NEW_ROWS_1, a0
@@ -149,6 +150,12 @@ MAIN_LOOP:
 ; are caller-saved and address registers are callee-saved.
 ; =========================================================
 GAME_LOOP:
+    JSR     UPDATE_PAUSED
+
+    ; if game is paused, do not update anything else
+    TST.W   (GAME_PAUSED)
+    BNE     @GAME_LOOP_END
+
     ; update timers
     LEA.L   UPDATE_TIMER, a0
     ADD.W   #1, (a0)
@@ -224,11 +231,13 @@ GAME_LOOP:
     ; write digit characters to where score sprites get their chars
     JSR     DRAW_SCORE
 
+@GAME_LOOP_END:
     RTS
 
 ; ***********
 ; SUBROUTINES
 ; ***********
+    INCLUDE MENUS.S
     INCLUDE INTERFACE.S
     INCLUDE BOARD.S 
     INCLUDE DRAW.S 

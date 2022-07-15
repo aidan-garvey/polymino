@@ -51,7 +51,10 @@ VBMAIN:
     ; perform other DMAs in queue
     ; JSR     FlushDMAQueue
 
-    ; horizontally scroll background
+    ; scroll background if game is not paused
+    TST.W   (GAME_PAUSED)
+    BNE     @SKIP_B_SCROLL
+    
     ADD.W   #1, (BUFF_HSCROLLB)
     MOVE.W  (BUFF_HSCROLLB), d0
     LSR.W   #SCROLL_DIV, d0
@@ -61,6 +64,7 @@ VBMAIN:
     VDP_ACCESS VDP_W_VSRAM, 2
     MOVE.W  d0, (VDP_DATA)
 
+@SKIP_B_SCROLL:
     ADD.W   #1, (FRAME_TICK)
 
     POP     a0-a2/d0-d3

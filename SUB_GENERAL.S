@@ -47,45 +47,19 @@ CLEAR_VRAM:
     MOVE.L  #$800-1, d0     ; $800 = VRAM size in bytes * (LW/B) / number of writes per loop
     LEA.L   VDP_DATA, a0    ;      = $1 0000 * 1/4 / 8 = $800
 CL_VRAM_LOOP:
-    MOVE.L  d1, (a0)    ; Doing 1 write per loop would mean
-    MOVE.L  d1, (a0)    ; looping $4000 (16 284) times, which
-    MOVE.L  d1, (a0)    ; would be much slower since it takes
-    MOVE.L  d1, (a0)    ; time to execute a loop instruction.
-    MOVE.L  d1, (a0)    ; Writing 8 times per loop means we
-    MOVE.L  d1, (a0)    ; only have to execute the loop $800
-    MOVE.L  d1, (a0)    ; (2 048) times while still not using
-    MOVE.L  d1, (a0)    ; too much space in ROM with code.
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
+    MOVE.L  d1, (a0)
     
     DBRA    d0, CL_VRAM_LOOP
     
     RTS
 
-; ----------------------------------
-; CL_VRAM_BLOCK
-; Clear a chunk of VRAM of any size,
-; starting at any point
-;
-; Parameters:
-; d0.W: starting VRAM address
-; d1.W: number of bytes to clear
-; Thrashed: d0-d1, a0
-; ----------------------------------
-;CL_VRAM_BLOCK:
-    ; set up VDP to write to VRAM at offset in d0
-    ;VDP_ACCESS_REG VDP_W_VRAM, d0
-    ; now we will use d0 as the empty data
-    ;MOVEQ   #0, d0
-    ; convert number of bytes to clear into number of longs
-    ;LSR.L   #2, d1  ; divide by 4 (i.e. 2^2)
-    ;SUB.L   #1, d1  ; since loop counts 0th iteration, subtract 1
-    ;LEA.L   VDP_DATA, a0
-    ; write zeroes to VRAM for given number of bytes
-;@CL_VRAM_LOOP:
-    ;MOVE.L  d0, (a0)
-    ;DBRA    d0, @CL_VRAM_LOOP
-    
-    ;RTS
-    
 ; -------------------------------------
 ; LOAD_PALETTE:
 ; Load a colour palette into colour
