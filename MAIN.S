@@ -39,11 +39,12 @@ MAIN_INIT:
     MOVEQ   #1, d0
     JSR     LOAD_PALETTE
 
-    ; palettes 2, 3: UI (temporary)
+    ; palettes 2: blocks (temporary)
     LEA.L   BLOCK_PALETTE, a0
     MOVEQ   #2, d0
     JSR     LOAD_PALETTE
 
+    ; palette 3: background
     LEA.L   BCKGND_NIGHT_PAL, a0
     MOVEQ   #3, d0
     JSR     LOAD_PALETTE
