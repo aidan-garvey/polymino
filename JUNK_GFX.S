@@ -52,3 +52,6 @@ JUNK_CHARS:
     DC.L    $77677777
     DC.L    $77777777
 
+JUNK_PATTERNS:
+    
+

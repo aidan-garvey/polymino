@@ -24,7 +24,6 @@ BLOCK_PALETTE:
 ; ----------
 ; CHARACTERS
 ; ----------
-; Copy into VRAM starting at $20 ($0 is blank)
 BLOCK_CHARS:
 BLOCK_BLUE:
     DC.L    $99999999
@@ -119,18 +118,18 @@ BLOCK_DGREEN:
 ; --------
 BLOCK_PATTERNS:
 PAT_BLUE:
-    DC.W    $2001
+    DC.W    $2000|BLOCK_GFX_CHAR
 PAT_RED:
-    DC.W    $2002
+    DC.W    $2000|BLOCK_GFX_CHAR+1
 PAT_GREEN:
-    DC.W    $2003
+    DC.W    $2000|BLOCK_GFX_CHAR+2
 PAT_YELLOW:
-    DC.W    $2004
+    DC.W    $2000|BLOCK_GFX_CHAR+3
 PAT_ORANGE:
-    DC.W    $2005
+    DC.W    $2000|BLOCK_GFX_CHAR+4
 PAT_VIOLET:
-    DC.W    $2006
+    DC.W    $2000|BLOCK_GFX_CHAR+5
 PAT_TEAL:
-    DC.W    $2007
+    DC.W    $2000|BLOCK_GFX_CHAR+6
 PAT_PINK:
-    DC.W    $2008
+    DC.W    $2000|BLOCK_GFX_CHAR+7

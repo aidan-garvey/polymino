@@ -145,31 +145,43 @@ UI_DITHER_C:        ; 86
 UI_BRDR_PAT:
 
 UI_BRDR_TL:
-    DC.W    $0080
+    ; DC.W    $0080
+    DC.W    $0000|UI_GFX_CHAR
 UI_BRDR_TR:
-    DC.W    $0880
+    ; DC.W    $0880
+    DC.W    $0800|UI_GFX_CHAR
 UI_BRDR_BL:
-    DC.W    $1080
+    ; DC.W    $1080
+    DC.W    $1000|UI_GFX_CHAR
 UI_BRDR_BR:
-    DC.W    $1880
-
+    ; DC.W    $1880
+    DC.W    $1800|UI_GFX_CHAR
 UI_BRDR_3WAY_U:
-    DC.W    $0081
+    ; DC.W    $0081
+    DC.W    $0000|UI_GFX_CHAR+1
 UI_BRDR_3WAY_D:
-    DC.W    $1081
+    ; DC.W    $1081
+    DC.W    $1000|UI_GFX_CHAR+1
 
 UI_EDGE_L:
-    DC.W    $0082
+    ; DC.W    $0082
+    DC.W    $0000|UI_GFX_CHAR+2
 UI_EDGE_R:
-    DC.W    $0882
+    ; DC.W    $0882
+    DC.W    $0800|UI_GFX_CHAR+2
 UI_EDGE_B:
-    DC.W    $0083
+    ; DC.W    $0083
+    DC.W    $0000|UI_GFX_CHAR+3
 UI_EDGE_T:
-    DC.W    $1083
+    ; DC.W    $1083
+    DC.W    $1000|UI_GFX_CHAR+3
 UI_SEP_V:
-    DC.W    $0084
+    ; DC.W    $0084
+    DC.W    $0000|UI_GFX_CHAR+4
 
 UI_FILLER:
-    DC.W    $0085
+    ; DC.W    $0085
+    DC.W    $0000|UI_GFX_CHAR+5
 UI_DITHER:
-    DC.W    $0086
+    ; DC.W    $0086
+    DC.W    $0000|UI_GFX_CHAR+6

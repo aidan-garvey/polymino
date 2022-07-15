@@ -24,7 +24,6 @@ BCKGND_NIGHT_PAL:
 ; ----------
 ; CHARACTERS
 ; ----------
-; expected position in VRAM: $2000 (char $100)
 
 BCKGND_NIGHT_CHARS:
     ; 0: LARGE DOT
@@ -49,34 +48,13 @@ BCKGND_NIGHT_CHARS:
     DC.L    $00000000
     DC.L    $00000000
 
-    ; 0: LARGE STAR
-    ; DC.L    $00040000
-    ; DC.L    $00040000
-    ; DC.L    $00424000
-    ; DC.L    $44212440
-    ; DC.L    $00424000
-    ; DC.L    $00040000
-    ; DC.L    $00040000
-    ; DC.L    $00000000
-
-    ; 1: SMALL STAR
-    ; DC.L    $00000000
-    ; DC.L    $00500000
-    ; DC.L    $05350000
-    ; DC.L    $00500000
-    ; DC.L    $00000000
-    ; DC.L    $00000000
-    ; DC.L    $00000000
-    ; DC.L    $00000000
-
 ; --------
 ; PATTERNS
 ; --------
 ; uses palette 3
-; uses chars starting at cell $100
 
 LARGE_STAR_PATTERN:
-    DC.W    $6100
+    DC.W    $6000|BCKGND_GFX_CHAR
 SMALL_STAR_PATTERN:
-    DC.W    $6101
+    DC.W    $6000|BCKGND_GFX_CHAR+1
 
