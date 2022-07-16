@@ -22,11 +22,11 @@
 ; ****************************************
 ; Include files which don't take up memory
 ; ****************************************
+    INCLUDE RAM_MAP.S
     INCLUDE CONST_ADDR.S
     INCLUDE CONST_GAME.S
-    INCLUDE CONST_HW.S 
+    INCLUDE CONST_HW.S
     INCLUDE CHAR_INDEX.S
-    INCLUDE RAM_MAP.S 
     INCLUDE MACROS.S
 
 ; **********************
@@ -91,22 +91,28 @@ MAIN_INIT:
     MOVE.W  #0, (a0)+   ; game is not paused
 
     ; p1:
-    LEA.L   NEW_ROWS_1, a0
-    MOVE.W  #6, (a0)+       ; starting rows
+    LEA.L   GAME_STATE_1, a0
+    MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #$0123456, (a0)+; bcd score
     MOVE.W  #3, (a0)+       ; lifelines
-    MOVE.W  #1, (a0)+       ; cursor x
-    MOVE.W  #1, (a0)+       ; cursor y
+    MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
+    MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
+    LEA.L   NEXT_JUNKID_1, a0
+    MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
+    MOVE.W  #0, (a0)+       ; index of next junk piece type
 
     ; p2:
-    LEA.L   NEW_ROWS_2, a0
-    MOVE.W  #4, (a0)+       ; starting rows
+    LEA.L   GAME_STATE_2, a0
+    MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #$9876543, (a0)+; bcd score
-    MOVE.W  #4, (a0)+       ; lifelines
-    MOVE.W  #9, (a0)+       ; cursor x
-    MOVE.W  #23, (a0)+      ; cursor y
+    MOVE.W  #3, (a0)+       ; lifelines
+    MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
+    MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
+    LEA.L   NEXT_JUNKID_2, a0
+    MOVE.W  #0, (a0)+       ; id of next junk
+    MOVE.W  #0, (a0)+       ; index of next junk piece type
 
     JSR     RAND_SEED   ; initialize pseudorandom number generator
 
@@ -176,7 +182,7 @@ GAME_LOOP:
 
     ; needed addresses:
     LEA.L   PLAYER_1_DATA, a1   ; start of board for P1
-    LEA.L   GAME_STATE_1, a2      ; start of game state for P1
+    LEA.L   GAME_STATE_1, a2    ; start of game state for P1
     LEA.L   JOY1, a3            ; joypad inputs for P1
     LEA.L   BUFF_PLANE+BOARD1_OFFSET, a4 ; scroll plane buffer for P1's board
     LEA.L   P1_SPRITE, a5
@@ -251,3 +257,4 @@ GAME_LOOP:
     INCLUDE BCKGND_GFX.S
     INCLUDE TEXT_GFX.S
     INCLUDE JUNK_GFX.S
+    INCLUDE JUNK_PIECES.S
