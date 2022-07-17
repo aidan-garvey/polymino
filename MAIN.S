@@ -87,7 +87,7 @@ MAIN_INIT:
     MOVE.W  #15, (a0)+  ; frames b/w physics updates
     MOVE.W  #0, (a0)+   ; counter for above
     MOVE.W  #40, (a0)+  ; physics updates b/w junk
-    MOVE.W  #0, (a0)+   ; counter for above
+    ; MOVE.W  #0, (a0)+   ; counter for above
     MOVE.W  #0, (a0)+   ; game is not paused
 
     ; p1:
@@ -98,7 +98,8 @@ MAIN_INIT:
     MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
-    LEA.L   NEXT_JUNKID_1, a0
+    LEA.L   JUNK_TIMER_1, a0
+    MOVE.W  #0, (a0)+       ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
     MOVE.W  #0, (a0)+       ; index of next junk piece type
 
@@ -110,7 +111,8 @@ MAIN_INIT:
     MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
-    LEA.L   NEXT_JUNKID_2, a0
+    LEA.L   JUNK_TIMER_2, a0
+    MOVE.W  #0, (a0)+       ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk
     MOVE.W  #0, (a0)+       ; index of next junk piece type
 
@@ -170,14 +172,15 @@ GAME_LOOP:
     CMP.W   -(a0), d0
     BLT     @SKIP_UPDATE_RESET
     CLR.W   2(a0)    ; if we're at the limit, reset timer
-@SKIP_UPDATE_RESET:
-    LEA.L   JUNK_TIMER, a0
-    ADD.W   #1, (a0)
+    ; only increase junk timer on physics updates
+    ; LEA.L   JUNK_TIMER, a0
+    ; ADD.W   #1, (a0)
     ; compare junk timer to timer limit
-    MOVE.W  (a0), d0
-    CMP.W   -(a0), d0
-    BLT     @SKIP_JUNK_RESET
-    CLR.W   2(a0)
+    ; MOVE.W  (a0), d0
+    ; CMP.W   -(a0), d0
+    ; BLT     @SKIP_JUNK_RESET
+    ; CLR.W   2(a0)
+@SKIP_UPDATE_RESET:
 @SKIP_JUNK_RESET:
 
     ; needed addresses:
@@ -206,6 +209,13 @@ GAME_LOOP:
     TST.W   (UPDATE_TIMER)
     BNE.B   @SKIP_UPDATE_PHYSICS
     JSR     UPDATE_PHYSICS
+    ; when we update physics, increment junk timer
+    ADDQ.W  #1, (JUNK_TIMER_OFF, a2)
+    MOVE.W  (JUNK_TIMER_OFF, a2), d0
+    CMP.W   (JUNK_MAX), d0
+    BLT     @SKIP_MATCH_ALL
+    CLR.W   (JUNK_TIMER_OFF, a2)
+
     BRA     @SKIP_MATCH_ALL
 @SKIP_UPDATE_PHYSICS:
     ; to spread the load, update matches the frame before physics
@@ -217,9 +227,12 @@ GAME_LOOP:
 @SKIP_MATCH_ALL:
 
     ; if junk timer is at zero, place junk
-    TST.W   (JUNK_TIMER)
+    ; TST.W   (JUNK_TIMER)
+    TST.W   (JUNK_TIMER_OFF, a2)
     BNE.B   @SKIP_PLACE_JUNK
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
+    MOVE.W  #1, (JUNK_TIMER_OFF, a2)
+    ; MOVE.W  #1, (JUNK_TIMER)
 @SKIP_PLACE_JUNK:
 
     ; remove any matched blocks from the board
@@ -229,7 +242,7 @@ GAME_LOOP:
     JSR     SHATTER_JUNK
 
     ; convert game board to graphics, place in scroll plane buffer
-    JSR     DRAW_BOARD
+    ; JSR     DRAW_BOARD
 
     ; write to sprite buffer
     JSR     DRAW_CURSOR

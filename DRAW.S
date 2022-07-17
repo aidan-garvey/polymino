@@ -163,5 +163,139 @@ DRAW_SCORE:
     POP     a1/a3
     RTS
 
+; ==================================
+; PLACE_BLOCK
+; ----------------------------------
+; Place a block in the screen buffer
+; based on the given block data
+; ----------------------------------
+; Parameters:
+;   d0 - block data
+;   d3 - x position
+;   d4 - y position
+;   a4 - points to screen buffer
+; Thrashed:
+;   none
+; ==================================
+PLACE_BLOCK:
+    PUSH    a0/a4/d0/d3-d4
 
+    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
+    LSL.W   #1, d3 ; each cell is 2 bytes
+    ADD.W   d3, d4
+    ADDA.W  d4, a4 ; a4 points to block in screen buffer
 
+    ; determine pattern to use for block
+    LEA.L   BLOCK_PATTERNS, a0
+    LSR.W   #7, d0
+    ANDI.W  #$000E, d0 ; d2 := color * 2
+    ADDA.W  d0, a0 ; a0 points to block pattern to use
+    MOVE.W  (a0), (a4)
+
+    POP     a0/a4/d0/d3-d4
+    RTS
+
+; ======================================
+; SWAP_BLOCKS_H:
+; --------------------------------------
+; Swap a block with the one on its right
+; --------------------------------------
+; Parameters:
+;   d3 - x position of left block
+;   d4 - y position of blocks
+;   a4 - points to screen buffer
+; Thrashed:
+;   none
+; ======================================
+SWAP_BLOCKS_H:
+    PUSH    a4/d3-d4
+
+    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
+    LSL.W   #1, d3 ; each cell is 2 bytes
+    ADD.W   d3, d4
+    ADDA.W  d4, a4 ; a4 points to block in screen buffer
+    ; swap the blocks
+    MOVE.L  (a4), d3
+    SWAP    d3
+    MOVE.L  d3, (a4)
+
+    POP     a4/d3-d4
+    RTS
+
+; ==================================
+; SWAP_BLOCKS_V:
+; ----------------------------------
+; Swap a block with the one above it
+; ----------------------------------
+; Parameters:
+;   d3 - x position of blocks
+;   d4 - y position of top block
+;   a4 - points to screen buffer
+; Thrashed:
+;   none
+; ==================================
+SWAP_BLOCKS_V:
+    PUSH    a4-a5/d3-d4
+
+    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
+    LSL.W   #1, d3 ; each cell is 2 bytes
+    ADD.W   d3, d4
+    ADDA.W  d4, a4 ; a4 points to block in screen buffer
+    MOVE.L  a4, a5
+    SUBI.W  #128, a5 ; a5 points 1 row lower than a4
+    ; swap the blocks
+    MOVE.W  (a4), d3
+    MOVE.W  (a5), (a4)
+    MOVE.W  d3, (a5)
+
+    POP     a4-a5/d3-d4
+    RTS
+
+; ==============================
+; ERASE_BLOCK
+; ------------------------------
+; Remove a block from the board
+; ------------------------------
+; Parameters:
+;   d3 - x position of block
+;   d4 - y position of block
+;   a4 - points to screen buffer
+; Thrashed:
+;   none
+; ==============================
+ERASE_BLOCK:
+    PUSH    a4/d3-d4
+
+    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
+    LSL.W   #1, d3 ; each cell is 2 bytes
+    ADD.W   d3, d4
+    ADDA.W  d4, a4 ; a4 points to block in screen buffer
+    MOVE.W  (UI_DITHER), (a4) ; clear the block
+
+    POP     a4/d3-d4
+    RTS
+
+; ==============================
+; PLACE_JUNK_BLOCK
+; ------------------------------
+; Add a junk block to the board
+; ------------------------------
+; Parameters:
+;   d3 - x position of block
+;   d4 - y position of block
+;   a4 - points to screen buffer
+;   a5 - points to block pattern
+; Thrashed:
+;   none
+; ==============================
+PLACE_JUNK_BLOCK:
+    PUSH    a4/d3-d4
+
+    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
+    LSL.W   #1, d3 ; each cell is 2 bytes
+    ADD.W   d3, d4
+    ADDA.W  d4, a4 ; a4 points to block in screen buffer
+    MOVE.W  (a5), (a4)
+
+    POP     a4/d3-d4
+    RTS

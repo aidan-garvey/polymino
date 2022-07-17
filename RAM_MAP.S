@@ -69,8 +69,9 @@ NUM_PLAYERS = $FF2000   ; 2B: 1 or 2 players
 UPDATE_MAX = $FF2002    ; 2B: frames b/w physics updates
 UPDATE_TIMER = $FF2004  ; 2B: number of frames since last update
 JUNK_MAX = $FF2006      ; 2B: physics updates b/w new junk pieces
-JUNK_TIMER = $FF2008    ; 2B: number of updates since last junk
-GAME_PAUSED = $FF200A   ; 2B: flag for game pause
+; JUNK_TIMER = $FF2008    ; 2B: number of updates since last junk
+; GAME_PAUSED = $FF200A   ; 2B: flag for game pause
+GAME_PAUSED = $FF2008
 
 ; Data for each player's game state including the board
 PLAYER_1_DATA = $FF3000
@@ -87,10 +88,11 @@ JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
-NEXT_JUNKID_1 = $FF3340 ; 2B: ID of next junk piece (only upper byte used)
-JUNK_PAT_1 = $FF3342    ; 2B: index into JUNK_PIECES of next junk piece
-NEXT_JUNK_X_1 = $FF3344 ; 2B: column number of left edge of next junk
-JUNK_IDS_1 = $FF3364    ; 32B: bitfield that keeps track of which junk IDs are in use
+JUNK_TIMER_1 = $FF3340  ; 2B: physics updates before next junk drops
+NEXT_JUNKID_1 = $FF3342 ; 2B: ID of next junk piece (only upper byte used)
+JUNK_PAT_1 = $FF3344    ; 2B: index into JUNK_PIECES of next junk piece
+NEXT_JUNK_X_1 = $FF3346 ; 2B: column number of left edge of next junk
+JUNK_IDS_1 = $FF3348    ; 32B: bitfield that keeps track of which junk IDs are in use
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
@@ -106,9 +108,10 @@ JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score
-NEXT_JUNKID_2 = $FF4340 ; 2B: ID of next junk piece (only upper byte used)
-JUNK_PAT_2 = $FF4342    ; 2B: index into JUNK_PIECES of next junk piece
-NEXT_JUNK_X_2 = $FF4344 ; 2B: column number of left edge of next junk
-JUNK_IDS_2 = $FF4364    ; 32B: bitfield that keeps track of which junk IDs are in use
+JUNK_TIMER_2 = $FF4340  ; 2B: physics updates before next junk drops
+NEXT_JUNKID_2 = $FF4342 ; 2B: ID of next junk piece (only upper byte used)
+JUNK_PAT_2 = $FF4344    ; 2B: index into JUNK_PIECES of next junk piece
+NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
+JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed, like DMA

@@ -117,8 +117,12 @@ INIT_SCROLLA:
     ; d2 := EDGE_L, EDGE_R 
     LEA.L   UI_EDGE_L, a1
     MOVE.L  (a1), d2
-    ; d3 := EMPTY, EMPTY
-    MOVEQ   #0, d3
+    ; d3 := DITHER, DITHER
+    LEA.L   UI_DITHER, a1
+    MOVE.W  (a1), d3
+    SWAP    d3
+    MOVE.W  (a1), d3
+    ; MOVEQ   #0, d3
     ; copy 24 rows of the horizontal layout pattern
     MOVEQ   #23, d5
 @H_LAYOUT_LOOP:

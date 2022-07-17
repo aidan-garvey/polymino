@@ -26,8 +26,9 @@
 ; Parameters:
 ;   a1 - points to board (P1 or P2)
 ;   a2 - points to NEW_ROWS (P1 or P2)
+;   a4 - points to screen buffer
 ; Thrashed:
-;   d0-d3
+;   d0-d4
 ; ===============================================
 GENERATE_ROWS:
     PUSH    a3
@@ -35,6 +36,7 @@ GENERATE_ROWS:
     MOVE.W  (a2), d2    ; d2 counts number of rows to generate
     MOVE.W  #0, (a2)    ; since we're generating the rows, clear NEW_ROWS
     MOVE.L  a2, a3      ; a3 points to the end of the board
+    MOVE.W  #BOARD_HEIGHT, d4 ; d4 tracks y pos for PLACE_BLOCK subroutine
     BRA.B   @GEN_ROW_STEP
 ; generate a row of random blocks
 @GEN_ROW_LOOP:
@@ -45,15 +47,19 @@ GENERATE_ROWS:
     ; if current block is not empty, skip
     TST.W   -(a3)
     BNE.B   @GEN_BLOCK_STEP
-@PLACE_BLOCK:
+; @GEN_BLOCK_PLACE:
+
     ; d0-d1 contain the random state
     ; use d0 for the block data
     BSET    #14, d0     ; set N
     ANDI.W  #$4700, d0  ; clear all except N and color
     MOVE.W  d0, (a3)
+
+    JSR     PLACE_BLOCK
 @GEN_BLOCK_STEP:
     DBRA    d3, @GEN_BLOCK_LOOP
 @GEN_ROW_STEP:
+    SUBQ    #1, d4
     DBRA    d2, @GEN_ROW_LOOP
 
     POP     a3
@@ -68,11 +74,12 @@ GENERATE_ROWS:
 ;   a1 - start of the board
 ;   a2 - start of player game state
 ;   a3 - joypad inputs
+;   a4 - start of screen buffer
 ; Thrashed:
 ;   a0, d0-d4
 ; =========================================
 PLAYER_ACTIONS:
-    PUSH    a4-a5
+    PUSH    a5-a6
 
     MOVE.W  (a3), d0    ; current joypad inputs
     MOVE.W  4(a3), d1   ; previous frame's inputs
@@ -162,10 +169,10 @@ PLAYER_ACTIONS:
     ; calculate RAM offset
     ADD.W   d2, d0
     ASL.W   #1, d0
-    MOVE.L  a1, a4
-    ADDA.W  d0, a4
+    MOVE.L  a1, a5
+    ADDA.W  d0, a5
     ; a0 will check if the space below a block is empty
-    MOVE.L  a4, a0
+    MOVE.L  a5, a0
     ADDA.W  #BOARD_WIDTH*2, a0
 
     ; if a block is falling, and it is not empty, it is immovable
@@ -176,26 +183,27 @@ PLAYER_ACTIONS:
 
     TST.W   (a0)+
     BNE     @H_FALL_CHECK_1 ; if block below is occupied, check passes
-    TST.W   (a4)
+    TST.W   (a5)
     BNE     @SKIP_A_PRESS ; if block below is empty and block above isn't, check fails
 @H_FALL_CHECK_1:
     TST.W   (a0)+
     BNE     @H_FALL_CHECK_2
-    TST.W   2(a4)
+    TST.W   2(a5)
     BNE     @SKIP_A_PRESS
 @H_FALL_CHECK_2:
     ; swap the blocks
-    MOVE.L  (a4), d2
+    MOVE.L  (a5), d2
     SWAP    d2
-    MOVE.L  d2, (a4)
+    MOVE.L  d2, (a5)
+    JSR     SWAP_BLOCKS_H
 
     ; check for matches at swapped blocks
-    TST.W   (a4)
+    TST.W   (a5)
     BEQ     @SKIP_CHECK_A_1
-    MOVE.L  a4, a0
+    MOVE.L  a5, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_1:
-    MOVE.L  a4, a0
+    MOVE.L  a5, a0
     ADDA.W  #2, a0
     TST.W   (a0)
     BEQ     @SKIP_CHECK_A_2
@@ -225,10 +233,10 @@ PLAYER_ACTIONS:
     ; calculate RAM offset for top and bottom blocks
     ADD.W   d2, d0
     ASL.W   #1, d0
-    MOVE.L  a1, a4
-    ADDA.W  d0, a4
-    MOVE.L  a4, a5
-    SUBA.W  #BOARD_WIDTH*2, a5
+    MOVE.L  a1, a5
+    ADDA.W  d0, a5
+    MOVE.L  a5, a6
+    SUBA.W  #BOARD_WIDTH*2, a6
 
     ; don't allow a vertical swap b/w a falling block and a space
     
@@ -236,33 +244,34 @@ PLAYER_ACTIONS:
     CMP.W   #BOARD_HEIGHT-1, d4
     BEQ     @DO_V_SWAP
 
-    MOVE.L  a4, a0
+    MOVE.L  a5, a0
     ADDA.W  #BOARD_WIDTH*2, a0
     TST.W   (a0)
     BNE     @DO_V_SWAP
-    TST.W   (a5)
+    TST.W   (a6)
     BEQ     @SKIP_B_PRESS
 @DO_V_SWAP:
     ; swap the blocks
-    MOVE.W  (a4), d2
-    MOVE.W  (a5), (a4)
-    MOVE.W  d2, (a5)
+    MOVE.W  (a5), d2
+    MOVE.W  (a6), (a5)
+    MOVE.W  d2, (a6)
+    JSR     SWAP_BLOCKS_V
 
     ; check for matches at swapped blocks
-    TST.W   (a4)
+    TST.W   (a5)
     BEQ     @SKIP_CHECK_B_1
-    MOVE.L  a4, a0
+    MOVE.L  a5, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_1:
-    TST.W   (a5)
+    TST.W   (a6)
     BEQ     @SKIP_CHECK_B_2
-    MOVE.L  a5, a0
+    MOVE.L  a6, a0
     SUB.W   #1, d4
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_2:
 @SKIP_B_PRESS:
 
-    POP     a4-a5
+    POP     a5-a6
     RTS
 
 ; =====================================
@@ -274,8 +283,9 @@ PLAYER_ACTIONS:
 ; Paramaters:
 ;   a1 - points to game board
 ;   a2 - points to end of board
+;   a4 - points to screen buffer
 ; Thrashed:
-;   a0, d0-d1
+;   a0, d0-d1/d3-d4
 ; =====================================
 UPDATE_PHYSICS:
     PUSH    a1
@@ -284,9 +294,11 @@ UPDATE_PHYSICS:
     MOVE.L  a2, a0
     MOVE.L  a2, a1
     SUBA.W  #BOARD_WIDTH*2, a1
+    MOVEQ   #BOARD_WIDTH-1, d3
+    MOVEQ   #BOARD_HEIGHT-1, d4
 
     ; we will iterate every row except the top
-    MOVE.W  #BOARD_WIDTH*BOARD_HEIGHT-1, d0
+    MOVE.W  #BOARD_WIDTH*(BOARD_HEIGHT-1)-1, d0
 @UPDATE_BLOCK_LOOP:
     SUBA.W  #2, a1
     TST.W   -(a0)
@@ -295,7 +307,14 @@ UPDATE_PHYSICS:
     ; move (a1) downwards
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
+    JSR     SWAP_BLOCKS_V
+
 @UPDATE_BLOCK_STEP:
+    SUBQ    #1, d3
+    BGE.B   @UPDATE_BLOCK_STEP_2
+    MOVEQ   #BOARD_WIDTH-1, d3
+    SUBQ    #1, d4
+@UPDATE_BLOCK_STEP_2:
     DBRA    d0, @UPDATE_BLOCK_LOOP
 
     POP     a1
@@ -328,8 +347,114 @@ CHECK_ALL_MATCHES:
     DBRA    d4, @CHECK_ROW_LOOP
     RTS
 
+; =======================================
+; PLACE_NEW_JUNK
+; ---------------------------------------
+; Place the piece of junk being displayed
+; as the next piece in the UI. Then,
+; generate the next piece that will drop.
+; ---------------------------------------
+; Parameters:
+;   a1 - points to game board
+;   a2 - points to game state
+;   a4 - points to screen buffer
+; Thrashed:
+;   a0, d0-d7
+; =======================================
 PLACE_NEW_JUNK:
-    NOP
+    PUSH    a3/a5
+    
+    TST.B   (NEXT_JUNKID_OFF, a2)
+    BEQ     @SKIP_JUNK_SPAWN
+    ; place junk at NEXT_JUNK_X
+    MOVE.L  a1, a0
+    MOVE.W  (NEXT_JUNK_X_OFF, a2), d0
+    LSL.W   #1, d0
+    ADDA.W  d0, a0 ; a0 points to top left of junk destination
+
+    MOVE.W  (JUNK_PAT_OFF, a2), d0  ; d0 := index of junk piece data
+    LSL.W   #4, d0  ; each piece is 16 bytes
+    LEA.L   JUNK_PIECES, a3
+    ADDA.W  d0, a3  ; a3 points to next junk piece
+    MOVE.B  (a3)+, d6   ; d6 := width of piece
+    MOVE.B  (a3)+, d7   ; d7 := height of piece
+    EXT.W   d6
+    EXT.W   d7
+    SUBQ    #1, d6 ; width and height will
+    SUBQ    #1, d7 ; be used as loop counters
+
+    MOVEQ   #0, d4 ; d4 := y position of junk's top
+
+    ; generate junk data for the board
+    JSR     RAND
+    ANDI.W  #$4700, d1
+    MOVE.B  (NEXT_JUNKID_OFF, a2), d1
+
+@PLACE_JUNK_LOOP:
+    MOVE.W  d6, d2 ; d2 := width-1
+    MOVE.W  (NEXT_JUNK_X_OFF, a2), d3 ; d3 := x position of junk's left 
+@PLACE_ROW_LOOP:
+    MOVE.B  (a3)+, d0   ; d0 := junk block data
+    BGE.B   @JUNK_NOT_EMPTY ; -1 == empty block
+    ADDA.W  #2, a0
+    BRA.B   @PLACE_ROW_STEP
+@JUNK_NOT_EMPTY:
+    ; convert pattern ID into RAM offset
+    LEA.L   JUNK_GRAY, a5
+    ANDI.W  #$FF, d0
+    LSL.W   #1, d0
+    ADDA.W  d0, a5 ; a5 := JUNK pattern
+    ; place pattern in screen buffer
+    JSR     PLACE_JUNK_BLOCK
+    ; place block data in board
+    MOVE.W  d5, (a0)+
+
+@PLACE_ROW_STEP:
+    ADDQ    #1, d3
+    DBRA    d2, @PLACE_ROW_LOOP
+@PLACE_JUNK_STEP:
+    ; jump to next row for a0
+    SUBA.W  d6, a0 ; go back to left side of block
+    SUBA.W  d6, a0 ; keep in mind d6 = width-1
+    ADDA.W  #BOARD_WIDTH*2-2, a0 ; go down 1 row
+    ; move y down by 1
+    ADDQ    #1, d4
+    DBRA    d7, @PLACE_JUNK_LOOP
+
+@SKIP_JUNK_SPAWN:
+    ; cycle through IDs until we find an unused one
+    MOVE.L  a2, a0
+    ADDA.W  #JUNK_IDS_OFF, a0 ; a0 points to bitfield
+    MOVE.B  (NEXT_JUNKID_OFF, a2), d0 ; d0 is current index in bitfield
+    ; decrement d0, if result is zero roll over to 255
+    SUBQ.B  #1, d0
+    BNE     @SKIP_ROLLOVER
+    SUBQ.B  #1, d0
+@SKIP_ROLLOVER:
+
+    ANDI.W  #$00FF, d0
+    MOVE.W  d0, d1      ; d1 := bit index (when modulo 8)
+    LSR.W   #3, d0      ; d0 := byte index
+    ; ANDI.W  #$7, d1
+    ADDA.W  d0, a0
+    BSET.B  d1, (a0)
+    ; if bit was 0, the id is free
+    BEQ.B   @ID_CYCLE_DONE
+    
+    ; if bit was 1, we have to try the next bit
+    MOVE.B  d1, (NEXT_JUNKID_OFF, a2)
+    BRA.B   @SKIP_JUNK_SPAWN
+
+@ID_CYCLE_DONE:
+    MOVE.B  d1, (NEXT_JUNKID_OFF, a2)
+    ; TODO randomly choose next x coordinate
+    MOVE.W  #0, (NEXT_JUNK_X_OFF, a2)
+    ; randomly choose pattern of next block
+    JSR     RAND
+    ANDI.W  #3, d0
+    MOVE.W  d0, (JUNK_PAT_OFF, a2)
+
+    POP     a3/a5
     RTS
 
 SHATTER_JUNK:
@@ -509,12 +634,15 @@ CHECK_MATCH:
 ; Parameters:
 ;   a1 - game board
 ;   a2 - game state
+;   a4 - points to screen buffer
 ; ==================================
 CLEAR_BLOCKS:
-    PUSH    a0-a1/d0-d2
+    PUSH    a0-a1/d0-d4
     MOVE.L  a2, a0
     ADD.W   #TO_CLEAR_OFF, a0
     MOVEQ   #BOARD_HEIGHT-1, d0
+    MOVEQ   #0, d3
+    MOVEQ   #0, d4
 @CLEAR_ROWS_LOOP:
     ; get 2 rows
     MOVE.W  (a0), d1
@@ -525,12 +653,16 @@ CLEAR_BLOCKS:
     BTST    d2, d1
     BEQ     @CLEAR_BLOCK_STEP
     MOVE.W  #0, (a1)
+    JSR     ERASE_BLOCK
 @CLEAR_BLOCK_STEP:
     ADDA.W  #2, a1
     ADDQ    #1, d2
+    ADDQ    #1, d3
     CMPI.W  #BOARD_WIDTH, d2
     BLT     @CLEAR_BLOCK_LOOP
+    ADDQ    #1, d4
+    MOVEQ   #0, d3
     DBRA    d0, @CLEAR_ROWS_LOOP
 
-    POP     a0-a1/d0-d2
+    POP     a0-a1/d0-d4
     RTS

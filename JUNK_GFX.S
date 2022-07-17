@@ -74,41 +74,41 @@ JUNK_PATTERNS:
 ; colour index multiplied by 4 to the pattern
 
 JUNK_GRAY:  ; palette: 0 (UI)
-    ; top-left
+    ; 0: top-left
     DC.W    $0000|JUNK_GFX_CHAR
-    ; top-right
+    ; 1: top-right
     DC.W    $0800|JUNK_GFX_CHAR
-    ; bottom-left
+    ; 2: bottom-left
     DC.W    $1000|JUNK_GFX_CHAR
-    ; bottom-right
+    ; 3: bottom-right
     DC.W    $1800|JUNK_GFX_CHAR
-    ; top
+    ; 4: top
     DC.W    $0000|JUNK_GFX_CHAR+1
-    ; bottom
+    ; 5: bottom
     DC.W    $1000|JUNK_GFX_CHAR+1
-    ; left
+    ; 6: left
     DC.W    $0000|JUNK_GFX_CHAR+2
-    ; right
+    ; 7: right
     DC.W    $0800|JUNK_GFX_CHAR+2
-    ; middle
+    ; 8: middle
     DC.W    $0000|JUNK_GFX_CHAR+3
 
 JUNK_COLORED: ; palette: 1 (blocks)
-    ; top-left
+    ; 0: top-left
     DC.W    $2000|JUNK_GFX_CHAR+4
-    ; top-right
+    ; 1: top-right
     DC.W    $2800|JUNK_GFX_CHAR+4
-    ; bottom-left
+    ; 2: bottom-left
     DC.W    $3000|JUNK_GFX_CHAR+4
-    ; bottom-right
+    ; 3: bottom-right
     DC.W    $3800|JUNK_GFX_CHAR+4
-    ; top
+    ; 4: top
     DC.W    $2000|JUNK_GFX_CHAR+5
-    ; bottom
+    ; 5: bottom
     DC.W    $3000|JUNK_GFX_CHAR+5
-    ; left
+    ; 6: left
     DC.W    $2000|JUNK_GFX_CHAR+6
-    ; right
+    ; 7: right
     DC.W    $2800|JUNK_GFX_CHAR+6
-    ; middle
+    ; 8: middle
     DC.W    $2000|JUNK_GFX_CHAR+7
