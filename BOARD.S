@@ -416,7 +416,7 @@ PLACE_NEW_JUNK:
     ; jump to next row for a0
     SUBA.W  d6, a0 ; go back to left side of block
     SUBA.W  d6, a0 ; keep in mind d6 = width-1
-    ADDA.W  #BOARD_WIDTH*2-2, a0 ; go down 1 row
+    ADDA.W  #(BOARD_WIDTH*2)-2, a0 ; go down 1 row
     ; move y down by 1
     ADDQ    #1, d4
     DBRA    d7, @PLACE_JUNK_LOOP
@@ -447,12 +447,32 @@ PLACE_NEW_JUNK:
 
 @ID_CYCLE_DONE:
     MOVE.B  d1, (NEXT_JUNKID_OFF, a2)
-    ; TODO randomly choose next x coordinate
-    MOVE.W  #0, (NEXT_JUNK_X_OFF, a2)
+
     ; randomly choose pattern of next block
     JSR     RAND
     ANDI.W  #3, d0
     MOVE.W  d0, (JUNK_PAT_OFF, a2)
+
+    ; randomly choose next x coordinate
+    JSR     RAND
+    ANDI.W  #$000F, d0  ; limit d0 to 15
+    ; while d0 > (BOARD_WIDTH - PIECE_WIDTH),
+    ; d0 -= (BOARD_WIDTH - PIECE_WIDTH)
+    MOVE.W  (JUNK_PAT_OFF, a2), d2  ; d2 := pattern number
+    LSL.W   #4, d2                  ; d2 := pattern offset
+    LEA.L   JUNK_PIECES, a0
+    ADDA.W  d2, a0                  ; a0 -> pattern
+    MOVE.B  (a0), d2
+    ANDI.W  #$00FF, d2              ; d2 := pattern width
+    MOVEQ   #BOARD_WIDTH, d1
+    SUB.W   d2, d1                  ; d1 := BOARD_WIDTH - PIECE_WIDTH
+@CHECK_RAND_X: 
+    CMP     d1, d0
+    BLE     @RAND_X_IN_RANGE
+    SUB.W   d1, d0
+    BRA.B   @CHECK_RAND_X
+@RAND_X_IN_RANGE:
+    MOVE.W  d0, (NEXT_JUNK_X_OFF, a2)
 
     POP     a3/a5
     RTS
