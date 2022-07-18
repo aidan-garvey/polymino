@@ -7,12 +7,13 @@
 ; *****************************************************************
 
 ; Format of each cell in the board:
-; JN-- -CCC IIII IIII
-; J: 1 = junk, 0 = not junk
-; N: J & !N = gray junk, J & N = coloured junk,
-;    !J & !N = empty cell, !J & N = block
+; -N-- -CCC IIII IIII
+; N: Junk & !N = gray junk, Junk & N = coloured junk,
+;    !Junk & !N = empty cell, !Junk & N = block
 ; C: 3 bits for colour
-; I: 8-bit junk piece ID if J
+; I: 0: not junk
+;    1..255: 8-bit junk piece ID
+;    
 
 ; ===============================================
 ; GENERATE_ROWS
@@ -332,8 +333,6 @@ UPDATE_PHYSICS:
 ;   a0, d0-d7
 ; ==================================
 CHECK_ALL_MATCHES:
-    ; JSR     RESET_TO_CLEAR
-
     MOVE.L  a2, a0
     MOVE.W  #BOARD_HEIGHT-1, d4 ; y pos
 @CHECK_ROW_LOOP:
@@ -387,27 +386,41 @@ PLACE_NEW_JUNK:
 
     ; generate junk data for the board
     JSR     RAND
-    ANDI.W  #$4700, d1
-    MOVE.B  (NEXT_JUNKID_OFF, a2), d1
+    ANDI.W  #$4700, d0
+    MOVE.B  (NEXT_JUNKID_OFF, a2), d0 ; d0 := block data for board
 
 @PLACE_JUNK_LOOP:
     MOVE.W  d6, d2 ; d2 := width-1
     MOVE.W  (NEXT_JUNK_X_OFF, a2), d3 ; d3 := x position of junk's left 
 @PLACE_ROW_LOOP:
-    MOVE.B  (a3)+, d0   ; d0 := junk block data
+    MOVE.B  (a3)+, d1   ; d1 := junk block data
     BGE.B   @JUNK_NOT_EMPTY ; -1 == empty block
     ADDA.W  #2, a0
     BRA.B   @PLACE_ROW_STEP
 @JUNK_NOT_EMPTY:
     ; convert pattern ID into RAM offset
     LEA.L   JUNK_GRAY, a5
-    ANDI.W  #$FF, d0
-    LSL.W   #1, d0
-    ADDA.W  d0, a5 ; a5 := JUNK pattern
+    ANDI.W  #$FF, d1
+    LSL.W   #1, d1
+    ADDA.W  d1, a5 ; a5 := JUNK pattern
+    ; check if block should be colored
+    BTST    #14, d0
+    BEQ     @BLOCK_COLOR_DONE
+    ; for colored blocks, patterns are after the gray patterns
+    ADDA.W  #18, a5 ; 9 patterns or 18 bytes
+    MOVE.W  (a5), (SCRATCH)
+    LEA.L   SCRATCH, a5
+    ; we need to add the color * 4 to the pattern data
+    MOVE.W  d0, d5
+    ANDI.W  #$0700, d5
+    LSR.W   #6, d5
+    ADD.W   d5, (a5)
+
+@BLOCK_COLOR_DONE:
     ; place pattern in screen buffer
     JSR     PLACE_JUNK_BLOCK
     ; place block data in board
-    MOVE.W  d5, (a0)+
+    MOVE.W  d0, (a0)+
 
 @PLACE_ROW_STEP:
     ADDQ    #1, d3
@@ -510,7 +523,7 @@ CHECK_MATCH:
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
     ; if piece is junk, it can't be matched, so return
-    BTST    #15, d0
+    TST.B   d0
     BNE     @CHECK_MATCH_RET
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board

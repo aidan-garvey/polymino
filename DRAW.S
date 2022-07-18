@@ -295,7 +295,7 @@ PLACE_JUNK_BLOCK:
     LSL.W   #1, d3 ; each cell is 2 bytes
     ADD.W   d3, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
-    MOVE.W  (a5), (a4)
+    MOVE.W  (a5), (a4) ; copy block data
 
     POP     a4/d3-d4
     RTS

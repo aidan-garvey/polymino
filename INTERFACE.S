@@ -526,6 +526,8 @@ INIT_JUNK:
 @IJ_ROW_LOOP:
             MOVE.B  d2, d4
             ANDI.B  #$0F, d4    ; d4 := current pixel
+            TST.B   d4          
+            BEQ     @IJ_ROW_STEP ; if pixel is zero, skip
             CMPI.B  #JUNK_DARK, d4
             BEQ     @IJ_DARK
             OR.B    d1, d3      ; copy light pixel
