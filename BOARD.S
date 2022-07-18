@@ -299,12 +299,21 @@ UPDATE_PHYSICS:
     MOVEQ   #BOARD_HEIGHT-1, d4
 
     ; we will iterate every row except the top
-    MOVE.W  #BOARD_WIDTH*(BOARD_HEIGHT-1)-1, d0
+    ; MOVE.W  #BOARD_WIDTH*(BOARD_HEIGHT-1)-1, d0
 @UPDATE_BLOCK_LOOP:
     SUBA.W  #2, a1
-    TST.W   -(a0)
+    SUBA.W  #2, a0
+
+    ; if (a1) is junk, call subroutine to move it
+    TST.B   1(a1)
+    BEQ.B   @UPDATE_NOT_JUNK
+    BSR     UPDATE_JUNK
+    BRA.B   @UPDATE_BLOCK_STEP
+@UPDATE_NOT_JUNK:
+    TST.W   (a0)
     ; if (a0) not empty, (a1) can't move down
-    BNE     @UPDATE_BLOCK_STEP
+    BNE.B   @UPDATE_BLOCK_STEP
+
     ; move (a1) downwards
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
@@ -312,13 +321,87 @@ UPDATE_PHYSICS:
 
 @UPDATE_BLOCK_STEP:
     SUBQ    #1, d3
-    BGE.B   @UPDATE_BLOCK_STEP_2
+    ; BGE.B   @UPDATE_BLOCK_STEP_2
+    BGE.B   @UPDATE_BLOCK_LOOP
     MOVEQ   #BOARD_WIDTH-1, d3
     SUBQ    #1, d4
-@UPDATE_BLOCK_STEP_2:
-    DBRA    d0, @UPDATE_BLOCK_LOOP
+    BGT.B   @UPDATE_BLOCK_LOOP
+; @UPDATE_BLOCK_STEP_2:
+    ; DBRA    d0, @UPDATE_BLOCK_LOOP
 
     POP     a1
+    RTS
+
+; =======================================
+; UPDATE_JUNK
+; ---------------------------------------
+; Update a row of junk blocks' physics
+; ---------------------------------------
+; Parameters:
+;   a0 - the tile below a1
+;   a1 - rightmost junk block in the row
+;   d3 - x position of block (a0)
+;   d4 - y position of block (a0)
+; After execution:
+;   a0 - the tile below a1
+;   a1 - leftmost junk block in the row
+;   d3 - x position of block (a0)
+;   d4 - y position of block (a0)
+; Thrashed:
+;   none
+; =======================================
+UPDATE_JUNK:
+    PUSH    d0-d2/d5
+
+    MOVEQ   #0, d1      ; d1 will track the number of junk blocks
+    MOVE.W  (a1), d2    ; d2 holds the first junk block
+    TST.W   (a0)
+    SEQ     d0          ; d0 will track if we can move the row down
+
+@UPDATE_JUNK_LOOP:
+    ; get next junk block
+    SUBQ    #1, d3
+    SUBA.W  #2, a0
+    MOVE.W  -(a1), d5
+    CMP.B   d5, d2
+    ; if the IDs are not equal, break the loop
+    BNE.B   @UPDATE_JUNK_BREAK
+
+    ; check for empty tile below junk
+    TST.W   (a0)
+    BEQ.B   @UPDATE_STILL_VALID
+    MOVEQ   #0, d0
+@UPDATE_STILL_VALID:
+    ADDQ    #1, d1
+    BRA.B   @UPDATE_JUNK_LOOP
+
+@UPDATE_JUNK_BREAK:
+    ; our registers need to point to the last junk block,
+    ; not the block to the left of it
+    ADDA.W  #2, a0
+    ADDA.W  #2, a1
+    ADDQ    #1, d3
+
+    ; if d0 is 0, we can't move the row down
+    TST.W   d0
+    BEQ.B   @UPDATE_JUNK_RET
+
+    ; move the row down
+    PUSH    a0-a1/d3
+
+@JUNK_FALL_LOOP:
+    MOVE.W  (a0), d0
+    MOVE.W  (a1), (a0)+
+    MOVE.W  d0, (a1)+
+    JSR     SWAP_BLOCKS_V
+    ADDQ    #1, d3
+    ; d1 counted the number of junk blocks minus 1
+    DBRA    d1, @JUNK_FALL_LOOP
+
+    POP     a0-a1/d3
+
+@UPDATE_JUNK_RET:
+    POP     d0-d2/d5
     RTS
 
 ; ==================================
