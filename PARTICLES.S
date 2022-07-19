@@ -1,7 +1,7 @@
 
 ; *****************************************************************
-; SPRITES.S
-; Subroutines for creating and updating game sprites.
+; PARTICLES.S
+; Subroutines for creating and updating particle sprites.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
@@ -14,14 +14,12 @@
 ; Parameters:
 ;   a2 - player game state
 ;   d3 - column number
+;   d4 - row number
 ; Thrashed:
 ;   none
 ; ===========================
 SPAWN_V_PROJ:
     PUSH    a0/d0-d1
-
-    ; idea: when moving projectiles each physics update,
-    ; identify their direction from their pattern & h/vflip
 
     POP     a0/d0-d1
     RTS
@@ -33,6 +31,7 @@ SPAWN_V_PROJ:
 ; -----------------------------
 ; Parameters:
 ;   a2 - player game state
+;   d3 - column number
 ;   d4 - row number
 ; Thrashed:
 ;   none

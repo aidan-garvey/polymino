@@ -655,8 +655,6 @@ CHECK_MATCH:
     SUB.W   a1, d1
     CMPI.W  #4, d1
     BLT     @NO_H_MATCH
-    ; spawn projectile
-    JSR     SPAWN_H_PROJ
     
     ; clear the blocks
     ; >= 4 words is >= 2 blocks of space, is >= 2+1 blocks to clear
@@ -693,7 +691,10 @@ CHECK_MATCH:
     TST.W   d6
     BEQ.B   @NO_H_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
+    ; award points
     JSR     ADD_MATCH_SCORE
+    ; spawn projectile
+    JSR     SPAWN_H_PROJ
 
 @NO_H_MATCH:
 
@@ -742,8 +743,6 @@ CHECK_MATCH:
     SUB.W   a1, d1
     CMPI.W  #BOARD_WIDTH*4, d1
     BLT     @NO_V_MATCH
-    ; spawn projectile
-    JSR     SPAWN_V_PROJ
 
     ; clear the blocks
     MOVE.L  a2, a4
@@ -773,7 +772,10 @@ CHECK_MATCH:
     TST.W   d6
     BEQ.B   @NO_V_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
+    ; award points
     JSR     ADD_MATCH_SCORE
+    ; spawn projectile
+    JSR     SPAWN_V_PROJ
 
 @NO_V_MATCH:
 @CHECK_MATCH_RET:

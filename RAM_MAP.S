@@ -44,8 +44,7 @@ P2_T_NEXT = $FF0768     ; 8B: "NEXT"
 P2_T_SCORE = $FF0770    ; 8B: "SCORE"
 P2_T_LLINES = $FF0778   ; 8B: "LIFE\nLINES"
 P2_SCORE_DGTS = $FF0780 ; 16B: player 2 score, 2 sprites
-; non-persistent sprites:
-VAR_SPRITES = $FF0790   ; Variable-length list of sprites
+PART_SPRITES = $FF0790  ; Particle effect sprites, rest of sprite table
 
 BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
 BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)
@@ -113,6 +112,9 @@ NEXT_JUNKID_2 = $FF4342 ; 2B: ID of next junk piece (only upper byte used)
 JUNK_PAT_2 = $FF4344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
 JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use
+
+; X and Y velocity and acceleration for all particle sprites
+PART_DATA = $FF5000
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed
 DMA_SCRATCH = $FFFFFC   ; DMA needs a long-word of RAM
