@@ -183,15 +183,20 @@ PLAYER_ACTIONS:
     BEQ     @H_FALL_CHECK_2
 
     TST.W   (a0)+
-    BNE     @H_FALL_CHECK_1 ; if block below is occupied, check passes
+    BNE.B   @H_FALL_CHECK_1 ; if block below is occupied, check passes
     TST.W   (a5)
-    BNE     @SKIP_A_PRESS ; if block below is empty and block above isn't, check fails
+    BNE.B   @SKIP_A_PRESS ; if block below is empty and block above isn't, check fails
 @H_FALL_CHECK_1:
     TST.W   (a0)+
-    BNE     @H_FALL_CHECK_2
+    BNE.B   @H_FALL_CHECK_2
     TST.W   2(a5)
-    BNE     @SKIP_A_PRESS
+    BNE.B   @SKIP_A_PRESS
 @H_FALL_CHECK_2:
+    ; do not allow swap if either block is junk
+    TST.B   1(a5)
+    BNE.B   @SKIP_A_PRESS
+    TST.B   3(a5)
+    BNE.B   @SKIP_A_PRESS
     ; swap the blocks
     MOVE.L  (a5), d2
     SWAP    d2
@@ -239,19 +244,18 @@ PLAYER_ACTIONS:
     MOVE.L  a5, a6
     SUBA.W  #BOARD_WIDTH*2, a6
 
-    ; don't allow a vertical swap b/w a falling block and a space
-    
-    ; don't do check for the bottom row
-    CMP.W   #BOARD_HEIGHT-1, d4
-    BEQ     @DO_V_SWAP
-
-    MOVE.L  a5, a0
-    ADDA.W  #BOARD_WIDTH*2, a0
-    TST.W   (a0)
-    BNE     @DO_V_SWAP
+    ; don't allow a vertical swap b/w a block and a space
+    TST.W   (a5)
+    BEQ.B   @SKIP_B_PRESS
     TST.W   (a6)
-    BEQ     @SKIP_B_PRESS
-@DO_V_SWAP:
+    BEQ.B   @SKIP_B_PRESS
+
+    ; don't allow swapping junk
+    TST.B   1(a5)
+    BNE.B   @SKIP_B_PRESS
+    TST.B   1(a6)
+    BNE.B   @SKIP_B_PRESS
+
     ; swap the blocks
     MOVE.W  (a5), d2
     MOVE.W  (a6), (a5)
@@ -267,7 +271,7 @@ PLAYER_ACTIONS:
     TST.W   (a6)
     BEQ     @SKIP_CHECK_B_2
     MOVE.L  a6, a0
-    SUB.W   #1, d4
+    SUBQ.W  #1, d4
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_2:
 @SKIP_B_PRESS:

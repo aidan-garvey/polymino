@@ -227,12 +227,10 @@ GAME_LOOP:
 @SKIP_MATCH_ALL:
 
     ; if junk timer is at zero, place junk
-    ; TST.W   (JUNK_TIMER)
     TST.W   (JUNK_TIMER_OFF, a2)
     BNE.B   @SKIP_PLACE_JUNK
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
     MOVE.W  #1, (JUNK_TIMER_OFF, a2)
-    ; MOVE.W  #1, (JUNK_TIMER)
 @SKIP_PLACE_JUNK:
 
     ; remove any matched blocks from the board
@@ -240,9 +238,6 @@ GAME_LOOP:
 
     ; if any junk is in contact with a projectile, shatter it
     JSR     SHATTER_JUNK
-
-    ; convert game board to graphics, place in scroll plane buffer
-    ; JSR     DRAW_BOARD
 
     ; write to sprite buffer
     JSR     DRAW_CURSOR

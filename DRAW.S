@@ -6,55 +6,6 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
 
-; ==============================================
-; DRAW_BOARD
-; ----------------------------------------------
-; Using the board data, write the representation
-; of the board to the scroll plane buffer
-; ----------------------------------------------
-; Parameters:
-;   a1 - pointer to board
-;   a4 - scroll plane destination
-; ----------------------------------------------
-; Thrashed:
-;   d0-d3
-; ==============================================
-DRAW_BOARD:
-    PUSH    a1-a4
-
-    MOVE.W  UI_DITHER, d3   ; d3 holds character for empty tiles
-
-    MOVE.W  #BOARD_HEIGHT-1, d0  ; d0 will count number of rows
-@BOARD_LOOP:
-    MOVE.W  #BOARD_WIDTH-1, d1   ; d1 will count number of cells per row
-@ROW_LOOP:
-    MOVE.W  (a1)+, d2
-    ; TODO: junk
-    ; test for empty block
-    BTST    #14, d2
-    BEQ.B   @EMPTY_CELL
-
-    ; not empty:
-    LEA.L   BLOCK_PATTERNS, a2
-    ; color bits will be used for offset from BLOCK_PATTERNS
-    LSR.W   #7, d2
-    ANDI.W  #$000E, d2  ; d2 = color * 2
-    ADDA.W  d2, a2
-    MOVE.W  (a2), (a4)+
-    BRA.B   @ROW_STEP
-
-@EMPTY_CELL:
-    MOVE.W  d3, (a4)+
-
-@ROW_STEP:
-    DBRA    d1, @ROW_LOOP
-    ADDA.W  #BOARD_ROW_OFFSET, a4
-    DBRA    d0, @BOARD_LOOP
-
-    POP     a1-a4
-
-    RTS
-
 ; =======================================
 ; DRAW_CURSOR
 ; ---------------------------------------
