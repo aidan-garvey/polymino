@@ -6,6 +6,9 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; ********************************************************************
 
+MATCH_POINTS = $5 ; base points awarded for matching blocks - BCD
+SHATTER_POINTS = $50 ; base points awarded for destroying junk - BCD
+
 BOARD_HEIGHT = 24 ; in cells
 BOARD_WIDTH = 10 ; in cells
 BOARD_SIZE = 480 ; size of board in bytes

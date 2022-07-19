@@ -91,57 +91,57 @@ PLAYER_ACTIONS:
 
     ; horizontal movement
     BTST    #3, d1  ; right pressed
-    BNE     @MOVE_RIGHT ; if pressed for the first frame, move
+    BNE.B   @MOVE_RIGHT ; if pressed for the first frame, move
     BTST    #3, d0  ; right held
-    BEQ     @SKIP_MOVE_RIGHT ; if not held either, skip moving
+    BEQ.B   @SKIP_MOVE_RIGHT ; if not held either, skip moving
     SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
-    BNE     @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
+    BNE.B   @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
 @MOVE_RIGHT:
     MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2) ; reset hold timer
     CMPI.W  #BOARD_WIDTH-1, (CURSOR_X_OFF, a2) ; CURSOR_X
-    BEQ     @SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
+    BEQ.B   @SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
     ADDI.W  #1, (CURSOR_X_OFF, a2)
 @SKIP_MOVE_RIGHT:
 
 
     BTST    #2, d1  ; left
-    BNE     @MOVE_LEFT ; if pressed for first frame, move
+    BNE.B   @MOVE_LEFT ; if pressed for first frame, move
     BTST    #2, d0  ; left held
-    BEQ     @SKIP_MOVE_LEFT ; if not held either, skip moving
+    BEQ.B   @SKIP_MOVE_LEFT ; if not held either, skip moving
     SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
-    BNE     @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
+    BNE.B   @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
 @MOVE_LEFT:
     MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2)
     TST.W   (CURSOR_X_OFF, a2)   ; CURSOR_X
-    BEQ     @SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
+    BEQ.B   @SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
     SUBI.W  #1, (CURSOR_X_OFF, a2)
 @SKIP_MOVE_LEFT:
 
     ; vertical movement
     BTST    #1, d1  ; down
-    BNE     @MOVE_DOWN
+    BNE.B   @MOVE_DOWN
     BTST    #1, d0  ; down held
-    BEQ     @SKIP_MOVE_DOWN
+    BEQ.B   @SKIP_MOVE_DOWN
     SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
-    BNE     @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
+    BNE.B   @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
 @MOVE_DOWN:
     MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
     CMPI.W  #BOARD_HEIGHT-1, (CURSOR_Y_OFF, a2) ; CURSOR_Y
-    BEQ     @SKIP_MOVE_DOWN
+    BEQ.B   @SKIP_MOVE_DOWN
     ADDI.W  #1, (CURSOR_Y_OFF, a2)
 @SKIP_MOVE_DOWN:
 
 
     BTST    #0, d1  ; up
-    BNE     @MOVE_UP
+    BNE.B   @MOVE_UP
     BTST    #0, d0  ; up held
-    BEQ     @SKIP_MOVE_UP
+    BEQ.B   @SKIP_MOVE_UP
     SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
-    BNE     @SKIP_MOVE_UP ; if hold timer not at 0, don't move
+    BNE.B   @SKIP_MOVE_UP ; if hold timer not at 0, don't move
 @MOVE_UP:
     MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
     TST.W   (CURSOR_Y_OFF, a2)   ; CURSOR_Y
-    BEQ     @SKIP_MOVE_UP
+    BEQ.B   @SKIP_MOVE_UP
     SUBI.W  #1, (CURSOR_Y_OFF, a2)
 @SKIP_MOVE_UP:
 
@@ -689,10 +689,11 @@ CHECK_MATCH:
     ; store updated TO_CLEAR flags
     MOVE.W  d5, (a4)
     ; if match contained any previously-unmatched
-    ; blocks, increase player's combo
+    ; blocks, increase player's combo and award points
     TST.W   d6
     BEQ.B   @NO_H_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
+    JSR     ADD_MATCH_SCORE
 
 @NO_H_MATCH:
 
@@ -768,10 +769,11 @@ CHECK_MATCH:
     BGT.B   @V_CLEAR_LOOP
 
     ; if match contained any previously-unmatched
-    ; blocks, increase player's combo
+    ; blocks, increase player's combo and award points
     TST.W   d6
     BEQ.B   @NO_V_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
+    JSR     ADD_MATCH_SCORE
 
 @NO_V_MATCH:
 @CHECK_MATCH_RET:

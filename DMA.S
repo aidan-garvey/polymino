@@ -198,9 +198,9 @@ DMADump:
     ; move dest address to RAM then to VDP,
     ; prevents "occaisional hardware feature"
     ; that makes DMA fail
-    MOVE.L  d2, (SCRATCH)
-    MOVE.W  (SCRATCH), (a1)
-    MOVE.W  (SCRATCH+2), (a1)
+    MOVE.L  d2, (DMA_SCRATCH)
+    MOVE.W  (DMA_SCRATCH), (a1)
+    MOVE.W  (DMA_SCRATCH+2), (a1)
     ; DMA begins
     
     ; wait until DMA finished

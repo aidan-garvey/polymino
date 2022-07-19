@@ -69,8 +69,6 @@ NUM_PLAYERS = $FF2000   ; 2B: 1 or 2 players
 UPDATE_MAX = $FF2002    ; 2B: frames b/w physics updates
 UPDATE_TIMER = $FF2004  ; 2B: number of frames since last update
 JUNK_MAX = $FF2006      ; 2B: physics updates b/w new junk pieces
-; JUNK_TIMER = $FF2008    ; 2B: number of updates since last junk
-; GAME_PAUSED = $FF200A   ; 2B: flag for game pause
 GAME_PAUSED = $FF2008
 
 ; Data for each player's game state including the board
@@ -116,4 +114,5 @@ JUNK_PAT_2 = $FF4344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
 JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use
 
-SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed, like DMA
+SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed
+DMA_SCRATCH = $FFFFFC   ; DMA needs a long-word of RAM

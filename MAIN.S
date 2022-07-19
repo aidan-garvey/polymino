@@ -93,7 +93,7 @@ MAIN_INIT:
     ; p1:
     LEA.L   GAME_STATE_1, a0
     MOVE.W  #5, (a0)+       ; starting rows
-    MOVE.L  #$0123456, (a0)+; bcd score
+    MOVE.L  #0, (a0)+       ; bcd score
     MOVE.W  #3, (a0)+       ; lifelines
     MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
@@ -106,7 +106,7 @@ MAIN_INIT:
     ; p2:
     LEA.L   GAME_STATE_2, a0
     MOVE.W  #5, (a0)+       ; starting rows
-    MOVE.L  #$9876543, (a0)+; bcd score
+    MOVE.L  #0, (a0)+       ; bcd score
     MOVE.W  #3, (a0)+       ; lifelines
     MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
@@ -256,6 +256,7 @@ GAME_LOOP:
     INCLUDE BOARD.S 
     INCLUDE DRAW.S 
     INCLUDE SPRITES.S
+    INCLUDE SCORE.S
 
 ; ******
 ; ASSETS
