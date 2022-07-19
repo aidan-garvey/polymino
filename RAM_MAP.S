@@ -84,7 +84,8 @@ CURSOR_1_X = $FF31E8    ; 2B: horizontal position of cursor
 CURSOR_1_Y = $FF31EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
-; 16B of free space
+COMBO_1 = $FF31F0       ; 2B: player's combo multiplier
+; 14B of free space
 UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
@@ -104,7 +105,8 @@ CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
-; 16B free space
+COMBO_2 = $FF31F0       ; 2B: player's combo multiplier
+; 14B of free space
 UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score

@@ -20,7 +20,7 @@ The game is over when there is no room for the next junk piece to be placed!
 * A: swap horizontally
 * B: swap vertically
 * C: use a lifeline (coming soon)
-* Start: pause (coming soon)
+* Start: pause
 
 ## Running
 

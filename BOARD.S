@@ -197,11 +197,15 @@ PLAYER_ACTIONS:
     BNE.B   @SKIP_A_PRESS
     TST.B   3(a5)
     BNE.B   @SKIP_A_PRESS
-    ; swap the blocks
+
+    ; swap the blocks, unless they are both empty
     MOVE.L  (a5), d2
+    BEQ.B   @SKIP_A_PRESS
     SWAP    d2
     MOVE.L  d2, (a5)
     JSR     SWAP_BLOCKS_H
+    ; since player made a move, reset combo counter
+    MOVE.W  #0, (COMBO_OFF, a2)
 
     ; check for matches at swapped blocks
     TST.W   (a5)
@@ -261,15 +265,17 @@ PLAYER_ACTIONS:
     MOVE.W  (a6), (a5)
     MOVE.W  d2, (a6)
     JSR     SWAP_BLOCKS_V
+    ; since player made a move, reset combo counter
+    MOVE.W  #0, (COMBO_OFF, a2)
 
     ; check for matches at swapped blocks
     TST.W   (a5)
-    BEQ     @SKIP_CHECK_B_1
+    BEQ.B   @SKIP_CHECK_B_1
     MOVE.L  a5, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_1:
     TST.W   (a6)
-    BEQ     @SKIP_CHECK_B_2
+    BEQ.B   @SKIP_CHECK_B_2
     MOVE.L  a6, a0
     SUBQ.W  #1, d4
     JSR     CHECK_MATCH
@@ -426,7 +432,7 @@ CHECK_ALL_MATCHES:
     MOVE.W  #BOARD_WIDTH-1, d3 ; x pos
 @CHECK_CELL_LOOP:
     TST.W   -(a0)
-    BEQ     @SKIP_CHECK_MATCH
+    BEQ.B   @SKIP_CHECK_MATCH
     JSR     CHECK_MATCH
 @SKIP_CHECK_MATCH:
     DBRA    d3, @CHECK_CELL_LOOP
@@ -581,12 +587,11 @@ SHATTER_JUNK:
     NOP
     RTS
 
-; ==========================
+; =============================================
 ; CHECK_MATCH
-; --------------------------
-; Check for a match that
-; includes a given block
-; --------------------------
+; ---------------------------------------------
+; Check for a match that includes a given block
+; ---------------------------------------------
 ; Parameters:
 ;   a0 - pointer to block
 ;   a2 - player game state
@@ -602,9 +607,10 @@ SHATTER_JUNK:
 ;   d1 - loop counter
 ;   d2 - misc
 ;   d5 - misc
-; ==========================
+;   d6 - tracks if match is a repeat or not
+; =============================================
 CHECK_MATCH:
-    PUSH    a1/a3-a4/d0-d5
+    PUSH    a1/a3-a4/d0-d6
 
     MOVE.L  a0, a1
     MOVE.L  a0, a3
@@ -663,16 +669,30 @@ CHECK_MATCH:
     ADD.W   d3, d2  ; d2 := pos of left block
     MOVE.L  a2, a4
     ADD.W   #TO_CLEAR_OFF, a4
-    ADD.W   d4, a4
-    ADD.W   d4, a4  ; a4 := pointer to word in TO_CLEAR for current row
+    ADDA.W  d4, a4
+    ADDA.W  d4, a4  ; a4 := pointer to word in TO_CLEAR for current row
     MOVE.W  (a4), d5; d5 := contents of TO_CLEAR for current row
+
+    ; d6 will be set to TRUE if any previously
+    ; unmatched block is included in the match
+    MOVEQ   #0, d6
 
 @H_CLEAR_LOOP:
     BSET    d2, d5
+    ; if bit was previously unset, set d6 to TRUE
+    BNE.B   @NOT_NEW_H_BLOCK
+    MOVEQ   #-1, d6
+@NOT_NEW_H_BLOCK:
     ADDQ    #1, d2
     DBRA    d1, @H_CLEAR_LOOP
 
+    ; store updated TO_CLEAR flags
     MOVE.W  d5, (a4)
+    ; if match contained any previously-unmatched
+    ; blocks, increase player's combo
+    TST.W   d6
+    BEQ.B   @NO_H_MATCH
+    ADDQ.W  #1, (COMBO_OFF, a2)
 
 @NO_H_MATCH:
 
@@ -732,16 +752,30 @@ CHECK_MATCH:
     LSR.W   #1, d1  ; d1 := BOARD_WIDTH * (MATCH_HEIGHT-1)
     ADD.W   #BOARD_WIDTH, d1 ;= BOARD_WIDTH * MATCH_HEIGHT
 
+    ; d6 will be set to TRUE if any previously
+    ; unmatched block is included in the match
+    MOVEQ   #0, d6
+
 @V_CLEAR_LOOP:
     MOVE.W  (a4), d5    ; d5 := current row in TO_CLEAR
     BSET    d3, d5      ; set bit representing x position of match
-    MOVE.W  d5, (a4)+
+    ; if bit was previously unset, set d6 to TRUE
+    BNE.B   @NOT_NEW_V_BLOCK
+    MOVEQ   #-1, d6
+@NOT_NEW_V_BLOCK:
+    MOVE.W  d5, (a4)+   ; store updated flags
     SUB.W   #BOARD_WIDTH, d1
-    BGT     @V_CLEAR_LOOP
+    BGT.B   @V_CLEAR_LOOP
+
+    ; if match contained any previously-unmatched
+    ; blocks, increase player's combo
+    TST.W   d6
+    BEQ.B   @NO_V_MATCH
+    ADDQ.W  #1, (COMBO_OFF, a2)
 
 @NO_V_MATCH:
 @CHECK_MATCH_RET:
-    POP     a1/a3-a4/d0-d5
+    POP     a1/a3-a4/d0-d6
     RTS
 
 
