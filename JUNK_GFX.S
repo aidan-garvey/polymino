@@ -16,7 +16,7 @@ JUNK_CHARS:
     ; outer corner
     DC.L    $06666666
     DC.L    $66667776
-    DC.L    $66777877
+    DC.L    $66777777
     DC.L    $67767888
 
     DC.L    $66777878
