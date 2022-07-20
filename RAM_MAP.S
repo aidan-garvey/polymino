@@ -84,8 +84,9 @@ CURSOR_1_Y = $FF31EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 COMBO_1 = $FF31F0       ; 2B: player's combo multiplier
-; 14B of free space
-UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
+V_MATCHES_1 = $FF31F2   ; 2B: rows where a vertical match occured this frame
+; 8B of free space
+; UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
 JUNK_TIMER_1 = $FF3340  ; 2B: physics updates before next junk drops
@@ -105,8 +106,8 @@ CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 COMBO_2 = $FF31F0       ; 2B: player's combo multiplier
-; 14B of free space
-UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
+; 8B of free space
+; UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score
 JUNK_TIMER_2 = $FF4340  ; 2B: physics updates before next junk drops
@@ -115,7 +116,12 @@ JUNK_PAT_2 = $FF4344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
 JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use
 
-; X and Y velocity and acceleration for all particle sprites
+; Data for each particle:
+; - X and Y velocity (2 words)
+; - X and Y acceleration (2 words)
+; - if a projectile: data about color, direction, position
+;   - otherwise: all zeroes
+;   - 1 word
 PART_DATA = $FF5000
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed

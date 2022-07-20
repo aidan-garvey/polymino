@@ -6,6 +6,16 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
 
+; Projectile particle data format:
+; X, Y velocity (4 bytes)
+; X, Y acceleration (4 bytes)
+; Extra data (2 bytes)
+;   1D-- -CCC ---P PPPP
+;   * First bit always set
+;   D = direction, vertical = 0, horizontal = 1
+;   C = color
+;   P = row or column number, depending on D
+
 ; ==================================
 ; INIT_PARTICLES
 ; ----------------------------------
@@ -34,11 +44,14 @@ INIT_PARTICLES:
 ;   none
 ; ===========================
 SPAWN_V_PROJ:
-    PUSH    a0/d1-d6
+    PUSH    a0/d1-d7
 
     ; ************************
     ; spawn upwards projectile
     ; ************************
+
+    ; save column number for extra data
+    MOVE.W  d3, d7
 
     ; d1 := 2nd sprite attribute word (no link data)
     MOVE.W  #$0000, d1  ; 1x1 size
@@ -86,6 +99,15 @@ SPAWN_V_PROJ:
     MOVEQ   #0, d6
     MOVE.W  #-PROJ_Y_ACCEL, d6
 
+    ; d7 := extra data described at top of file
+    ; column number was already saved
+    ANDI.W  #$001F, d7
+    ; we know that the block data is not junk, its lower byte is set to 0
+    OR.W    d0, d7  ; color for blocks in same place as color for projectiles
+    BSET    #15, d7 ; MSB is always 1 for projectiles
+    BCLR    #14, d7 ; set direction bit to 0, for vertical
+    ; rest of the bits don't matter
+
     JSR     ADD_PARTICLE
 
     ; **************************
@@ -100,9 +122,10 @@ SPAWN_V_PROJ:
     NEG.W   d5
     ; d6 will use opposite y direction, x stays unchanged
     NEG.W   d6
+    ; d7 does not change
     JSR     ADD_PARTICLE
 
-    POP     a0/d1-d6
+    POP     a0/d1-d7
     RTS
 
 ; =============================
@@ -119,11 +142,14 @@ SPAWN_V_PROJ:
 ;   none
 ; =============================
 SPAWN_H_PROJ:
-    PUSH    a0/d1-d6
+    PUSH    a0/d1-d7
 
     ; ****************************
     ; spawn right-facing projectile
     ; ****************************
+
+    ; save row number for extra data
+    MOVE.W  d4, d7
 
     ; d1 := 2nd sprite attribute word (no link data)
     MOVE.W  #$0000, d1  ; 1x1 size
@@ -171,6 +197,15 @@ SPAWN_H_PROJ:
     MOVE.L  #PROJ_X_ACCEL, d6
     SWAP    d6
 
+    ; d7 := extra data described at top of file
+    ; row number was already saved
+    ANDI.W  #$001F, d7
+    ; we know that the block data is not junk, so its lower byte is set to 0
+    OR.W    d0, d7  ; color for blocks in same place as color for projectiles
+    BSET    #15, d7 ; MSB is always 1 for projectiles
+    BSET    #14, d7 ; set direction bit to 1, for horizontal
+    ; rest of the bits don't matter
+
     JSR     ADD_PARTICLE
 
     ; *****************************
@@ -188,10 +223,11 @@ SPAWN_H_PROJ:
     SWAP    d6
     NEG.W   d6
     SWAP    d6
+    ; d7 does not change
 
     JSR     ADD_PARTICLE
 
-    POP     a0/d1-d6
+    POP     a0/d1-d7
     RTS
 
 ; ===============================================
@@ -206,6 +242,7 @@ SPAWN_H_PROJ:
 ;   d4 - y coordinate (1st sprite attribute word)
 ;   d5 - x and y velocity (1 word each)
 ;   d6 - x and y acceleration (1 word each)
+;   d7 - additional particle data
 ; Thrashed: none
 ; ===============================================
 ADD_PARTICLE:
@@ -217,15 +254,17 @@ ADD_PARTICLE:
     ; d0 tracks the link data for the sprite we place
     MOVEQ   #(PART_SPRITES-BUFF_SPRITES)/8, d0
 
+@ADD_PARTICLE_LOOP:
     TST.W   (a0)
     BEQ.B   @PLACE_PARTICLE
     ; iterate until empty slot found
     ADDQ.W  #1, d0
-    ADDA.W  #$8, a0
-    ADDA.W  #$8, a1
+    ADDA.W  #PART_SPRITE_SIZE, a0
+    ADDA.W  #PART_DATA_SIZE, a1
     ; don't go past end of sprite table
     CMPA.L  #SPRITES_END, a0
-    BGE.B   @ADD_PARTICLE_RET
+    BLT.B   @ADD_PARTICLE_LOOP
+    BRA.B   @ADD_PARTICLE_RET
 @PLACE_PARTICLE:
     ; sprite attributes
     MOVE.W  d4, (a0)+
@@ -235,6 +274,8 @@ ADD_PARTICLE:
     ; particle velocity & acceleration
     MOVE.L  d5, (a1)+
     MOVE.L  d6, (a1)+
+    ; extra particle data
+    MOVE.W  d7, (a1)+
 
     ; point new sprite's link data to same as previous sprite,
     ; point previous sprite's link data to new sprite
@@ -278,6 +319,9 @@ UPDATE_PARTICLES:
     ADD.W   d2, d1
     SWAP    d1
     MOVE.L  d1, (a1)    ; save new velocity
+
+    ; TODO: if particle is a projectile, shatter junk
+    ; (use range b/w start and end positions for collision)
     
     ; update and check y position
     ASR.W   #4, d1
@@ -307,13 +351,13 @@ UPDATE_PARTICLES:
 @DELETE_PARTICLE:
     ; to delete a particle:
     ; - set the first word of the sprite data to zero
-    ; - make the previous sprite's link data point to the deleted sprite's link data
+    ; - set the previous sprite's link data to the deleted sprite's link data
     MOVE.W  #0, (a0)
     MOVE.B  3(a0), 3(a2)
 
 @UPDATE_PARTICLES_STEP:
-    ADDA.W  #8, a0
-    ADDA.W  #8, a1
+    ADDA.W  #PART_SPRITE_SIZE, a0
+    ADDA.W  #PART_DATA_SIZE, a1
     ; if we aren't out of bounds, iterate again
     CMPA.L  #SPRITES_END, a0
     BLT.B   @UPDATE_PARTICLES_LOOP
