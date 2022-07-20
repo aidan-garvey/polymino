@@ -15,14 +15,7 @@
 ;   a0-a1, d0-d2
 ; ==================================
 INIT_PARTICLES:
-    LEA.L   BUFF_PLANE, a1
-    LEA.L   PROJECTILE_CHARS, a0
-    JSR     CopyCharRAM
-    JSR     CopyCharRAM
-    JSR     CopyCharRAM
-    JSR     CopyCharRAM
-
-    MOVE.L  #BUFF_PLANE, d0
+    MOVE.L  #PROJECTILE_CHARS, d0
     MOVE.W  #VRAM_PROJ_SIZE/2, d1
     MOVE.W  #VRAM_PROJ_GFX, d2
     JSR     DMADump
@@ -70,9 +63,9 @@ SPAWN_V_PROJ:
     ADDI.W  #P1_BOARD_X_OFFSET, d3
     ; if a2 points to player 2's game state, add additional distance
     CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_ADD
+    BNE.B   @SKIP_P2_ADD_V
     ADDI.W  #(P2_BOARD_X_OFFSET-P1_BOARD_X_OFFSET), d3
-@SKIP_P2_ADD:
+@SKIP_P2_ADD_V:
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
     ; add left screen bound
@@ -126,9 +119,79 @@ SPAWN_V_PROJ:
 ;   none
 ; =============================
 SPAWN_H_PROJ:
-    PUSH    a0/d1-d1
+    PUSH    a0/d1-d6
 
-    POP     a0/d1-d1
+    ; ****************************
+    ; spawn right-facing projectile
+    ; ****************************
+
+    ; d1 := 2nd sprite attribute word (no link data)
+    MOVE.W  #$0000, d1  ; 1x1 size
+
+    ; d2 := 3rd sprite attribute word
+    ; first color bit is the color palette,
+    ; last two are multiplied for character index
+    MOVE.W  d0, d2
+    ANDI.W  #$0300, d2
+    LSR.W   #8, d2      ; d2 := color[1:0]
+    ADDI.W  #PROJ_CHAR+4, d2
+    BTST    #10, d0
+    BNE.B   @SHP_PAL2
+    BSET    #13, d2     ; palette 1
+    BRA.B   @SHP_D2_DONE
+@SHP_PAL2:
+    BSET    #14, d2     ; palette 2
+@SHP_D2_DONE:
+
+    ; d3 := x position
+    ; add number of cells b/w left edge and P1 board
+    ADDI.W  #P1_BOARD_X_OFFSET, d3
+    ; if a2 points to player 2's game state, add additional distance
+    CMPA.L  #GAME_STATE_2, a2
+    BNE.B   @SKIP_P2_ADD_H
+    ADDI.W  #(P2_BOARD_X_OFFSET-P1_BOARD_X_OFFSET), d3
+@SKIP_P2_ADD_H:
+    ; multiply by 8 to get pixel position
+    LSL.W   #3, d3
+    ; add left screen bound
+    ADDI.W  #$80, d3
+
+    ; d4 := y position
+    ; add number of cells b/w top edge and board
+    ADDQ.W  #BOARD_Y_OFFSET, d4
+    ; multiply by 8 to get pixel position
+    LSL.W   #3, d4
+    ; add upper screen bound
+    ADDI.W  #$80, d4
+
+    ; d5 := x, y velocity
+    MOVE.L  #PROJ_X_VEL, d5
+    SWAP    d5
+    ; d6 := x, y acceleration
+    MOVE.L  #PROJ_X_ACCEL, d6
+    SWAP    d6
+
+    JSR     ADD_PARTICLE
+
+    ; *****************************
+    ; spawn left-facing projectile
+    ; *****************************
+
+    ; d1 unchanged
+    ; d2 gets h flipped
+    ORI.W   #$0800, d2
+    ; d3 and d4 unchanged
+    ; d5 and d6 use opposite x direction
+    SWAP    d5
+    NEG.W   d5
+    SWAP    d5
+    SWAP    d6
+    NEG.W   d6
+    SWAP    d6
+
+    JSR     ADD_PARTICLE
+
+    POP     a0/d1-d6
     RTS
 
 ; ===============================================
