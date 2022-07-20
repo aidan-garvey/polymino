@@ -468,6 +468,11 @@ INIT_JUNK:
     MOVE.W  #$00, d0
     BSR     @INIT_JUNK_SR
 
+    ; pink
+    LEA.L   JUNK_CHARS, a0
+    MOVE.W  #$33, d0
+    BSR     @INIT_JUNK_SR
+
     ; violet
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$66, d0
@@ -478,18 +483,11 @@ INIT_JUNK:
     MOVE.W  #$99, d0
     BSR     @INIT_JUNK_SR
 
-    ; pink
-    LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$33, d0
-    BSR     @INIT_JUNK_SR
-
     ; dma characters to VRAM
     MOVE.L  #BUFF_PLANE, d0
     MOVE.W  #VRAM_JUNK_SIZE/2, d1
     MOVE.W  #VRAM_JUNK_GFX, d2
     JSR     DMADump
-
-    ; dma patterns to VRAM
 
     RTS
 

@@ -44,7 +44,9 @@ P2_T_NEXT = $FF0768     ; 8B: "NEXT"
 P2_T_SCORE = $FF0770    ; 8B: "SCORE"
 P2_T_LLINES = $FF0778   ; 8B: "LIFE\nLINES"
 P2_SCORE_DGTS = $FF0780 ; 16B: player 2 score, 2 sprites
+; Particles:
 PART_SPRITES = $FF0790  ; Particle effect sprites, rest of sprite table
+SPRITES_END = $FF0B30   ; Upper bound for sprite data
 
 BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
 BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)

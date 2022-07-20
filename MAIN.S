@@ -246,6 +246,9 @@ GAME_LOOP:
     ; write digit characters to where score sprites get their chars
     JSR     DRAW_SCORE
 
+    ; move particles
+    JSR     UPDATE_PARTICLES
+
 @GAME_LOOP_END:
     RTS
 
