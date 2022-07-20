@@ -138,11 +138,11 @@ JUNK_GRAY:  ; palette: 0 (UI)
     ; 4: top
     DC.W    $0000|JUNK_GFX_CHAR+1
     ; 5: bottom
-    DC.W    $1000|JUNK_GFX_CHAR+1
+    DC.W    $1800|JUNK_GFX_CHAR+1
     ; 6: left
     DC.W    $0000|JUNK_GFX_CHAR+2
     ; 7: right
-    DC.W    $0800|JUNK_GFX_CHAR+2
+    DC.W    $1800|JUNK_GFX_CHAR+2
     ; 8: middle
     DC.W    $0000|JUNK_GFX_CHAR+3
     ; 9: top-left inner
@@ -166,11 +166,11 @@ JUNK_PAL1: ; palette: 1 (blocks)
     ; 4: top
     DC.W    $2000|JUNK_GFX_CHAR+6
     ; 5: bottom
-    DC.W    $3000|JUNK_GFX_CHAR+6
+    DC.W    $3800|JUNK_GFX_CHAR+6
     ; 6: left
     DC.W    $2000|JUNK_GFX_CHAR+7
     ; 7: right
-    DC.W    $2800|JUNK_GFX_CHAR+7
+    DC.W    $3800|JUNK_GFX_CHAR+7
     ; 8: middle
     DC.W    $2000|JUNK_GFX_CHAR+8
     ; 9: top-left inner
@@ -182,7 +182,7 @@ JUNK_PAL1: ; palette: 1 (blocks)
     ; C: bottom-right inner
     DC.W    $3800|JUNK_GFX_CHAR+9
 
-JUNK_PAL2: ; pallet: 2 (blocks)
+JUNK_PAL2: ; palette: 2 (blocks)
     ; 0: top-left
     DC.W    $4000|JUNK_GFX_CHAR+5
     ; 1: top-right
@@ -194,11 +194,11 @@ JUNK_PAL2: ; pallet: 2 (blocks)
     ; 4: top
     DC.W    $4000|JUNK_GFX_CHAR+6
     ; 5: bottom
-    DC.W    $5000|JUNK_GFX_CHAR+6
+    DC.W    $5800|JUNK_GFX_CHAR+6
     ; 6: left
     DC.W    $4000|JUNK_GFX_CHAR+7
     ; 7: right
-    DC.W    $4800|JUNK_GFX_CHAR+7
+    DC.W    $5800|JUNK_GFX_CHAR+7
     ; 8: middle
     DC.W    $4000|JUNK_GFX_CHAR+8
     ; 9: top-left inner

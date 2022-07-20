@@ -121,6 +121,7 @@ MAIN_INIT:
     JSR     INIT_BACKGROUND ; copy background to VRAM
     JSR     INIT_HUD        ; initialize UI sprites for both players
     JSR     INIT_JUNK       ; generate chars for junk, copy to VRAM
+    JSR     INIT_PARTICLES  ; copy particle graphics to VRAM
     ; must be done last since SCROLLA needs to be persistent
     ; in BUFF_PLANE for the duration of a game
     JSR     INIT_SCROLLA
@@ -267,3 +268,4 @@ GAME_LOOP:
     INCLUDE TEXT_GFX.S
     INCLUDE JUNK_GFX.S
     INCLUDE JUNK_PIECES.S
+    INCLUDE PARTICLE_GFX.S
