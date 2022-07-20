@@ -27,7 +27,7 @@ JUNK_PIECES:
     ; 4x3 L-shaped
     DC.B    4, 3
     DC.B    0, 1, -1, -1
-    DC.B    6, 8, 4, 1
+    DC.B    6, 10, 4, 1
     DC.B    2, 5, 5, 3
     DS.B    2
     

@@ -498,15 +498,36 @@ PLACE_NEW_JUNK:
     ADDA.W  d1, a5 ; a5 := JUNK pattern
     ; check if block should be colored
     BTST    #14, d0
-    BEQ     @BLOCK_COLOR_DONE
-    ; for colored blocks, patterns are after the gray patterns
-    ADDA.W  #18, a5 ; 9 patterns or 18 bytes
+    BEQ.B   @BLOCK_COLOR_DONE
+    ; check if block uses second palette
+    BTST    #10, d0
+    BNE.B   @BLOCK_PAL_2
+    ; for palette 1, patterns are after the gray patterns
+    ADDA.W  #26, a5 ; 13 patterns or 26 bytes
     MOVE.W  (a5), (SCRATCH)
     LEA.L   SCRATCH, a5
-    ; we need to add the color * 4 to the pattern data
+    ; we need to add the color * 5 to the pattern data
     MOVE.W  d0, d5
-    ANDI.W  #$0700, d5
-    LSR.W   #6, d5
+    ANDI.W  #$0300, d5
+    LSR.W   #6, d5  ; d5 := color * 4
+    ADD.W   d5, (a5)
+    LSR.W   #2, d5  ; d5 := color
+    ADD.W   d5, (a5)
+    BRA.B   @BLOCK_COLOR_DONE
+@BLOCK_PAL_2:
+    ; for palette 2, patterns are after the palette 1 patterns
+    ADDA.W  #52, a5 ; 26 patterns or 52 bytes
+    MOVE.W  (a5), (SCRATCH)
+    LEA.L   SCRATCH, a5
+    ; we need to change the palette
+    ANDI.W  #$DFFF, (a5)
+    ORI.W   #$4000, (a5)
+    ; we need to add the color * 5 to the pattern data
+    MOVE.W  d0, d5
+    ANDI.W  #$0300, d5
+    LSR.W   #6, d5  ; d5 := color * 4
+    ADD.W   d5, (a5)
+    LSR.W   #2, d5  ; d5 := color
     ADD.W   d5, (a5)
 
 @BLOCK_COLOR_DONE:

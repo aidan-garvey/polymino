@@ -16,10 +16,9 @@ UI_PALETTE:
     DC.W    $0A46   ; 4: royal purple
     DC.W    $0E84   ; 5: light blue
     DC.W    $0666   ; 6: dark gray
-    DC.W    $0888   ; 7: light gray
+    DC.W    $0888   ; 7: gray
 
-    ; dotted lines, colours will be swapped to create movement effect
-    DC.W    $048A
+    DC.W    $0AAA   ; 8: light gray
     DC.W    $048A
     DC.W    $048A
     DC.W    $048A

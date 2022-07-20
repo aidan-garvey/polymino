@@ -441,53 +441,46 @@ INIT_JUNK:
     JSR     CopyCharRAM
     JSR     CopyCharRAM
     JSR     CopyCharRAM
+    JSR     CopyCharRAM
 
     ; blue
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$9, d0
-    MOVE.W  #$1, d1
+    MOVE.W  #$00, d0
     BSR     @INIT_JUNK_SR
 
     ; red
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$A, d0
-    MOVE.W  #$2, d1
+    MOVE.W  #$33, d0
     BSR     @INIT_JUNK_SR
 
     ; green
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$B, d0
-    MOVE.W  #$3, d1
+    MOVE.W  #$66, d0
     BSR     @INIT_JUNK_SR
 
     ; yellow
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$C, d0
-    MOVE.W  #$4, d1
+    MOVE.W  #$99, d0
     BSR     @INIT_JUNK_SR
 
     ; orange
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$D, d0
-    MOVE.W  #$5, d1
+    MOVE.W  #$00, d0
     BSR     @INIT_JUNK_SR
 
     ; violet
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$E, d0
-    MOVE.W  #$6, d1
+    MOVE.W  #$66, d0
     BSR     @INIT_JUNK_SR
 
     ; teal
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$F, d0
-    MOVE.W  #$7, d1
+    MOVE.W  #$99, d0
     BSR     @INIT_JUNK_SR
 
-    ; dark green
+    ; pink
     LEA.L   JUNK_CHARS, a0
-    MOVE.W  #$8, d0
-    MOVE.W  #$B, d1
+    MOVE.W  #$33, d0
     BSR     @INIT_JUNK_SR
 
     ; dma characters to VRAM
@@ -500,49 +493,28 @@ INIT_JUNK:
 
     RTS
 
-; a0 points to source character
+
+; a0 points to source characters
 ; a1 points to destination
-; d0 contains the color to replace dark gray with
-; d1 contains the color to replace light gray with
+; d0 contains amount to add to each color byte
 @INIT_JUNK_SR:
-    ; for 8 long words -> d7
-        ; copy long to data register -> d2
-        ; clear another data register to be our destination -> d3
-        ; for 8 groups of 4 bits -> d6
-            ; transfer 4 bits to another data reg -> d4
-            ; compare with dark/light
-            ; OR d0/d1 with dest register
-            ; shift source right by 4, rotate dest right by 4
-        ; copy dest register to (a1)+
-    
-    ; for 4 chars * 8 long words
-    MOVEQ   #31, d7
+    ; nasty hack for first byte:
+    ; first pixel is the empty corner pixel
+    MOVE.B  (a0)+, d1
+    SUBI.B  #$05, d1
+    LSL.W   #4, d0
+    LSR.B   #4, d0
+    ADD.B   d0, d1
+    MOVE.B  d1, (a1)+
+    LSL.B   #4, d0
+    LSR.W   #4, d0
+
+    ; for 5 chars * (32 - 1) bytes
+    MOVE.W  #32*5-2, d7
 @IJ_CHAR_LOOP:
-        MOVE.L  (a0)+, d2   ; d2 := source row
-        MOVEQ   #0, d3      ; d3 modified source row
-        MOVEQ   #0, d4      ; d4 is for intermediate comparisons
-        ; for 8 4-bit pixels
-        MOVEQ   #7, d6
-@IJ_ROW_LOOP:
-            MOVE.B  d2, d4
-            ANDI.B  #$0F, d4    ; d4 := current pixel
-            TST.B   d4          
-            BEQ     @IJ_ROW_STEP ; if pixel is zero, skip
-            CMPI.B  #JUNK_DARK, d4
-            BEQ     @IJ_DARK
-            OR.B    d1, d3      ; copy light pixel
-            BRA     @IJ_ROW_STEP
-@IJ_DARK:
-            OR.B    d0, d3      ; copy dark pixel
-@IJ_ROW_STEP:
-            LSR.L   #4, d2      ; get next pixel in lower 4 bits
-            ROR.L   #4, d3      ; do same for d3, but preserve bits
-            DBRA    d6, @IJ_ROW_LOOP
-        MOVE.L  d3, (a1)+
-        DBRA    d7, @IJ_CHAR_LOOP
+    MOVE.B  (a0)+, d1
+    SUBI.B  #$55, d1
+    ADD.B   d0, d1
+    MOVE.B  d1, (a1)+
+    DBRA    d7, @IJ_CHAR_LOOP
     RTS
-
-    
-
-
-

@@ -52,13 +52,13 @@ MAIN_INIT:
     MOVEQ   #0, d0
     JSR     LOAD_PALETTE
 
-    ; palette 1: Blocks palette
-    LEA.L   BLOCK_PALETTE, a0
+    ; palette 1: first blocks palette
+    LEA.L   BLOCK_PALETTE_1, a0
     MOVEQ   #1, d0
     JSR     LOAD_PALETTE
 
-    ; palettes 2: blocks (temporary)
-    LEA.L   BLOCK_PALETTE, a0
+    ; palettes 2: second blocks palette
+    LEA.L   BLOCK_PALETTE_2, a0
     MOVEQ   #2, d0
     JSR     LOAD_PALETTE
 
