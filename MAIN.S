@@ -165,6 +165,9 @@ GAME_LOOP:
     TST.W   (GAME_PAUSED)
     BNE     @GAME_LOOP_END
 
+    ; move particles, called once for both players
+    JSR     UPDATE_PARTICLES
+
     ; update timers
     LEA.L   UPDATE_TIMER, a0
     ADD.W   #1, (a0)
@@ -237,17 +240,15 @@ GAME_LOOP:
     ; remove any matched blocks from the board
     JSR     CLEAR_BLOCKS
 
-    ; if any junk is in contact with a projectile, shatter it
-    JSR     SHATTER_JUNK
+    ; for any junk being shattered by projectiles,
+    ; advance its animation or replace it with a block
+    ; JSR     SHATTER_ANIM
 
     ; write to sprite buffer
     JSR     DRAW_CURSOR
 
     ; write digit characters to where score sprites get their chars
     JSR     DRAW_SCORE
-
-    ; move particles
-    JSR     UPDATE_PARTICLES
 
 @GAME_LOOP_END:
     RTS

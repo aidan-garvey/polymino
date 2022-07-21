@@ -7,9 +7,10 @@
 ; *****************************************************************
 
 ; Format of each cell in the board:
-; -N-- -CCC IIII IIII
+; -NS- -CCC IIII IIII
 ; N: Junk & !N = gray junk, Junk & N = coloured junk,
 ;    !Junk & !N = empty cell, !Junk & N = block
+; S: block is shattering junk, does not interact
 ; C: 3 bits for colour
 ; I: 0: not junk
 ;    1..255: 8-bit junk piece ID
@@ -317,6 +318,8 @@ UPDATE_PHYSICS:
     ; if (a1) is junk, call subroutine to move it
     TST.B   1(a1)
     BEQ.B   @UPDATE_NOT_JUNK
+    BTST.B  #SHATTER_FLAG-8, (a1)
+    BNE.B   @UPDATE_BLOCK_STEP
     BSR     UPDATE_JUNK
     BRA.B   @UPDATE_BLOCK_STEP
 @UPDATE_NOT_JUNK:
@@ -331,13 +334,10 @@ UPDATE_PHYSICS:
 
 @UPDATE_BLOCK_STEP:
     SUBQ    #1, d3
-    ; BGE.B   @UPDATE_BLOCK_STEP_2
     BGE.B   @UPDATE_BLOCK_LOOP
     MOVEQ   #BOARD_WIDTH-1, d3
     SUBQ    #1, d4
     BGT.B   @UPDATE_BLOCK_LOOP
-; @UPDATE_BLOCK_STEP_2:
-    ; DBRA    d0, @UPDATE_BLOCK_LOOP
 
     POP     a1
     RTS
@@ -604,10 +604,6 @@ PLACE_NEW_JUNK:
     POP     a3/a5
     RTS
 
-SHATTER_JUNK:
-    NOP
-    RTS
-
 ; =============================================
 ; CHECK_MATCH
 ; ---------------------------------------------
@@ -814,6 +810,8 @@ CHECK_MATCH:
 ;   a1 - game board
 ;   a2 - game state
 ;   a4 - points to screen buffer
+; Thrashed:
+;   none
 ; ==================================
 CLEAR_BLOCKS:
     PUSH    a0-a1/d0-d4
@@ -844,4 +842,56 @@ CLEAR_BLOCKS:
     DBRA    d0, @CLEAR_ROWS_LOOP
 
     POP     a0-a1/d0-d4
+    RTS
+
+; ===========================================
+; SHATTER_ANIM
+; -------------------------------------------
+; For each junk block going through a shatter
+; animation, advance its frame counter. If it
+; is finished, replace it with a new block.
+; -------------------------------------------
+; Parameters:
+;   a1 - game board
+;   a2 - game state
+;   a4 - screen buffer
+; Thrashed:
+;   d0
+; ===========================================
+SHATTER_ANIM:
+    PUSH    a2
+    ; game state is right after board, so we'll use a2 to access it
+    MOVEQ   #BOARD_WIDTH-1, d3
+    MOVEQ   #BOARD_HEIGHT-1, d4
+
+@SHATTER_LOOP:
+    MOVE.W  -(a2), d0
+    ; if block is not junk, skip it
+    TST.B   d0
+    BEQ.B   @SHATTER_STEP
+    ; if block is not shattering, skip it
+    BTST    #SHATTER_FLAG, d0
+    BEQ.B   @SHATTER_STEP
+    ; if block is shattering, count down
+    SUBQ.B  #1, d0
+    ; if timer reaches zero, replace with block
+    BEQ.B   @SHATTER_REPLACE
+    ; otherwise, store it and move on
+    MOVE.W  d0, (a2)
+    BRA.B   @SHATTER_STEP
+
+@SHATTER_REPLACE:
+    ; replace the junk block with a new block
+    JSR     RAND
+    BSET    #14, d0     ; set N
+    ANDI.W  #$4700, d0  ; clear all except N and color
+    MOVE.W  d0, (a2)    ; store in board data
+    JSR     PLACE_BLOCK ; place block in screen buffer
+
+@SHATTER_STEP:
+    DBRA    d3, @SHATTER_LOOP
+    MOVEQ   #BOARD_WIDTH-1, d3
+    DBRA    d4, @SHATTER_LOOP
+
+    POP     a2
     RTS

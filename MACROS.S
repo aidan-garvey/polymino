@@ -77,7 +77,7 @@ POP: MACRO
 ; \2: dest register
 MIN: MACRO
     CMP.\0  \1, \2
-    BLE.B     @END\@
+    BLE.B   @END\@
     MOVE.\0 \1, \2
 @END\@:
     ENDM
