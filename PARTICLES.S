@@ -320,6 +320,7 @@ UPDATE_PARTICLES:
     TST.W   (a0)
     BEQ.B   @UPDATE_PARTICLES_STEP
 
+    ; update x and y velocity
     MOVE.L  (a1), d1    ; d1 := x, y velocity
     MOVE.L  4(a1), d2   ; d2 := x, y accel
     ADD.W   d2, d1
@@ -329,20 +330,9 @@ UPDATE_PARTICLES:
     SWAP    d1
     MOVE.L  d1, (a1)    ; save new velocity
 
-    ; TODO: if particle is a projectile, shatter junk
-    ; (use range b/w start and end positions for collision)
-    ;; if h particle, skip updating y, save old x, update x
-    ;; if v particle, save old y, update y, skip updating x
-    
-    ;; if a horizontal projectile, skip updating y
-    ;BTST.B  #6, 8(a1)
-    ;BNE.B   @UPDATE_X_POS
-
-    ; update and check y position
+    ; update and check y position, delete if off screen
     ASR.W   #4, d1
     MOVE.W  (a0), d2
-    ;; save old y position (only used if a projectile)
-    ;MOVE.W  d2, d0
     ADD.W   d1, d2
     CMPI.W  #BOUNDS_TOP, d2
     BLT.B   @DELETE_PARTICLE
@@ -350,33 +340,35 @@ UPDATE_PARTICLES:
     BGT.B   @DELETE_PARTICLE
     MOVE.W  d2, (a0)
 
-    ;; if a vertical projectile (at this point, non-zero 8(a1)),
-    ;; then skip updating x (and thus writing old x to d0)
-    ;TST.W   8(a1)
-    ;BNE.B   @SKIP_UPDATE_X
-
     ; update and check x position
-;@UPDATE_X_POS:
     SWAP    d1
     ASR.W   #4, d1
     MOVE.W  6(a0), d2
-    ;; save old x position (only used if a projectile)
-    ;MOVE.W  d2, d0
     ADD.W   d1, d2
-    CMPI.W  #BOUNDS_LEFT, d2
+    BTST.B  #PART_PLAYER_FLAG-8, 8(a1) ; check which player the particle belongs to
+    BNE.B   @P2_X_CHECK
+    ; player 1:
+    CMPI.W  #P1_LEFT_BOUND, d2
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #BOUNDS_RIGHT, d2
+    CMPI.W  #P1_RIGHT_BOUND, d2
     BGT.B   @DELETE_PARTICLE
+    BRA.B   @X_CHECK_DONE
+@P2_X_CHECK:
+    ; player 2:
+    CMPI.W  #P2_LEFT_BOUND, d2
+    BLT.B   @DELETE_PARTICLE
+    CMPI.W  #P2_RIGHT_BOUND, d2
+    BGT.B   @DELETE_PARTICLE
+@X_CHECK_DONE:
+    ;CMPI.W  #BOUNDS_LEFT, d2
+    ;BLT.B   @DELETE_PARTICLE
+    ;CMPI.W  #BOUNDS_RIGHT, d2
+    ;BGT.B   @DELETE_PARTICLE
     MOVE.W  d2, 6(a0)
-;@SKIP_UPDATE_X:
-
+    
     ; if we didn't delete this sprite, a2 will track it
     MOVE.L  a0, a2
-
-    ;; if it was a projectile, check collisions
-    ;TST.W   8(a1)
-    ;BEQ.B   @UPDATE_PARTICLES_STEP
-    ;JSR     PROJ_COLLISION
+    
     BRA.B   @UPDATE_PARTICLES_STEP
 
 @DELETE_PARTICLE:
