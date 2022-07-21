@@ -349,8 +349,8 @@ INIT_HUD:
 
 INIT_BACKGROUND:
     ; load star graphics into VRAM
-    MOVE.L  #BCKGND_NIGHT_CHARS, d0 ; address
-    MOVE.W  #32, d1                 ; 16 words * 2 chars
+    MOVE.L  #BCKGND_CHARS, d0       ; address
+    MOVE.W  #16*3, d1               ; 16 words * 3 chars
     MOVE.W  #VRAM_BCKGND_GFX, d2    ; start at tile $100 (address $2000)
     JSR     DMADump
 

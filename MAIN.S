@@ -63,7 +63,7 @@ MAIN_INIT:
     JSR     LOAD_PALETTE
 
     ; palette 3: background
-    LEA.L   BCKGND_NIGHT_PAL, a0
+    LEA.L   BCKGND_PAL, a0
     MOVEQ   #3, d0
     JSR     LOAD_PALETTE
 

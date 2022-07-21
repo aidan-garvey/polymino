@@ -814,10 +814,10 @@ CHECK_MATCH:
 ;   none
 ; ==================================
 CLEAR_BLOCKS:
-    PUSH    a0-a1/d0-d4
+    PUSH    a0-a1/d0-d5
     MOVE.L  a2, a0
     ADD.W   #TO_CLEAR_OFF, a0
-    MOVEQ   #BOARD_HEIGHT-1, d0
+    MOVEQ   #BOARD_HEIGHT-1, d5
     MOVEQ   #0, d3
     MOVEQ   #0, d4
 @CLEAR_ROWS_LOOP:
@@ -829,8 +829,10 @@ CLEAR_BLOCKS:
 @CLEAR_BLOCK_LOOP:
     BTST    d2, d1
     BEQ     @CLEAR_BLOCK_STEP
+    MOVE.W  (a1), d0
     MOVE.W  #0, (a1)
     JSR     ERASE_BLOCK
+    JSR     SPAWN_DEBRIS
 @CLEAR_BLOCK_STEP:
     ADDA.W  #2, a1
     ADDQ    #1, d2
@@ -839,9 +841,9 @@ CLEAR_BLOCKS:
     BLT     @CLEAR_BLOCK_LOOP
     ADDQ    #1, d4
     MOVEQ   #0, d3
-    DBRA    d0, @CLEAR_ROWS_LOOP
+    DBRA    d5, @CLEAR_ROWS_LOOP
 
-    POP     a0-a1/d0-d4
+    POP     a0-a1/d0-d5
     RTS
 
 ; ===========================================

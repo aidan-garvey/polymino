@@ -30,6 +30,10 @@ INIT_PARTICLES:
     MOVE.W  #VRAM_PROJ_SIZE/2, d1
     MOVE.W  #VRAM_PROJ_GFX, d2
     JSR     DMADump
+    MOVE.L  #DEBRIS_CHARS, d0
+    MOVE.W  #VRAM_DEBRIS_SIZE/2, d1
+    MOVE.W  #VRAM_DEBRIS_GFX, d2
+    JSR     DMADump
     RTS
 
 ; ===========================
@@ -213,7 +217,7 @@ SPAWN_H_PROJ:
     BSET    #14, d7 ; set direction bit to 1, for horizontal
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @SKIP_P2_FLAG_H
-    BSET    #13, d7 ; set player 2 flag
+    BSET    #PART_PLAYER_FLAG, d7 ; set player 2 flag
 @SKIP_P2_FLAG_H:
     JSR     ADD_PARTICLE
 
@@ -234,6 +238,93 @@ SPAWN_H_PROJ:
     SWAP    d6
     ; d7 does not change
 
+    JSR     ADD_PARTICLE
+
+    POP     a0/d1-d7
+    RTS
+
+; ==================================
+; SPAWN_DEBRIS
+; ----------------------------------
+; Spawn a debris particle at a block
+; ----------------------------------
+; Parameters:
+;   a2 - player game state
+;   d0 - block data
+;   d3 - column number
+;   d4 - row number
+; Thrashed:
+;   none
+; ==================================
+SPAWN_DEBRIS:
+    PUSH    a0/d1-d7
+
+    ; we will use random data for velocity,
+    ; generate it now to preserve registers
+    PUSH    d0
+    JSR     RAND
+    MOVE.L  d0, d5
+    POP     d0
+
+    ; d2 := 3rd sprite attribute word
+    ; first color bit is the color palette,
+    ; last two are multiplied for character index
+    MOVE.W  d0, d2
+    ANDI.W  #$0300, d2
+    LSR.W   #8, d2      ; d2 := color[1:0]
+    ADDI.W  #DEBRIS_CHAR, d2
+    ; use the random data from RAND to randomly flip the debris
+    ANDI.W  #$1800, d1  ; 1x1 size
+    OR.W    d1, d2
+    BTST    #10, d0
+    BNE.B   @SD_PAL2
+    BSET    #13, d2     ; palette 1
+    BRA.B   @SD_D2_DONE
+@SD_PAL2:
+    BSET    #14, d2     ; palette 2
+@SD_D2_DONE:
+
+    ; d1 := 2nd sprite attribute word
+    MOVE.W  #0, d1      ; 1x1 size
+
+    ; d3 := x position
+    ; add number of cells b/w left edge and P1 board
+    ADDI.W  #P1_BOARD_COL_OFFSET, d3
+    ; if a2 points to player 2's game state, add additional distance
+    CMPA.L  #GAME_STATE_2, a2
+    BNE.B   @SKIP_P2_ADD_D
+    ADDI.W  #(P2_BOARD_COL_OFFSET-P1_BOARD_COL_OFFSET), d3
+@SKIP_P2_ADD_D:
+    ; multiply by 8 to get pixel position
+    LSL.W   #3, d3
+    ; add left screen bound
+    ADDI.W  #$80, d3
+
+    ; d4 := y position
+    ; add number of cells b/w top edge and board
+    ADDQ.W  #BOARD_ROW_OFFSET, d4
+    LSL.W   #3, d4
+    ADDI.W  #$80, d4
+
+    ; d5 := x, y velocity
+    ; d5 already contains random data, limit x and y velocity
+    ANDI.L  #DEBRIS_VEL_MASK, d5
+    SWAP    d5
+    ; x velocity will be in range [-$10, +$F]
+    SUBI.W  #$10, d5
+    SWAP    d5
+    ; y velocity will be in range [-$1F, 0]
+    SUBI.W  #$1F, d5
+
+    ; d6 := x, y acceleration
+    MOVEQ   #GRAVITY, d6
+
+    ; d7 := extra particle data - for debris, just player number
+    MOVEQ   #0, d7
+    CMPA.L  #GAME_STATE_2, a2
+    BNE.B   @SKIP_P2_FLAG_D
+    BSET    #PART_PLAYER_FLAG, d7
+@SKIP_P2_FLAG_D:
     JSR     ADD_PARTICLE
 
     POP     a0/d1-d7
@@ -303,7 +394,7 @@ ADD_PARTICLE:
 ; remove any out-of-bounds particles
 ; --------------------------------------------
 ; Thrashed:
-;   a0-a2, d0-d2
+;   a0-a2, d0-d3
 ; ============================================
 UPDATE_PARTICLES:
     LEA.L   PART_SPRITES, a0
@@ -331,39 +422,43 @@ UPDATE_PARTICLES:
     MOVE.L  d1, (a1)    ; save new velocity
 
     ; update and check y position, delete if off screen
-    ASR.W   #4, d1
+    ; ASR.W   #4, d1
     MOVE.W  (a0), d2
+    ROL.W   #4, d2
     ADD.W   d1, d2
-    CMPI.W  #BOUNDS_TOP, d2
+    ROR.W   #4, d2
+    MOVE.W  d2, d3
+    ANDI.W  #$0FFF, d3
+    CMPI.W  #BOUNDS_TOP, d3
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #BOUNDS_BOTTOM, d2
+    CMPI.W  #BOUNDS_BOTTOM, d3
     BGT.B   @DELETE_PARTICLE
     MOVE.W  d2, (a0)
 
     ; update and check x position
     SWAP    d1
-    ASR.W   #4, d1
+    ; ASR.W   #4, d1
     MOVE.W  6(a0), d2
+    ROL.W   #4, d2
     ADD.W   d1, d2
+    ROR.W   #4, d2
+    MOVE.W  d2, d3
+    ANDI.W  #$0FFF, d3
     BTST.B  #PART_PLAYER_FLAG-8, 8(a1) ; check which player the particle belongs to
     BNE.B   @P2_X_CHECK
     ; player 1:
-    CMPI.W  #P1_LEFT_BOUND, d2
+    CMPI.W  #P1_LEFT_BOUND, d3
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #P1_RIGHT_BOUND, d2
+    CMPI.W  #P1_RIGHT_BOUND, d3
     BGT.B   @DELETE_PARTICLE
     BRA.B   @X_CHECK_DONE
 @P2_X_CHECK:
     ; player 2:
-    CMPI.W  #P2_LEFT_BOUND, d2
+    CMPI.W  #P2_LEFT_BOUND, d3
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #P2_RIGHT_BOUND, d2
+    CMPI.W  #P2_RIGHT_BOUND, d3
     BGT.B   @DELETE_PARTICLE
 @X_CHECK_DONE:
-    ;CMPI.W  #BOUNDS_LEFT, d2
-    ;BLT.B   @DELETE_PARTICLE
-    ;CMPI.W  #BOUNDS_RIGHT, d2
-    ;BGT.B   @DELETE_PARTICLE
     MOVE.W  d2, 6(a0)
     
     ; if we didn't delete this sprite, a2 will track it
@@ -383,196 +478,8 @@ UPDATE_PARTICLES:
     ADDA.W  #PART_DATA_SIZE, a1
     ; if we aren't out of bounds, iterate again
     CMPA.L  #SPRITES_END, a0
-    BLT.B   @UPDATE_PARTICLES_LOOP
+    BLT.W   @UPDATE_PARTICLES_LOOP
 
-    RTS
-
-; ========================================
-; PROJ_COLLISION
-; ----------------------------------------
-; If a projectile is in contact with junk,
-; begin its shattering animation.
-; This subroutine also deletes projectiles
-; that go out of a board's bounds.
-; ----------------------------------------
-; Parameters:
-;   a0 - points to sprite data
-;   a1 - points to particle data
-;   d0 - old x/y position
-; Thrashed:
-;   d0-d4, d7
-; ========================================
-;PROJ_COLLISION:
-    MOVEQ   #0, d7  ; if d7 is set to TRUE, delete the projectile afterwards
-
-    BTST.B  #6, 8(a1)
-    BNE.W   @V_PROJ_COLLISION
-
-    ; horizontal projectile: d0 is the old x position,
-    ;   9(a1) is the row number, need board's x offset
-
-    MOVE.W  6(a0), d3   ; d3 := new x position
-    MOVE.B  9(a1), d4   
-    ANDI.W  #$001F, d4  ; d4 := row number
-
-    ; determine which board the projectile is at
-    ; CMPI.W  #1, (NUM_PLAYERS)
-    BTST.B  #6, 8(a1)
-    BEQ.B   @H_PLAYER_1
-    
-    ; two players: depending on old x, projectile
-    ; belongs to P1 or P2
-    ; CMPI.W  #P1_RIGHT_BOUND, d0
-    ; BLT.B   @H_PLAYER_1
-    
-    ; projectile is in P2's board
-    LEA.L   BOARD_2, a3
-    ; subtract player 2 offset
-    SUBI.W  #P2_LEFT_BOUND, d0
-    SUBI.W  #P2_LEFT_BOUND, d3
-
-    BRA.B   @H_CHECK_COLLISION
-
-@H_PLAYER_1:
-    ; projectile is in P1's board
-    LEA.L   BOARD_1, a3
-    ; subtract player 1 offset
-    SUBI.W  #P1_LEFT_BOUND, d0
-    SUBI.W  #P1_LEFT_BOUND, d3
-
-@H_CHECK_COLLISION:
-    ; convert in-board x coordinates to row numbers
-    LSR.W   #3, d0
-    LSR.W   #3, d3
-    ; to always check left-to-right, ensure d0 is the smaller value
-    CMP.W   d0, d3
-    BGE.B   @H_X_SORTED
-    EXG     d0, d3
-@H_X_SORTED:
-    ; clamp to bounds
-    TST.W   d0
-    BGE.B   @H_D0_VALID
-    MOVEQ   #-1, d7
-    MOVEQ   #0, d0
-@H_D0_VALID:
-    CMPI.W  #BOARD_WIDTH-1, d3
-    BLE.B   @H_D3_VALID
-    MOVEQ   #-1, d7
-    MOVEQ   #BOARD_WIDTH-1, d3
-@H_D3_VALID:
-
-    MULU    #BOARD_WIDTH*2, d4
-    ADD.W   d0, d4
-    ADD.W   d0, d4
-    ADDA.W  d4, a3  ; a3 -> block at (d0, d4)
-
-    ; loop over each block b/w x = d0 to x = d3
-    MOVE.W  d3, d2
-    SUB.W   d0, d2  ; d2 := loop counter
-@H_CHECK_LOOP:
-    MOVE.W  (a3)+, d1   ; d1 := current block
-    ; if it is not junk, don't shatter
-    TST.B   d1
-    BNE.B   @H_CHECK_STEP
-    ; if already shattering, do not shatter again
-    BTST    #SHATTER_FLAG, d1
-    ;BNE.B   @H_CHECK_STEP
-    ;; otherwise, shatter it
-    ;JSR     SHATTER_JUNK
-
-@H_CHECK_STEP:
-    DBRA    d2, @H_CHECK_LOOP
-
-    ; if d7 was set, we need to delete the particle
-    TST.W   d7
-    BEQ.W   @PROJ_COLLISION_RET
-
-    ; delete the particle:
-    ; - set the first word of the sprite data to zero
-    ; - set the previous sprite's link data to the deleted sprite's link data
-    MOVE.W  #0, (a0)
-    MOVE.B  3(a0), -5(a0)
-
-    BRA.B   @PROJ_COLLISION_RET
-
-@V_PROJ_COLLISION:
-    ; vertical projectile: d0 is the old y position,
-    ;   9(a1) is the column number, need board's y offset
-
-    MOVE.W  (a0), d4    ; d4 := new y position
-    MOVE.B  9(a1), d3
-    ANDI.W  #$001F, d3  ; d3 := column number
-
-    LEA.L   BOARD_1, a3 ; assume player 1 until proven player 2
-
-    ; determine which board the projectile is at
-    ; CMPI.W  #1, (NUM_PLAYERS)
-    BTST.B  #6, 8(a1)
-    BEQ.B   @V_CHECK_COLLISION
-    ; two players: depending on sprite x,
-    ; projectile belongs to P1 or P2
-    ; CMPI.W  #P1_RIGHT_BOUND, d0
-    ; BLT.B   @V_CHECK_COLLISION
-    ; projectile is in P2's board
-    LEA.L   BOARD_2, a3
-
-@V_CHECK_COLLISION:
-    ; convert d0, d4 to row numbers
-    SUBI.W  #$90, d0
-    SUBI.W  #$90, d4
-    LSR.W   #3, d0
-    LSR.W   #3, d4
-    ; to always check top-to-bottom, ensure d0 is the smaller value
-    CMP.W   d0, d4
-    BGE.B   @V_Y_SORTED
-    EXG     d0, d4
-@V_Y_SORTED:
-    ; clamp to bounds
-    TST.W   d0
-    BGE.B   @V_D0_VALID
-    MOVEQ   #-1, d7
-    MOVEQ   #0, d0
-@V_D0_VALID:
-    CMPI.W  #BOARD_HEIGHT-1, d4
-    BLE.B   @V_D4_VALID
-    MOVEQ   #-1, d7
-    MOVEQ   #BOARD_HEIGHT-1, d4
-@V_D4_VALID:
-
-    MOVE.W  d0, d1
-    MULU    #BOARD_WIDTH*2, d1
-    ADD.W   d3, d1
-    ADD.W   d3, d1
-    ADDA.W  d1, a3  ; a3 -> block at (d3, d0)
-
-    MOVE.W  d4, d2
-    SUB.W   d0, d2  ; d2 := loop counter
-@V_CHECK_LOOP:
-    MOVE.W  (a3), d1   ; d1 := current block
-    ; if it is not junk, don't shatter
-    TST.B   d1
-    BNE.B   @V_CHECK_STEP
-    ; if already shattering, do not shatter again
-    BTST    #SHATTER_FLAG, d1
-    ;BNE.B   @V_CHECK_STEP
-    ;; otherwise, shatter it
-    ;JSR     SHATTER_JUNK
-
-@V_CHECK_STEP:
-    ADDA.W  #BOARD_WIDTH*2, a3
-    DBRA    d2, @V_CHECK_LOOP
-
-    ; if d7 was set, we need to delete the particle
-    TST.W   d7
-    BEQ.B   @PROJ_COLLISION_RET
-
-    ; delete the particle:
-    ; - set the first word of the sprite data to zero
-    ; - set the previous sprite's link data to the deleted sprite's link data
-    MOVE.W  #0, (a0)
-    MOVE.B  3(a0), -5(a0)
-
-@PROJ_COLLISION_RET:
     RTS
 
 ; ==========================================
