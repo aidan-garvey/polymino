@@ -147,7 +147,7 @@ DEBRIS_CHARS:
     DC.L    $0CCCCCB0
     DC.L    $00000000
     
-; old debris chars, could re-use
+; old debris chars, pellet-shaped, could re-use
     ; blue / orange
     ;DC.L    $00000000
     ;DC.L    $00000000

@@ -240,9 +240,12 @@ GAME_LOOP:
     ; remove any matched blocks from the board
     JSR     CLEAR_BLOCKS
 
+    ; check current player's projectiles, see if they can destroy junk
+    JSR     PROJ_CHECK
+
     ; for any junk being shattered by projectiles,
     ; advance its animation or replace it with a block
-    ; JSR     SHATTER_ANIM
+    JSR     SHATTER_ANIM
 
     ; write to sprite buffer
     JSR     DRAW_CURSOR

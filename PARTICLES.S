@@ -11,11 +11,14 @@
 ; X, Y acceleration (4 bytes)
 ; Extra data (2 bytes)
 ;   1DU- -CCC ---P PPPP
-;   * First bit always set
+;   * First bit always set for projectiles
 ;   D = direction, vertical = 0, horizontal = 1
 ;   U = player, 0 = P1, 1 = P2
 ;   C = color
 ;   P = row or column number, depending on D
+
+; Non-projectile particles only use the player
+; flag ("U"), everything else should be 0.
 
 ; ==================================
 ; INIT_PARTICLES
@@ -30,10 +33,12 @@ INIT_PARTICLES:
     MOVE.W  #VRAM_PROJ_SIZE/2, d1
     MOVE.W  #VRAM_PROJ_GFX, d2
     JSR     DMADump
+
     MOVE.L  #DEBRIS_CHARS, d0
     MOVE.W  #VRAM_DEBRIS_SIZE/2, d1
     MOVE.W  #VRAM_DEBRIS_GFX, d2
     JSR     DMADump
+
     RTS
 
 ; ===========================
@@ -217,7 +222,7 @@ SPAWN_H_PROJ:
     BSET    #14, d7 ; set direction bit to 1, for horizontal
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @SKIP_P2_FLAG_H
-    BSET    #PART_PLAYER_FLAG, d7 ; set player 2 flag
+    BSET    #PART_PLAYER_FLAG_W, d7 ; set player 2 flag
 @SKIP_P2_FLAG_H:
     JSR     ADD_PARTICLE
 
@@ -323,7 +328,7 @@ SPAWN_DEBRIS:
     MOVEQ   #0, d7
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @SKIP_P2_FLAG_D
-    BSET    #PART_PLAYER_FLAG, d7
+    BSET    #PART_PLAYER_FLAG_W, d7
 @SKIP_P2_FLAG_D:
     JSR     ADD_PARTICLE
 
@@ -444,7 +449,7 @@ UPDATE_PARTICLES:
     ROR.W   #4, d2
     MOVE.W  d2, d3
     ANDI.W  #$0FFF, d3
-    BTST.B  #PART_PLAYER_FLAG-8, 8(a1) ; check which player the particle belongs to
+    BTST.B  #PART_PLAYER_FLAG_B, 8(a1) ; check which player the particle belongs to
     BNE.B   @P2_X_CHECK
     ; player 1:
     CMPI.W  #P1_LEFT_BOUND, d3
@@ -482,21 +487,162 @@ UPDATE_PARTICLES:
 
     RTS
 
-; ==========================================
-; SHATTER_JUNK
-; ------------------------------------------
-; Given a pointer to a junk block, begin its
-; shatter animation, as well as the other
-; blocks of the junk piece.
-; TODO: shatter whole piece, free junk's ID
-; in JUNK_IDS
-; ------------------------------------------
+; =====================================
+; PROJ_CHECK
+; -------------------------------------
+; Check all projectiles for the current
+; player, see if they can destroy junk.
+; -------------------------------------
+; TODO: call this subroutine only
+; immediately after a projectile is
+; spawned (use flag in RAM) or
+; immediately after new junk drops.
+; -------------------------------------
 ; Parameters:
-;   a3 - pointer to block
+;   a1 - pointer to board
+;   a2 - pointer to game state
 ; Thrashed:
-;   none
-; ==========================================
-;SHATTER_JUNK:
-    BSET.B  #SHATTER_FLAG-8, (a3)
-    MOVE.B  #1, 1(a3)
+;   d0-d3
+; =====================================
+PROJ_CHECK:
+    PUSH    a3-a4
+
+    ; wut we need:
+    ; a1 and a2 preserved for calling SHATTER_JUNK
+    ; a0 should contain the block we're checking when a projectile is valid
+    ; register containing all zeroes except desired
+        ; player flag. EOR each block into this register,
+        ; AND with mask that clears all but player bit,
+        ; player is correct if result is zero (push and pop
+        ; the register before and after this operation
+        ; to reuse it for every particle)
+    ; register containing the desired color, same process as above
+
+    ; TODO: could offset a4 by 8 bytes the whole time, eliminate displacements
+
+    ; determine the player flag we need
+    MOVEQ   #0, d0
+    CMP.L   #BOARD_1, a1
+    BEQ.B   @P_FLAG_DONE
+    BSET    #PART_PLAYER_FLAG_W, d0
+@P_FLAG_DONE:
+
+    ; begin iterating over particles
+    LEA.L   PART_SPRITES, a3
+    LEA.L   PART_DATA, a4
+
+    ; d1 will hold projectile data,
+    ; each projectile will be compared to
+    ; the previous one to prevent duplicate
+    ; checks
+    MOVEQ   #0, d1
+
+    ; if first particle is deleted, skip
+    TST.W   (a3)
+    BEQ.W   @PROJ_STEP
+
+@PROJ_LOOP:
+    ; if particle is not projectile, skip
+    BTST.B  #PART_PROJ_FLAG_B, 8(a4)
+    BEQ.W   @PROJ_STEP
+    ; if projectile data is same as last one, skip
+    CMP.W   8(a4), d1
+    BEQ.W   @PROJ_STEP
+    ; d1 will hold onto projectile data
+    MOVE.W  8(a4), d1
+    ; if particle is wrong player, skip
+    MOVE.W  d1, d2
+    EOR.W   d0, d2
+    ANDI.W  #PART_PLAYER_MASK_W, d2
+    BNE.B   @PROJ_STEP
+
+    ; projectile is valid:
+    ; get color
+    MOVE.W  d1, d2
+    ANDI.W  #$0700, d2
+    ; determine direction
+    BTST    #PROJ_DIR_FLAG_W, d1
+    BNE.B   @H_PROJ_CHECK
+
+    ; vertical:
+    ; get column number
+    MOVE.W  d1, d3
+    ANDI.W  #$1F, d3
+
+    MOVE.L  a1, a0
+    ADDA.W  d3, a0
+    ADDA.W  d3, a0      ; a0 := first block of column
+
+@V_BLOCK_LOOP:
+    MOVE.W  (a0), d3    ; d3 := current block data
+    TST.B   d3
+    BEQ.B   @V_BLOCK_STEP   ; if not junk, skip
+    BTST    #SHATTER_FLAG_W, d3
+    BNE.B   @V_BLOCK_STEP   ; if shattering, skip
+    BTST    #14, d3
+    BNE.B   @V_BLOCK_SHATTER ; if gray, shatter
+    ; otherwise, compare colors:
+    EOR.W   d2, d3
+    ANDI.W  #$0700, d3
+    BNE.B   @V_BLOCK_STEP   ; if colors don't match, skip
+
+@V_BLOCK_SHATTER:
+    JSR     SHATTER_JUNK
+
+@V_BLOCK_STEP:
+    ; iterate column until we get to bottom of board
+    ADDA.W  #BOARD_WIDTH*2, a0
+    CMP.L   a2, a0
+    BLT.B   @V_BLOCK_LOOP
+
+    ; after V_BLOCK_LOOP is broken, do next projectile
+    BRA.B   @PROJ_STEP
+
+@H_PROJ_CHECK:
+    ; horizontal:
+    ; get row number
+    MOVE.W  d1, d3
+    ANDI.W  #$1F, d3
+    ; TODO: try to replace this baloney
+    MULU.W  #BOARD_WIDTH*2, d3
+    MOVE.L  a1, a0
+    ADDA.W  d3, a0      ; a0 := first block of row
+
+    MOVEQ   #BOARD_WIDTH-1, d4 ; loop counter
+@H_BLOCK_LOOP:
+    MOVE.W  (a0)+, d3   ; d3 := current block data
+    TST.B   d3
+    BEQ.B   @H_BLOCK_STEP   ; if not junk, skip
+    BTST    #SHATTER_FLAG_W, d3
+    BNE.B   @H_BLOCK_STEP   ; if already shattering, skip
+    BTST    #14, d3
+    BNE.B   @H_BLOCK_SHATTER ; if gray, shatter
+    ; otherwise, compare colors:
+    EOR.W   d2, d3
+    ANDI.W  #$0700, d3
+    BNE.B   @V_BLOCK_STEP   ; if colors don't match, skip
+
+@H_BLOCK_SHATTER:
+    SUBA.W  #2, a0
+    JSR     SHATTER_JUNK
+    ADDA.W  #2, a0
+
+@H_BLOCK_STEP:
+    DBRA    d4, @H_PROJ_CHECK
+
+@PROJ_STEP:
+    ; iterate over particles until we find a non-deleted one
+    ADDA.W  #PART_SPRITE_SIZE, a3
+    ADDA.W  #PART_DATA_SIZE, a4
+    CMP.L   #SPRITES_END, a3
+    BGE.B   @PROJ_BREAK
+    ; if particle is deleted, iterate again
+    TST.W   (a3)
+    BEQ.B   @PROJ_STEP
+    ; otherwise, do the loop with this particle
+    BRA.W   @PROJ_LOOP
+
+@PROJ_BREAK:
+    POP     a3-a4
     RTS
+
