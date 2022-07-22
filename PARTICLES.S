@@ -57,6 +57,10 @@ INIT_PARTICLES:
 SPAWN_V_PROJ:
     PUSH    a0/d1-d7
 
+    ; since we're adding projectiles, need
+    ; to set flag to check them
+    MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
+
     ; ************************
     ; spawn upwards projectile
     ; ************************
@@ -158,6 +162,10 @@ SPAWN_V_PROJ:
 ; =============================
 SPAWN_H_PROJ:
     PUSH    a0/d1-d7
+
+    ; since we're adding projectiles, need
+    ; to set flag to check them
+    MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
 
     ; ****************************
     ; spawn right-facing projectile
@@ -511,14 +519,10 @@ PROJ_CHECK:
     ; a1 and a2 preserved for calling SHATTER_JUNK
     ; a0 should contain the block we're checking when a projectile is valid
     ; register containing all zeroes except desired
-        ; player flag. EOR each block into this register,
+        ; player flag. EOR each block with this register,
         ; AND with mask that clears all but player bit,
-        ; player is correct if result is zero (push and pop
-        ; the register before and after this operation
-        ; to reuse it for every particle)
+        ; player is correct if result is zero.
     ; register containing the desired color, same process as above
-
-    ; TODO: could offset a4 by 8 bytes the whole time, eliminate displacements
 
     ; determine the player flag we need
     MOVEQ   #0, d0
@@ -529,7 +533,7 @@ PROJ_CHECK:
 
     ; begin iterating over particles
     LEA.L   PART_SPRITES, a3
-    LEA.L   PART_DATA, a4
+    LEA.L   PART_DATA+8, a4
 
     ; d1 will hold projectile data,
     ; each projectile will be compared to
@@ -543,13 +547,13 @@ PROJ_CHECK:
 
 @PROJ_LOOP:
     ; if particle is not projectile, skip
-    BTST.B  #PART_PROJ_FLAG_B, 8(a4)
+    BTST.B  #PART_PROJ_FLAG_B, (a4)
     BEQ.W   @PROJ_STEP
     ; if projectile data is same as last one, skip
-    CMP.W   8(a4), d1
+    CMP.W   (a4), d1
     BEQ.W   @PROJ_STEP
     ; d1 will hold onto projectile data
-    MOVE.W  8(a4), d1
+    MOVE.W  (a4), d1
     ; if particle is wrong player, skip
     MOVE.W  d1, d2
     EOR.W   d0, d2
@@ -579,8 +583,8 @@ PROJ_CHECK:
     BEQ.B   @V_BLOCK_STEP   ; if not junk, skip
     BTST    #SHATTER_FLAG_W, d3
     BNE.B   @V_BLOCK_STEP   ; if shattering, skip
-    BTST    #14, d3
-    BNE.B   @V_BLOCK_SHATTER ; if gray, shatter
+    BTST    #NOT_GRAY_FLAG, d3
+    BEQ.B   @V_BLOCK_SHATTER ; if gray, shatter
     ; otherwise, compare colors:
     EOR.W   d2, d3
     ANDI.W  #$0700, d3
@@ -615,12 +619,12 @@ PROJ_CHECK:
     BEQ.B   @H_BLOCK_STEP   ; if not junk, skip
     BTST    #SHATTER_FLAG_W, d3
     BNE.B   @H_BLOCK_STEP   ; if already shattering, skip
-    BTST    #14, d3
-    BNE.B   @H_BLOCK_SHATTER ; if gray, shatter
+    BTST    #NOT_GRAY_FLAG, d3
+    BEQ.B   @H_BLOCK_SHATTER ; if gray, shatter
     ; otherwise, compare colors:
     EOR.W   d2, d3
     ANDI.W  #$0700, d3
-    BNE.B   @V_BLOCK_STEP   ; if colors don't match, skip
+    BNE.B   @H_BLOCK_STEP   ; if colors don't match, skip
 
 @H_BLOCK_SHATTER:
     SUBA.W  #2, a0
@@ -628,7 +632,7 @@ PROJ_CHECK:
     ADDA.W  #2, a0
 
 @H_BLOCK_STEP:
-    DBRA    d4, @H_PROJ_CHECK
+    DBRA    d4, @H_BLOCK_LOOP
 
 @PROJ_STEP:
     ; iterate over particles until we find a non-deleted one

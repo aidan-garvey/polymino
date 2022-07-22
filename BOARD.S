@@ -861,13 +861,14 @@ CLEAR_BLOCKS:
 ;   d0-d4
 ; ===========================================
 SHATTER_ANIM:
-    PUSH    a2
+    PUSH    a3
     ; game state is right after board, we'll use a2 to access the board
+    MOVE.L  a2, a3
     MOVEQ   #BOARD_WIDTH-1, d3
     MOVEQ   #BOARD_HEIGHT-1, d4
 
 @SHATTER_LOOP:
-    MOVE.W  -(a2), d0
+    MOVE.W  -(a3), d0
     ; if block is not junk, skip it
     TST.B   d0
     BEQ.B   @SHATTER_STEP
@@ -879,7 +880,7 @@ SHATTER_ANIM:
     ; if timer reaches zero, replace with block
     BEQ.B   @SHATTER_REPLACE
     ; otherwise, store it and move on
-    MOVE.W  d0, (a2)
+    MOVE.W  d0, (a3)
     BRA.B   @SHATTER_STEP
 
 @SHATTER_REPLACE:
@@ -887,15 +888,17 @@ SHATTER_ANIM:
     JSR     RAND
     BSET    #14, d0     ; set N
     ANDI.W  #$4700, d0  ; clear all except N and color
-    MOVE.W  d0, (a2)    ; store in board data
+    MOVE.W  d0, (a3)    ; store in board data
     JSR     PLACE_BLOCK ; place block in screen buffer
+    ; when a junk block is replaced, add points for the player
+    JSR     ADD_SHATTER_SCORE
 
 @SHATTER_STEP:
     DBRA    d3, @SHATTER_LOOP
     MOVEQ   #BOARD_WIDTH-1, d3
     DBRA    d4, @SHATTER_LOOP
 
-    POP     a2
+    POP     a3
     RTS
 
 ; ============================================
@@ -913,10 +916,18 @@ SHATTER_ANIM:
 ;   none
 ; ============================================
 SHATTER_JUNK:
-    PUSH    a0/a3/d0
+    PUSH    a0/a3/d0-d2
+
+    ; when a new block is shattered,
+    ; increase the player's combo
+    ADDQ.W  #1, (COMBO_OFF, a2)
 
     ; save data for junk piece
     MOVE.W  (a0), d0
+
+    ; d1 will hold the value for each block's shatter timer,
+    ; so different blocks shatter at different times
+    MOVE.W  #SHATTER_BASE, d1
 
     ; move a0 to the bottom-left block in the junk piece
 @MOVE_DOWN:
@@ -943,9 +954,11 @@ SHATTER_JUNK:
     ; for each column, iterate to the top, setting shatter bit and timer
 @SHATTER_COLUMN_LOOP:
     MOVEA.L a0, a3
+    MOVE.W  d1, d2
 @MOVE_UP:
     BSET.B  #SHATTER_FLAG_B, (a3)
-    MOVE.B  #SHATTER_LEN, 1(a3)
+    MOVE.B  d2, 1(a3)
+    ADDQ.B  #SHATTER_INC, d2
     SUBA.W  #BOARD_WIDTH*2, a3
     ; don't go beyond top of board
     CMP.L   a1, a3
@@ -955,6 +968,7 @@ SHATTER_JUNK:
 
 ; advance to next column, break if we go beyond board or junk piece
 @SHATTER_COLUMN_STEP:
+    ADDQ.B  #SHATTER_INC, d1
     ADDA.W  #2, a0
     CMP.L   a2, a0
     BGE.B   @SHATTER_COLUMN_BREAK
@@ -962,7 +976,7 @@ SHATTER_JUNK:
     BEQ.B   @SHATTER_COLUMN_LOOP
 
 @SHATTER_COLUMN_BREAK:
-    POP     a0/a3/d0
+    POP     a0/a3/d0-d2
     RTS
     
 

@@ -98,6 +98,8 @@ MAIN_INIT:
     MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
+    MOVE.W  #0, (a0)+       ; combo multiplier
+    MOVE.W  #0, (a0)+       ; projectiles shouldn't be checked
     LEA.L   JUNK_TIMER_1, a0
     MOVE.W  #0, (a0)+       ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
@@ -111,6 +113,8 @@ MAIN_INIT:
     MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
+    MOVE.W  #0, (a0)+       ; combo multiplier
+    MOVE.W  #0, (a0)+       ; projectiles shouldn't be checked
     LEA.L   JUNK_TIMER_2, a0
     MOVE.W  #0, (a0)+       ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk
@@ -122,6 +126,7 @@ MAIN_INIT:
     JSR     INIT_HUD        ; initialize UI sprites for both players
     JSR     INIT_JUNK       ; generate chars for junk, copy to VRAM
     JSR     INIT_PARTICLES  ; copy particle graphics to VRAM
+
     ; must be done last since SCROLLA needs to be persistent
     ; in BUFF_PLANE for the duration of a game
     JSR     INIT_SCROLLA
@@ -143,7 +148,7 @@ MAIN_LOOP:
     JSR     READ_INPUT
     MOVE.L  (MAIN_VECTOR), a0
     JSR     (a0)
-    BRA     MAIN_LOOP
+    BRA.B   MAIN_LOOP
 
 
 ; =========================================================
@@ -176,16 +181,8 @@ GAME_LOOP:
     CMP.W   -(a0), d0
     BLT     @SKIP_UPDATE_RESET
     CLR.W   2(a0)    ; if we're at the limit, reset timer
-    ; only increase junk timer on physics updates
-    ; LEA.L   JUNK_TIMER, a0
-    ; ADD.W   #1, (a0)
-    ; compare junk timer to timer limit
-    ; MOVE.W  (a0), d0
-    ; CMP.W   -(a0), d0
-    ; BLT     @SKIP_JUNK_RESET
-    ; CLR.W   2(a0)
+    
 @SKIP_UPDATE_RESET:
-@SKIP_JUNK_RESET:
 
     ; needed addresses:
     LEA.L   PLAYER_1_DATA, a1   ; start of board for P1
@@ -194,10 +191,10 @@ GAME_LOOP:
     LEA.L   BUFF_PLANE+BOARD1_OFFSET, a4 ; scroll plane buffer for P1's board
     LEA.L   P1_SPRITE, a5
 
-    ; if 2 players, run code twice
     CMPI.W  #1, (NUM_PLAYERS)
-    BEQ.B   @LOOP_START
-    BSR     @LOOP_START
+    BEQ.B   @LOOP_START ; if 1 player, run main loop once, for P1
+    BSR     @LOOP_START ; if 2 players, run main loop for P1, then P2
+
     ; re-configure pointers for P2 data
     LEA.L   PLAYER_2_DATA, a1
     LEA.L   GAME_STATE_2, a2
@@ -235,13 +232,20 @@ GAME_LOOP:
     BNE.B   @SKIP_PLACE_JUNK
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
     MOVE.W  #1, (JUNK_TIMER_OFF, a2)
+    ; since new junk spawned, we'll need to check if it can be shattered
+    MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
 @SKIP_PLACE_JUNK:
 
     ; remove any matched blocks from the board
     JSR     CLEAR_BLOCKS
 
-    ; check current player's projectiles, see if they can destroy junk
+    ; check current player's projectiles, see if they can destroy junk.
+    ; only run once a new projectile is spawned, or new junk arrives
+    TST.W   (CHECK_PROJ_OFF, a2)
+    BEQ.B   @SKIP_PROJ_CHECK
     JSR     PROJ_CHECK
+    CLR.W   (CHECK_PROJ_OFF, a2)
+@SKIP_PROJ_CHECK:
 
     ; for any junk being shattered by projectiles,
     ; advance its animation or replace it with a block

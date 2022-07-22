@@ -7,8 +7,8 @@
 ; ********************************************************************
 
 MATCH_POINTS = $5 ; base points awarded for matching blocks - BCD
-SHATTER_POINTS = $50 ; base points awarded for destroying junk - BCD
-
+SHATTER_POINTS = $5 ; base points awarded for destroying junk - BCD
+                    ; (this is awarded for each block in the piece)
 BOARD_HEIGHT = 24 ; in cells
 BOARD_WIDTH = 10 ; in cells
 BOARD_SIZE = 480 ; size of board in bytes
@@ -62,6 +62,7 @@ DEBRIS_VEL_MASK = $001F001F
 GRAVITY = 2
 
 ; bit indexes
+NOT_GRAY_FLAG = 14
 SHATTER_FLAG_B = 5
 SHATTER_FLAG_W = 13
 PART_PROJ_FLAG_B = 7
@@ -72,5 +73,8 @@ PART_PLAYER_FLAG_B = 5
 PART_PLAYER_FLAG_W = 13
 PART_PLAYER_MASK_W = $2000
 
-; default length of shatter animation, in frames
-SHATTER_LEN = 10
+; for each block of a junk piece, the number of
+; frames before it shatters is calculated as:
+; SHATTER_BASE + (distance from bottom-left) * SHATTER_INC
+SHATTER_BASE = 10
+SHATTER_INC = 5

@@ -84,9 +84,8 @@ CURSOR_1_Y = $FF31EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 COMBO_1 = $FF31F0       ; 2B: player's combo multiplier
-V_MATCHES_1 = $FF31F2   ; 2B: rows where a vertical match occured this frame
-; 8B of free space
-; UPDATED_1 = $FF3200     ; $30 Bytes: updated flags for each block, 2B per row
+CHECK_PROJ_1 = $FF31F2  ; 2B: should projectiles be checked? T/F
+
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
 JUNK_TIMER_1 = $FF3340  ; 2B: physics updates before next junk drops
@@ -94,6 +93,7 @@ NEXT_JUNKID_1 = $FF3342 ; 2B: ID of next junk piece (only upper byte used)
 JUNK_PAT_1 = $FF3344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_1 = $FF3346 ; 2B: column number of left edge of next junk
 JUNK_IDS_1 = $FF3348    ; 32B: bitfield that keeps track of which junk IDs are in use
+
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
@@ -105,9 +105,9 @@ CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
 JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
-COMBO_2 = $FF31F0       ; 2B: player's combo multiplier
-; 8B of free space
-; UPDATED_2 = $FF4200     ; $30 Bytes: updated flags for each block, 2B per row
+COMBO_2 = $FF41F0       ; 2B: player's combo multiplier
+CHECK_PROJ_2 = $FF41F2  ; 2B: should projectiles be checked? T/F
+
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score
 JUNK_TIMER_2 = $FF4340  ; 2B: physics updates before next junk drops
