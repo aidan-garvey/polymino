@@ -930,23 +930,23 @@ SHATTER_JUNK:
     MOVE.W  #SHATTER_BASE, d1
 
     ; move a0 to the bottom-left block in the junk piece
-@MOVE_DOWN:
+@LOOP_DOWN:
     ADDA.W  #BOARD_WIDTH*2, a0
     ; don't go beyond game board
     CMP.L   a2, a0
     BGE.B   @BREAK_DOWN
     ; loop loop until we leave the junk piece
     CMP.W   (a0), d0
-    BEQ.B   @MOVE_DOWN
+    BEQ.B   @LOOP_DOWN
 @BREAK_DOWN:
     SUBA.W  #BOARD_WIDTH*2, a0
 
-@MOVE_LEFT:
+@LOOP_LEFT:
     ; don't go beyond start of game board
     CMP.L   a1, a0
     BLE.B   @BREAK_LEFT
     CMP.W   -(a0), d0
-    BEQ.B   @MOVE_LEFT
+    BEQ.B   @LOOP_LEFT
     ; addition only necessary if loop ended due to unequal block
     ADDA.W  #2, a0  ; a0 -> leftmost junk block
 @BREAK_LEFT:
@@ -955,7 +955,7 @@ SHATTER_JUNK:
 @SHATTER_COLUMN_LOOP:
     MOVEA.L a0, a3
     MOVE.W  d1, d2
-@MOVE_UP:
+@LOOP_UP:
     BSET.B  #SHATTER_FLAG_B, (a3)
     MOVE.B  d2, 1(a3)
     ADDQ.B  #SHATTER_INC, d2
@@ -964,7 +964,7 @@ SHATTER_JUNK:
     CMP.L   a1, a3
     BLT.B   @SHATTER_COLUMN_STEP
     CMP.W   (a3), d0
-    BEQ.B   @MOVE_UP
+    BEQ.B   @LOOP_UP
 
 ; advance to next column, break if we go beyond board or junk piece
 @SHATTER_COLUMN_STEP:

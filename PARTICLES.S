@@ -501,11 +501,6 @@ UPDATE_PARTICLES:
 ; Check all projectiles for the current
 ; player, see if they can destroy junk.
 ; -------------------------------------
-; TODO: call this subroutine only
-; immediately after a projectile is
-; spawned (use flag in RAM) or
-; immediately after new junk drops.
-; -------------------------------------
 ; Parameters:
 ;   a1 - pointer to board
 ;   a2 - pointer to game state

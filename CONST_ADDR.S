@@ -34,7 +34,7 @@ VRAM_DEBRIS_SIZE = 32*4
 
 BOARD1_OFFSET = 274
 BOARD2_OFFSET = BOARD1_OFFSET+24
-BOARD_ROW_OFFSET = 108
+; BOARD_ROW_OFFSET = 108
 
 ; length, in bytes, of each particle's sprite attributes
 PART_SPRITE_SIZE = 8

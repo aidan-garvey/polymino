@@ -193,7 +193,7 @@ SWAP_BLOCKS_V:
     ADD.W   d3, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     MOVE.L  a4, a5
-    SUBI.W  #128, a5 ; a5 points 1 row lower than a4
+    SUBA.W  #128, a5 ; a5 points 1 row lower than a4
     ; swap the blocks
     MOVE.W  (a4), d3
     MOVE.W  (a5), (a4)
