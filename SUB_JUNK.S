@@ -160,6 +160,7 @@ PLACE_NEW_JUNK:
     ; display new next junk in UI
     ; ***************************
 
+    ; call subroutine in DRAW to display next piece
     JSR     CLEAR_UI_NEXT
 
     ; get destination in screen buffer for P1 or P2
@@ -236,4 +237,98 @@ PLACE_NEW_JUNK:
     POP     a3/a5
     RTS
 
-    
+; ============================================
+; SHATTER_JUNK
+; --------------------------------------------
+; Given a pointer to any block in a junk piece
+; within the board data, begin the shattering
+; animation for all blocks in the piece
+; --------------------------------------------
+; Parameters:
+;   a0 - pointer to junk
+;   a1 - pointer to game board
+;   a2 - pointer to game state
+; Thrashed:
+;   none
+; ============================================
+SHATTER_JUNK:
+    PUSH    a0/a3/d0-d2
+
+    ; ******************
+    ; free the junk's ID
+    ; ******************
+
+    MOVE.W  (a0), d0    ; d0 := junk data
+    ANDI.W  #$FF, d0    ; isolate ID
+    MOVE.W  d0, d1      ; d1 := bit index (when modulo 8)
+    LSR.W   #3, d0      ; byte index
+    MOVE.L  a2, a3
+    ADDA.W  #JUNK_IDS_OFF, a3   ; a3 -> junk ID bitfield
+    ADDA.W  d0, a3              ; a3 -> byte containing junk's flag
+    BCLR.B  d1, (a3)            ; un-reserve the ID used by the junk
+
+    ; ****************
+    ; shatter the junk
+    ; ****************
+
+    ; when a new block is shattered,
+    ; increase the player's combo
+    ADDQ.W  #1, (COMBO_OFF, a2)
+
+    ; save data for junk piece
+    MOVE.W  (a0), d0
+
+    ; d1 will hold the value for each block's shatter timer,
+    ; so different blocks shatter at different times
+    MOVE.W  #SHATTER_BASE, d1
+
+    ; move a0 to the bottom-left block in the junk piece
+@LOOP_DOWN:
+    ADDA.W  #BOARD_WIDTH*2, a0
+    ; don't go beyond game board
+    CMP.L   a2, a0
+    BGE.B   @BREAK_DOWN
+    ; loop loop until we leave the junk piece
+    CMP.W   (a0), d0
+    BEQ.B   @LOOP_DOWN
+@BREAK_DOWN:
+    SUBA.W  #BOARD_WIDTH*2, a0
+
+@LOOP_LEFT:
+    ; don't go beyond start of game board
+    CMP.L   a1, a0
+    BLE.B   @BREAK_LEFT
+    CMP.W   -(a0), d0
+    BEQ.B   @LOOP_LEFT
+    ; addition only necessary if loop ended due to unequal block
+    ADDA.W  #2, a0  ; a0 -> leftmost junk block
+@BREAK_LEFT:
+
+    ; for each column, iterate to the top, setting shatter bit and timer
+@SHATTER_COLUMN_LOOP:
+    MOVEA.L a0, a3
+    MOVE.W  d1, d2
+@LOOP_UP:
+    BSET.B  #SHATTER_FLAG_B, (a3)
+    MOVE.B  d2, 1(a3)
+    ADDQ.B  #SHATTER_INC, d2
+    SUBA.W  #BOARD_WIDTH*2, a3
+    ; don't go beyond top of board
+    CMP.L   a1, a3
+    BLT.B   @SHATTER_COLUMN_STEP
+    CMP.W   (a3), d0
+    BEQ.B   @LOOP_UP
+
+; advance to next column, break if we go beyond board or junk piece
+@SHATTER_COLUMN_STEP:
+    ADDQ.B  #SHATTER_INC, d1
+    ADDA.W  #2, a0
+    CMP.L   a2, a0
+    BGE.B   @SHATTER_COLUMN_BREAK
+    CMP.W   (a0), d0
+    BEQ.B   @SHATTER_COLUMN_LOOP
+
+@SHATTER_COLUMN_BREAK:
+    POP     a0/a3/d0-d2
+    RTS
+
