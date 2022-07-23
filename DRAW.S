@@ -250,3 +250,40 @@ PLACE_JUNK_BLOCK:
 
     POP     a4/d3-d4
     RTS
+
+; =======================================
+; CLEAR_UI_NEXT
+; ---------------------------------------
+; Clear the space in the UI that displays
+; the next junk piece that will drop
+; ---------------------------------------
+; Parameters:
+;   a2 - player game state
+; Thrashed:
+;   none
+; =======================================
+CLEAR_UI_NEXT:
+    PUSH    a0/d0
+
+    LEA.L   UI_DITHER, a0
+    MOVE.W  (a0), d0
+    SWAP    d0
+    MOVE.W  (a0), d0
+
+    LEA.L   P_NEXT_POS_1, a0
+    CMP.L   #GAME_STATE_1, a2
+    BEQ.B   @CLEAR_UI_P1
+    LEA.L   P_NEXT_POS_2, a0
+@CLEAR_UI_P1:
+    MOVE.L  d0, (a0)+
+    MOVE.L  d0, (a0)+
+    ADDA.W  #120, a0
+    MOVE.L  d0, (a0)+
+    MOVE.L  d0, (a0)+
+    ADDA.W  #120, a0
+    MOVE.L  d0, (a0)+
+    MOVE.L  d0, (a0)+
+
+    POP     a0/d0
+    RTS
+

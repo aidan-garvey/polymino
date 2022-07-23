@@ -6,6 +6,9 @@
 ; game board, then generate a new next
 ; piece and display it in the UI.
 ; ------------------------------------
+; Parameters:
+;   a1 - game board
+;   a2 - game state
 ; Thrashed:
 ;   a0, d0-d7
 ; ====================================
@@ -14,6 +17,11 @@ PLACE_NEW_JUNK:
 
     TST.W   (NEXT_JUNKID_OFF, a2)
     BEQ.W   @SKIP_JUNK_SPAWN
+
+    ; ****************
+    ; spawn junk piece
+    ; ****************
+
     ; place junk at NEXT_JUNK_X
     MOVE.L  a1, a0
     MOVE.W  (NEXT_JUNK_X_OFF, a2), d0
@@ -78,14 +86,18 @@ PLACE_NEW_JUNK:
 @PLACE_ROW_STEP:
     ADDQ.W  #1, d3
     DBRA    d2, @PLACE_ROW_LOOP
-@PLACE_JUNK_STEP:
+    
     ; jump to next row for a0
-    SUBA.W  d6, a0 ; go back to left side of block
+    SUBA.W  d6, a0 ; go back to left side of junk piece
     SUBA.W  d6, a0 ; keep in mind d6 = width-1
     ADDA.W  #(BOARD_WIDTH*2)-2, a0 ; go down 1 row
     ; move y down by 1
     ADDQ.W  #1, d4
     DBRA    d7, @PLACE_JUNK_LOOP
+
+    ; ************************
+    ; generate next junk piece
+    ; ************************
 
 @SKIP_JUNK_SPAWN:
     ; cycle through IDs until we find an unused one
@@ -143,6 +155,83 @@ PLACE_NEW_JUNK:
     BRA.B   @CHECK_RAND_X
 @RAND_X_IN_RANGE:
     MOVE.W  d0, (NEXT_JUNK_X_OFF, a2)
+
+    ; ***************************
+    ; display new next junk in UI
+    ; ***************************
+
+    JSR     CLEAR_UI_NEXT
+
+    ; get destination in screen buffer for P1 or P2
+    LEA.L   P_NEXT_POS_1, a0
+    CMP.L   #GAME_STATE_1, a2
+    BEQ.B   @SKIP_P2_POS
+    LEA.L   P_NEXT_POS_2, a0
+@SKIP_P2_POS:
+    MOVE.W  (JUNK_PAT_OFF, a2), d0  ; d0 := index of junk piece data
+    LSL.W   #4, d0  ; each piece is 16 bytes
+    LEA.L   JUNK_PIECES, a3
+    ADDA.W  d0, a3
+    MOVE.B  (a3)+, d6   ; d6 := width
+    MOVE.B  (a3)+, d7   ; d7 := height
+    EXT.W   d6
+    EXT.W   d7
+    SUBQ.W  #1, d6  ; width and height will
+    SUBQ.W  #1, d7  ; be used as loop counters
+
+    ; if junk is <= 3 tiles wide, shift the position to the right by 1
+    CMPI.W  #2, d6
+    BGT.B   @NO_H_SHIFT
+    ADDA.W  #2, a0
+@NO_H_SHIFT:
+
+    MOVE.W (NEXT_JUNKID_OFF, a2), d0 ; d0 := junk block data
+
+@NEXT_PIECE_LOOP:
+    MOVE.W  d6, d2  ; d2 := width-1
+@NEXT_ROW_LOOP:
+    MOVE.B  (a3)+, d1       ; d1 := junk block pattern index
+    BGE.B   @NEXT_NOT_EMPTY ; -1 == empty block
+    ADDA.W  #2, a0
+    BRA.B   @NEXT_ROW_STEP
+@NEXT_NOT_EMPTY:
+    ; convert pattern ID into RAM offset
+    LEA.L   JUNK_GRAY, a5
+    ANDI.W  #$FF, d1
+    LSL.W   #1, d1
+    ADDA.W  d1, a5  ; a5 -> junk pattern
+    ; check if block should be colored
+    BTST    #JUNK_COLOR_FLAG, d0
+    BEQ.B   @NBLOCK_COLOR_DONE
+    ; check if block uses second palete
+    BTST    #10, d0
+    BEQ.B   @NBLOCK_PAL_1
+    ; depending on palette, patterns are 26 or 52 bytes after the gray patterns
+    ADDA.W  #26, a5
+@NBLOCK_PAL_1:
+    ADDA.W  #26, a5
+    MOVE.W  (a5), (SCRATCH)
+    LEA.L   SCRATCH, a5
+    ; we need to add the color % 4 * 5 to the pattern data
+    MOVE.W  d0, d5
+    ANDI.W  #$0300, d5  ; isolate lower 2 bits of color
+    LSR.W   #6, d5      ; d5 := color * 4
+    ADD.W   d5, (a5)
+    LSR.W   #2, d5      ; d5 := color
+    ADD.W   d5, (a5)
+
+@NBLOCK_COLOR_DONE:
+    ; place pattern in screen buffer
+    MOVE.W  (a5), (a0)+
+
+@NEXT_ROW_STEP:
+    DBRA    d2, @NEXT_ROW_LOOP
+    
+    ; jump to next row for a0
+    SUBA.W  d6, a0 ; go back to left side of junk piece
+    SUBA.W  d6, a0 ; keep in mid d6 = width-1
+    ADDA.W  #126, a0 ; go down 1 row
+    DBRA    d7, @NEXT_PIECE_LOOP
 
     POP     a3/a5
     RTS
