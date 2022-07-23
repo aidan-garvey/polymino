@@ -578,7 +578,7 @@ PROJ_CHECK:
     BEQ.B   @V_BLOCK_STEP   ; if not junk, skip
     BTST    #SHATTER_FLAG_W, d3
     BNE.B   @V_BLOCK_STEP   ; if shattering, skip
-    BTST    #NOT_GRAY_FLAG, d3
+    BTST    #JUNK_COLOR_FLAG, d3
     BEQ.B   @V_BLOCK_SHATTER ; if gray, shatter
     ; otherwise, compare colors:
     EOR.W   d2, d3
@@ -614,7 +614,7 @@ PROJ_CHECK:
     BEQ.B   @H_BLOCK_STEP   ; if not junk, skip
     BTST    #SHATTER_FLAG_W, d3
     BNE.B   @H_BLOCK_STEP   ; if already shattering, skip
-    BTST    #NOT_GRAY_FLAG, d3
+    BTST    #JUNK_COLOR_FLAG, d3
     BEQ.B   @H_BLOCK_SHATTER ; if gray, shatter
     ; otherwise, compare colors:
     EOR.W   d2, d3
