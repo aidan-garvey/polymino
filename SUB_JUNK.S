@@ -1,4 +1,11 @@
 
+; *****************************************************************
+; SUB_JUNK.S
+; Contains subroutines dealing with junk pieces.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
 ; ====================================
 ; PLACE_NEW_JUNK
 ; ------------------------------------
@@ -78,6 +85,12 @@ PLACE_NEW_JUNK:
     ADD.W   d5, (a5)
     
 @BLOCK_COLOR_DONE:
+    ; if junk block is blocked, game is over
+    TST.W   (a0)
+    BEQ.B   @JUNK_CAN_FIT
+    MOVE.W  #-1, (GAME_OVER_OFF, a2)
+@JUNK_CAN_FIT:
+
     ; place pattern in screen buffer
     JSR     PLACE_JUNK_BLOCK
     ; place block data in board
@@ -407,4 +420,3 @@ UPDATE_JUNK:
 @UPDATE_JUNK_RET:
     POP     d0-d2/d5
     RTS
-    

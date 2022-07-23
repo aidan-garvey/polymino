@@ -87,7 +87,6 @@ MAIN_INIT:
     MOVE.W  #10, (a0)+  ; frames b/w physics updates
     MOVE.W  #0, (a0)+   ; counter for above
     MOVE.W  #40, (a0)+  ; physics updates b/w junk
-    ; MOVE.W  #0, (a0)+   ; counter for above
     MOVE.W  #0, (a0)+   ; game is not paused
 
     ; p1:
@@ -99,7 +98,9 @@ MAIN_INIT:
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
     MOVE.W  #0, (a0)+       ; combo multiplier
-    MOVE.W  #0, (a0)+       ; projectiles shouldn't be checked
+    MOVE.W  #0, (a0)+       ; no projectiles to check
+    MOVE.W  #0, (a0)+       ; game not over
+    MOVE.W  #0, (a0)+       ; game over timer
     LEA.L   JUNK_TIMER_1, a0
     MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
@@ -114,13 +115,15 @@ MAIN_INIT:
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
     MOVE.W  #0, (a0)+       ; combo multiplier
-    MOVE.W  #0, (a0)+       ; projectiles shouldn't be checked
+    MOVE.W  #0, (a0)+       ; no projectiles to check
+    MOVE.W  #0, (a0)+       ; game not over
+    MOVE.W  #0, (a0)+       ; game over timer
     LEA.L   JUNK_TIMER_2, a0
     MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk
     MOVE.W  #0, (a0)+       ; index of next junk piece type
 
-    JSR     RAND_SEED   ; initialize pseudorandom number generator
+    JSR     RAND_SEED       ; initialize pseudorandom number generator
 
     JSR     INIT_BACKGROUND ; copy background to VRAM
     JSR     INIT_HUD        ; initialize UI sprites for both players
@@ -203,6 +206,14 @@ GAME_LOOP:
     LEA.L   P2_SPRITE, a5
 
 @LOOP_START:
+    ; if game is over, play game over animation then return from subroutine
+    TST.W   (GAME_OVER_OFF, a2)
+    BEQ.B   @NOT_GAME_OVER
+
+    JSR     GAME_OVER_ANIM
+    BRA.W   @GAME_LOOP_END
+
+@NOT_GAME_OVER:
     JSR     GENERATE_ROWS
     ; handle inputs from player
     JSR     PLAYER_ACTIONS
@@ -270,6 +281,7 @@ GAME_LOOP:
     INCLUDE PARTICLES.S
     INCLUDE SCORE.S
     INCLUDE SUB_JUNK.S
+    INCLUDE GAME_OVER.S
 
 ; ******
 ; ASSETS

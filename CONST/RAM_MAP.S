@@ -53,7 +53,11 @@ BUFF_HSCROLL = $FF1B30  ; Horizontal Scroll buffer (cell-by-cell)
                         ; 28 rows * 2 planes * 2 bytes = 112B
 BUFF_HSCROLLA = $FF1B30
 BUFF_HSCROLLB = $FF1B68
-; $FF1BA0
+BUFF_VSCROLL = $FF1BA0  ; Vertical scroll buffer (cell-by-cell)
+                        ; 20 columns * 2 planes * 2 bytes = 80B
+BUFF_VSCROLLA = $FF1BA0
+BUFF_VSCROLLB = $FF1BC8
+; $FF1BF0
 
 MAIN_VECTOR = $FF1F00   ; 4B: Address of current main loop subroutine
 MAIN_TICK = $FF1F04     ; 2B: Main loop counter
@@ -85,11 +89,13 @@ JOY_H_TIMER_1 = $FF31EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_1 = $FF31EE ; 2B: frames until held U/D will take effect again
 COMBO_1 = $FF31F0       ; 2B: player's combo multiplier
 CHECK_PROJ_1 = $FF31F2  ; 2B: should projectiles be checked? T/F
+GAME_OVER_1 = $FF31F4   ; 2B: has the player lost the game? T/F
+GAME_OVER_T_1 = $FF31F6 ; 2B: animation timer for game over
 
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
 JUNK_TIMER_1 = $FF3340  ; 2B: physics updates before next junk drops
-NEXT_JUNKID_1 = $FF3342 ; 2B: ID of next junk piece (only upper byte used)
+NEXT_JUNKID_1 = $FF3342 ; 2B: block data for next junk piece
 JUNK_PAT_1 = $FF3344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_1 = $FF3346 ; 2B: column number of left edge of next junk
 JUNK_IDS_1 = $FF3348    ; 32B: bitfield that keeps track of which junk IDs are in use
@@ -107,11 +113,13 @@ JOY_H_TIMER_2 = $FF41EC ; 2B: frames until held L/R will take effect again
 JOY_V_TIMER_2 = $FF41EE ; 2B: frames until held U/D will take effect again
 COMBO_2 = $FF41F0       ; 2B: player's combo multiplier
 CHECK_PROJ_2 = $FF41F2  ; 2B: should projectiles be checked? T/F
+GAME_OVER_2 = $FF41F4   ; 2B: has the player lost the game? T/F
+GAME_OVER_T_2 = $FF41F6 ; 2B: animation timer for game over
 
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score
 JUNK_TIMER_2 = $FF4340  ; 2B: physics updates before next junk drops
-NEXT_JUNKID_2 = $FF4342 ; 2B: ID of next junk piece (only upper byte used)
+NEXT_JUNKID_2 = $FF4342 ; 2B: block data for next junk piece
 JUNK_PAT_2 = $FF4344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
 JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use

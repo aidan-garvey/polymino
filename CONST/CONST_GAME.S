@@ -83,3 +83,8 @@ PART_PLAYER_MASK_W = $2000
 ; SHATTER_BASE + (distance from bottom-left) * SHATTER_INC
 SHATTER_BASE = 10
 SHATTER_INC = 5
+
+; shift game over timer to the right by this value
+; when updating the animation
+GAME_OVER_DIV = 2
+GAME_OVER_MASK = 3
