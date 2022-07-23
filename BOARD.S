@@ -376,6 +376,10 @@ UPDATE_JUNK:
     CMP.B   d5, d2
     ; if the IDs are not equal, break the loop
     BNE.B   @UPDATE_JUNK_BREAK
+    ; if junk is shattering, it is not part
+    ; of this piece, break the loop
+    BTST    #SHATTER_FLAG_W, d5
+    BNE.B   @UPDATE_JUNK_BREAK
 
     ; check for empty tile below junk
     TST.W   (a0)
