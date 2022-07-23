@@ -84,7 +84,7 @@ MAIN_INIT:
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
     LEA.L   GLOBAL_STATE, a0
     MOVE.W  #2, (a0)+   ; number of players
-    MOVE.W  #15, (a0)+  ; frames b/w physics updates
+    MOVE.W  #10, (a0)+  ; frames b/w physics updates
     MOVE.W  #0, (a0)+   ; counter for above
     MOVE.W  #40, (a0)+  ; physics updates b/w junk
     ; MOVE.W  #0, (a0)+   ; counter for above
@@ -101,7 +101,7 @@ MAIN_INIT:
     MOVE.W  #0, (a0)+       ; combo multiplier
     MOVE.W  #0, (a0)+       ; projectiles shouldn't be checked
     LEA.L   JUNK_TIMER_1, a0
-    MOVE.W  #0, (a0)+       ; junk timer
+    MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
     MOVE.W  #0, (a0)+       ; index of next junk piece type
 
@@ -116,7 +116,7 @@ MAIN_INIT:
     MOVE.W  #0, (a0)+       ; combo multiplier
     MOVE.W  #0, (a0)+       ; projectiles shouldn't be checked
     LEA.L   JUNK_TIMER_2, a0
-    MOVE.W  #0, (a0)+       ; junk timer
+    MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk
     MOVE.W  #0, (a0)+       ; index of next junk piece type
 
