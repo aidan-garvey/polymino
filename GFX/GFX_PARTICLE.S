@@ -1,6 +1,6 @@
 
 ; *****************************************************************
-; PARTICLE_GFX.S
+; GFX_PARTICLE.S
 ; Graphics for particle effect sprites.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.

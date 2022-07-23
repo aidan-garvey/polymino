@@ -1,6 +1,6 @@
 
 ; *****************************************************************
-; TEXT_GFX.S
+; GFX_TEXT.S
 ; Graphics for text, both whole phrases and individual characters.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.

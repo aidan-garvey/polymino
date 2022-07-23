@@ -1,6 +1,6 @@
 
 ; *****************************************************************
-; UI_GFX.S
+; GFX_UI.S
 ; Grahpics for the user interface / game borders.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.

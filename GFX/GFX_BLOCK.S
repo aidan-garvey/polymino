@@ -1,6 +1,6 @@
 
 ; *****************************************************************
-; BLOCK_GFX.S
+; GFX_BLOCK.S
 ; Graphics for the blocks the player interacts with in the game.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.

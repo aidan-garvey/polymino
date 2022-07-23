@@ -1,6 +1,6 @@
 
 ; *****************************************************************
-; JUNK_GFX.S
+; GFX_JUNK.S
 ; Graphics for the junk pieces that the player must shatter.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.

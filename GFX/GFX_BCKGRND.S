@@ -1,6 +1,6 @@
 
 ; *******************************************************************
-; BCKGND_GFX.S
+; GFX_BCKGRND.S
 ; Contains graphics for the game's backgrounds shown during gameplay.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
