@@ -151,3 +151,22 @@ CopyCharRAM:
     MOVE.L  (a0)+, (a1)+
     DBRA    d0, @CCRAMLoop
     RTS
+
+; -------------------------------
+; ClearCharRAM:
+; Clear a single character in RAM
+; 
+; Parameters:
+; a1: destination address
+; 
+; On ext:
+; a1: address after written char
+; d0: -1
+; -------------------------------
+ClearCharRAM:
+    MOVEQ   #7, d0
+@ClearCharLoop:
+    CLR.L   (a1)+
+    DBRA    d0, @ClearCharLoop
+    RTS
+    

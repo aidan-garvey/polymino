@@ -1,7 +1,7 @@
 
 ; *****************************************************************
 ; GFX_UI.S
-; Grahpics for the user interface / game borders.
+; Graphics for the user interface / game borders.
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
@@ -11,7 +11,7 @@ UI_PALETTE:
     DC.W    $0000   ; 0: black/transparent
     DC.W    $0000   ; 1: black
     DC.W    $0EEE   ; 2: white
-    DC.W    $048A   ; 3: bronze
+    DC.W    $048A   ; 3: gold
 
     DC.W    $0A46   ; 4: royal purple
     DC.W    $0E84   ; 5: light blue
@@ -19,9 +19,9 @@ UI_PALETTE:
     DC.W    $0888   ; 7: gray
 
     DC.W    $0AAA   ; 8: light gray
-    DC.W    $048A
-    DC.W    $048A
-    DC.W    $048A
+    DC.W    $08AC   ; 9: light bronze
+    DC.W    $068A   ; A: bronze
+    DC.W    $0468   ; B: dark bronze
 
     DC.W    $0A44
     DC.W    $0A44

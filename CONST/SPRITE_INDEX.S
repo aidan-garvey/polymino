@@ -1,0 +1,23 @@
+
+; *****************************************************************
+; SPRITE_INDEX.S
+; Link data for persistent sprites.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
+P1_CURSOR_LNK = 1
+P1_NEXT_LNK = P1_CURSOR_LNK+1
+P1_SCORE_LNK = P1_NEXT_LNK+1
+P1_LLINES_LNK = P1_SCORE_LNK+1
+P1_SCORE_LNK_1 = P1_LLINES_LNK+1
+P1_SCORE_LNK_2 = P1_SCORE_LNK_1+1
+P1_OUTLINE_LNK = P1_SCORE_LNK_2+1
+
+P2_CURSOR_LNK = P1_OUTLINE_LNK+1
+P2_NEXT_LNK = P2_CURSOR_LNK+1
+P2_SCORE_LNK = P2_NEXT_LNK+1
+P2_LLINES_LNK = P2_SCORE_LNK+1
+P2_SCORE_LNK_1 = P2_LLINES_LNK+1
+P2_SCORE_LNK_2 = P2_SCORE_LNK_1+1
+P2_OUTLINE_LNK = P2_SCORE_LNK_2+1

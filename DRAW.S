@@ -393,4 +393,121 @@ DRAW_BOARD_ROW:
     POP     a0-a1/d1-d3
     RTS
 
+; ==============================================
+; DRAW_JUNK_OUTLINE
+; ----------------------------------------------
+; Fill a player's OUTLN_BUFF with the characters
+; needed to display the outline of the next junk
+; piece
+; ----------------------------------------------
+; Parameters:
+;   a2 - player game state
+; Thrashed:
+;   a0, d0-d4
+; ==============================================
+DRAW_JUNK_OUTLINE:
+    PUSH    a1/a3-a4
 
+    ; ************************************
+    ; update the x position of the outline
+    ; ************************************
+
+    MOVE.W  (NEXT_JUNK_X_OFF, a2), d0
+    LSL.W   #3, d0  ; multiply column # by 8
+    ADDI.W  #$80, d0 ; add left edge offset
+
+    ; assume P1, change if P2
+    MOVEQ   #P1_BOARD_COL_OFFSET*8, d1  ; d1 := board position
+    LEA.L   P1_OUTLINE, a0              ; a0 := sprite buffer
+
+    CMP.L   #GAME_STATE_2, a2
+    BNE.B   @P1_POS
+    
+    MOVE.W  #P2_BOARD_COL_OFFSET*8, d1  ; d1 := board position
+    LEA.L   P2_OUTLINE, a0              ; a0 := sprite buffer
+
+@P1_POS:
+    ADD.W   d1, d0
+    MOVE.W  d0, 6(a0)   ; write x position
+
+    ; ***********************************
+    ; copy the characters for the outline
+    ; ***********************************
+
+    MOVEA.L a2, a1
+    ADDA.W  #OUTLN_BUFF_OFF, a1 ; a1 -> outline characters buffer
+
+    MOVE.W  (JUNK_PAT_OFF, a2), d0
+    LSL.W   #4, d0
+    LEA.L   JUNK_PIECES, a3
+    ADDA.W  d0, a3  ; a3 -> junk pattern to draw
+
+    MOVE.B  (a3)+, d3   ; d3 := width
+    MOVE.B  (a3)+, d4   ; d4 := height
+    EXT.W   d3
+    EXT.W   d4
+
+    MOVE.W  d3, d1
+    SUBQ.W  #1, d1  ; d1 will be used as a loop counter over the columns
+
+    ; for each column
+        ; load a3 into a4
+        ; get first block, add width (d3) to a4, get second block, etc
+        ; write (4 - width) blank chars
+        ; increment a3, check if we've looped d1 times
+
+@OUTLN_COL_LOOP:
+    MOVEA.L a3, a4
+    MOVE.W  d4, d2  ; d2 will be a loop counter
+    SUBQ.W  #1, d2
+
+@OUTLN_BLOCK_LOOP:
+    MOVE.B  (a4), d0
+    BLT.B   @EMPTY_BLOCK    ; -1 == space
+    CMPI.B  #8, d0
+    BGE.B   @EMPTY_BLOCK    ; middle or inner corners don't appear in outlines
+    LEA.L   OUTLINE_CHARS, a0
+    EXT.W   d0
+    LSL.W   #5, d0  ; multiply by 32 to get character offset
+    ADDA.W  d0, a0  ; a0 -> junk outline character
+    ; copy the outline character to the buffer
+    JSR     CopyCharRAM
+    BRA.B   @OUTLN_BLOCK_STEP
+
+@EMPTY_BLOCK:
+    JSR     ClearCharRAM
+
+@OUTLN_BLOCK_STEP:
+    ADDA.W  d3, a4  ; move a4 1 row down
+    DBRA    d2, @OUTLN_BLOCK_LOOP
+
+    ; after copying the column, we need to fill the
+    ; remainder of the 4 chars per column with spaces
+    MOVEQ   #4, d2
+    SUB.W   d4, d2
+    BRA.B   @OUTLN_SPACE_STEP
+
+@OUTLN_SPACE_LOOP:
+    JSR     ClearCharRAM
+
+@OUTLN_SPACE_STEP:
+    DBRA    d2, @OUTLN_SPACE_LOOP
+
+@OUTLN_COL_STEP:
+    ADDQ.W  #1, a3
+    DBRA    d1, @OUTLN_COL_LOOP
+
+    ; if the width was less than 4, we need to copy blank columns
+    MOVEQ   #4, d1
+    SUB.W   d3, d1
+    BRA.B   @EMPTY_COL_STEP
+@EMPTY_COL_LOOP:
+    JSR     ClearCharRAM
+    JSR     ClearCharRAM
+    JSR     ClearCharRAM
+    JSR     ClearCharRAM
+@EMPTY_COL_STEP:
+    DBRA    d1, @EMPTY_COL_LOOP
+
+    POP     a1/a3-a4
+    RTS

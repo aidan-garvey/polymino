@@ -48,6 +48,17 @@ VBMAIN:
     MOVE.W  #VRAM_SCORE_GFX_2, d2
     JSR     DMADump
 
+    ; Dump player outline buffers
+    MOVE.L  #OUTLN_BUFF_1, d0
+    MOVE.W  #OUTLN_BUFF_SIZE/2, d1
+    MOVE.W  #VRAM_OUTLINE_GFX_1, d2
+    JSR     DMADump
+
+    MOVE.L  #OUTLN_BUFF_2, d0
+    MOVE.W  #OUTLN_BUFF_SIZE/2, d1
+    MOVE.W  #VRAM_OUTLINE_GFX_2, d2
+    JSR     DMADump
+
     ; write vertical scroll data for plane A
     JSR     DMA_VSRAM_A
 

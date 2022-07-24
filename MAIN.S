@@ -27,6 +27,7 @@
     INCLUDE CONST/CONST_GAME.S
     INCLUDE CONST/CONST_HW.S
     INCLUDE CONST/CHAR_INDEX.S
+    INCLUDE CONST/SPRITE_INDEX.S
     INCLUDE MACROS.S
 
 ; **********************
@@ -245,6 +246,8 @@ GAME_LOOP:
     MOVE.W  #1, (JUNK_TIMER_OFF, a2)
     ; since new junk spawned, we'll need to check if it can be shattered
     MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
+    ; we also need to update the cursor for the next junk piece
+    JSR     DRAW_JUNK_OUTLINE
 @SKIP_PLACE_JUNK:
 
     ; remove any matched blocks from the board
@@ -292,4 +295,5 @@ GAME_LOOP:
     INCLUDE GFX/GFX_TEXT.S
     INCLUDE GFX/GFX_JUNK.S
     INCLUDE GFX/GFX_PARTICLE.S
+    INCLUDE GFX/GFX_OUTLINE.S
     INCLUDE JUNK_PIECES.S

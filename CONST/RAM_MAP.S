@@ -34,18 +34,20 @@ BUFF_SPRITES = $FF0730  ; $400 Bytes: Sprite Table Buffer
 HUD_SPRITES_1 = $FF0730
 P1_SPRITE = $FF0730     ; 8B: player 1 cursor
 P1_T_NEXT = $FF0738     ; 8B: "NEXT"
-P1_T_SCORE = $FF0740    ; 8B: "SCORE"
-P1_T_LLINES = $FF0748   ; 8B: "LIFE\nLINES"
-P1_SCORE_DGTS = $FF0750 ; 16B: player 1 score, 2 sprites
+;P1_T_SCORE = $FF0740    ; 8B: "SCORE"
+;P1_T_LLINES = $FF0748   ; 8B: "LIFE\nLINES"
+;P1_SCORE_DGTS = $FF0750 ; 16B: player 1 score, 2 sprites
+P1_OUTLINE = $FF0760    ; 8B: next junk outline
 ; player 2 HUD (if applicable):
-HUD_SPRITES_2 = $FF0760
-P2_SPRITE = $FF0760     ; 8B: player 2 cursor
-P2_T_NEXT = $FF0768     ; 8B: "NEXT"
-P2_T_SCORE = $FF0770    ; 8B: "SCORE"
-P2_T_LLINES = $FF0778   ; 8B: "LIFE\nLINES"
-P2_SCORE_DGTS = $FF0780 ; 16B: player 2 score, 2 sprites
+HUD_SPRITES_2 = $FF0768
+P2_SPRITE = $FF0768     ; 8B: player 2 cursor
+P2_T_NEXT = $FF0770     ; 8B: "NEXT"
+;P2_T_SCORE = $FF0778    ; 8B: "SCORE"
+;P2_T_LLINES = $FF0780   ; 8B: "LIFE\nLINES"
+;P2_SCORE_DGTS = $FF0788 ; 16B: player 2 score, 2 sprites
+P2_OUTLINE = $FF0798    ; 8B: next junk outline
 ; Particles:
-PART_SPRITES = $FF0790  ; Particle effect sprites, rest of sprite table
+PART_SPRITES = $FF07A0  ; Particle effect sprites, rest of sprite table
 SPRITES_END = $FF0B30   ; Upper bound for sprite data
 
 BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
@@ -99,7 +101,7 @@ NEXT_JUNKID_1 = $FF3342 ; 2B: block data for next junk piece
 JUNK_PAT_1 = $FF3344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_1 = $FF3346 ; 2B: column number of left edge of next junk
 JUNK_IDS_1 = $FF3348    ; 32B: bitfield that keeps track of which junk IDs are in use
-
+OUTLN_BUFF_1 = $FF3368  ; $200 Bytes: buffer for junk outline characters
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
@@ -123,6 +125,7 @@ NEXT_JUNKID_2 = $FF4342 ; 2B: block data for next junk piece
 JUNK_PAT_2 = $FF4344    ; 2B: index into JUNK_PIECES of next junk piece
 NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
 JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use
+OUTLN_BUFF_2 = $FF4368  ; $200 Bytes: buffer for junk outline characters
 
 ; Data for each particle:
 ; - X and Y velocity (2 words)

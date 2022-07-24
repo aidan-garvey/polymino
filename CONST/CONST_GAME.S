@@ -14,6 +14,7 @@ BOARD_WIDTH = 10 ; in cells
 BOARD_SIZE = 480 ; size of board in bytes
 
 SCORE_BUFF_SIZE = $E0
+OUTLN_BUFF_SIZE = $200
 
 HOLD_LENGTH = 6 ; held buttons are handled every HOLD_LENGTH frames
 SCROLL_DIV = 2  ; divisor for background scroll amount per frame
