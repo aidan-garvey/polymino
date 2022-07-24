@@ -59,9 +59,6 @@ VBMAIN:
     MOVE.W  #VRAM_OUTLINE_GFX_2, d2
     JSR     DMADump
 
-    ; write vertical scroll data for plane A
-    JSR     DMA_VSRAM_A
-
     ; scroll background if game is not paused
     TST.W   (GAME_PAUSED)
     BNE     @SKIP_B_SCROLL
@@ -74,19 +71,9 @@ VBMAIN:
     VDP_ACCESS VDP_W_VRAM, VRAM_HSCROLL+2
     MOVE.W  d0, (VDP_DATA)
     LSR.W   #1, d0
-
-    ; VSCROLL is done on 2 cell units, copy value to each word
-    LEA.L   BUFF_VSCROLLB, a0
-    MOVE.W  #19, d1 ; 40/2 columns
-@SCROLL_B_LOOP:
-    MOVE.W  d0, (a0)+
-    DBRA    d1, @SCROLL_B_LOOP
-
-    ; DMA VSCROLL buffer to memory
-    JSR     DMA_VSRAM_B
-    
-    ; VDP_ACCESS VDP_W_VSRAM, 2
-    ; MOVE.W  d0, (VDP_DATA)
+    ; do the same for VSCROLL
+    VDP_ACCESS VDP_W_VSRAM, 2
+    MOVE.W  d0, (VDP_DATA)
 
 @SKIP_B_SCROLL:
     ADD.W   #1, (FRAME_TICK)

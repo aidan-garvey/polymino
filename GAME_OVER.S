@@ -15,71 +15,29 @@
 ; -------------------------------------
 ; Parameters:
 ;   a2 - player game state
+;   a4 - screen buffer
 ; Thrashed:
-;   a0, d0-d7
+;   a0, d0, d3-d4
 ; =====================================
 GAME_OVER_ANIM:
-    ; scroll cells w/ player's board down by
-        ; 1 cell every X frames
-    ; overwrite UI tiles to make UI stationary
-
     ADDQ.W  #1, (GAME_OVER_T_OFF, a2)
     MOVE.W  (GAME_OVER_T_OFF, a2), d0
-    ; if it has not been X frames, don't do anything
-    MOVE.W  d0, d1
-    ANDI.W  #GAME_OVER_MASK, d1
+    ; only update every X frames
+    ANDI.W  #GAME_OVER_MASK, d0
     BNE.B   @GAME_OVER_RET
 
-    LSR.W   #GAME_OVER_DIV, d0
-    ; if we've scrolled everything further than the board height, return
-    CMP.W   #28, d0
-    BGE.B   @GAME_OVER_RET
+    ; clear the bottom row of blocks
+    MOVEA.L a2, a0
+    MOVEQ   #BOARD_WIDTH-1, d3
+    MOVEQ   #BOARD_HEIGHT-1, d4
 
-    ; multiply by -8 for scroll value
-    MOVE.W  d0, d1
-    LSL.W   #3, d1 
-    NEG.W   d1
+@CLEAR_ROW_LOOP:
+    CLR.W   -(a0)
+    JSR     ERASE_BLOCK
+    DBRA    d3, @CLEAR_ROW_LOOP
 
-    ; loop counter - we will scroll 6*2 tiles
-    MOVEQ   #5, d2
-
-    LEA.L   BUFF_VSCROLLA+8, a0
-    LEA.L   BUFF_PLANE+16, a1
-
-    CMP.L   #GAME_STATE_2, a2
-    BNE.B   @SCROLL_LOOP
-
-    ADDA.W  #12, a0
-    ADDA.W  #24, a1
-
-@SCROLL_LOOP:
-    MOVE.W  d1, (a0)+
-    DBRA    d2, @SCROLL_LOOP
-
-    ; replace rows of SCROLLA with the ones below them so only
-    ; the board appears to scroll
-    
-    MOVE.L  a1, a0  ; a0 -> first row of board
-
-    ; top rows:
-    MOVEQ   #0, d1
-    SUB.W   d0, d1
-    JSR     MOVE_ROW
-
-    ADDQ.W  #1, d1
-    JSR     MOVE_ROW
-
-    ADDQ.W  #1, d1
-    JSR     DRAW_BOARD_ROW
-
-    ; bottom rows:
-    MOVEQ   #26, d1
-    SUB.W   d0, d1
-    JSR     MOVE_ROW
-
-    ADDQ.W  #1, d1
-    JSR     MOVE_ROW
+    ; update physics to move everything down
+    JSR     UPDATE_PHYSICS
 
 @GAME_OVER_RET:
     RTS
-

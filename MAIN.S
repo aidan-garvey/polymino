@@ -95,7 +95,7 @@ MAIN_INIT:
     MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #0, (a0)+       ; bcd score
     MOVE.W  #3, (a0)+       ; lifelines
-    MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
+    MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
     MOVE.W  #0, (a0)+       ; combo multiplier
@@ -112,7 +112,7 @@ MAIN_INIT:
     MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #0, (a0)+       ; bcd score
     MOVE.W  #3, (a0)+       ; lifelines
-    MOVE.W  #BOARD_WIDTH/2, (a0)+   ; cursor x
+    MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
     MOVE.W  #0, (a0)+       ; combo multiplier

@@ -213,64 +213,64 @@ DMADump:
     
     RTS
 
-DMA_VSRAM_A:
-    ; to write to only scroll A, increment
-    ; by 4 after each word write
-    VDP_REG 15, 4
-    ; LEA.L   VDP_CTRL, a1
-    ; take Z80 off bus
-    REMOVE_Z80
-    ; enable DMA
-    VDP_REG 1, %01110100
-    ; we will move 20 words, 1 for every 2 cells
-    VDP_REG 19, 20
-    VDP_REG 20, 0
-    ; DMA source address
-    VDP_REG 21, (BUFF_VSCROLLA>>1)&$FF
-    VDP_REG 22, (BUFF_VSCROLLA>>9)&$FF
-    VDP_REG 23, (BUFF_VSCROLLA>>17)&$FF
-    ; write to VSRAM, address 0
-    MOVE.L  #$40000090, (DMA_SCRATCH)
-    MOVE.W  (DMA_SCRATCH), (VDP_CTRL)
-    MOVE.W  (DMA_SCRATCH+2), (VDP_CTRL)
-    ; wait until finished
-    WAIT_DMA
-    ; disable DMA
-    VDP_REG 1, %01100100
-    ; put Z80 back on bus
-    REPLACE_Z80
-    ; restore VDP address increment
-    VDP_REG 15, 2
+;DMA_VSRAM_A:
+;    ; to write to only scroll A, increment
+;    ; by 4 after each word write
+;    VDP_REG 15, 4
+;    ; LEA.L   VDP_CTRL, a1
+;    ; take Z80 off bus
+;    REMOVE_Z80
+;    ; enable DMA
+;    VDP_REG 1, %01110100
+;    ; we will move 20 words, 1 for every 2 cells
+;    VDP_REG 19, 20
+;    VDP_REG 20, 0
+;    ; DMA source address
+;    VDP_REG 21, (BUFF_VSCROLLA>>1)&$FF
+;    VDP_REG 22, (BUFF_VSCROLLA>>9)&$FF
+;    VDP_REG 23, (BUFF_VSCROLLA>>17)&$FF
+;    ; write to VSRAM, address 0
+;    MOVE.L  #$40000090, (DMA_SCRATCH)
+;    MOVE.W  (DMA_SCRATCH), (VDP_CTRL)
+;    MOVE.W  (DMA_SCRATCH+2), (VDP_CTRL)
+;    ; wait until finished
+;    WAIT_DMA
+;    ; disable DMA
+;    VDP_REG 1, %01100100
+;    ; put Z80 back on bus
+;    REPLACE_Z80
+;    ; restore VDP address increment
+;    VDP_REG 15, 2
+;
+;    RTS
 
-    RTS
-
-DMA_VSRAM_B:
-    ; to write to only scroll B, increment
-    ; by 4 after each word write
-    VDP_REG 15, 4
-    LEA.L   VDP_CTRL, a1
-    ; take Z80 off bus
-    REMOVE_Z80
-    ; enable DMA
-    VDP_REG 1, %01110100
-    ; we will move 20 words, 1 for every 2 cells
-    VDP_REG 19, 20
-    VDP_REG 20, 0
-    ; DMA source address
-    VDP_REG 21, (BUFF_VSCROLLB>>1)&$FF
-    VDP_REG 22, (BUFF_VSCROLLB>>9)&$FF
-    VDP_REG 23, (BUFF_VSCROLLB>>17)&$FF
-    ; write to VSRAM, address 2
-    MOVE.L  #$40020090, (DMA_SCRATCH)
-    MOVE.W  (DMA_SCRATCH), (a1)
-    MOVE.W  (DMA_SCRATCH+2), (a1)
-    ; wait until finished
-    WAIT_DMA
-    ; disable DMA
-    VDP_REG 1, %01100100
-    ; put Z80 back on bus
-    REPLACE_Z80
-    ; restore VDP address increment
-    VDP_REG 15, 2
-
-    RTS
+;DMA_VSRAM_B:
+;    ; to write to only scroll B, increment
+;    ; by 4 after each word write
+;    VDP_REG 15, 4
+;    LEA.L   VDP_CTRL, a1
+;    ; take Z80 off bus
+;    REMOVE_Z80
+;    ; enable DMA
+;    VDP_REG 1, %01110100
+;    ; we will move 20 words, 1 for every 2 cells
+;    VDP_REG 19, 20
+;    VDP_REG 20, 0
+;    ; DMA source address
+;    VDP_REG 21, (BUFF_VSCROLLB>>1)&$FF
+;    VDP_REG 22, (BUFF_VSCROLLB>>9)&$FF
+;    VDP_REG 23, (BUFF_VSCROLLB>>17)&$FF
+;    ; write to VSRAM, address 2
+;    MOVE.L  #$40020090, (DMA_SCRATCH)
+;    MOVE.W  (DMA_SCRATCH), (a1)
+;    MOVE.W  (DMA_SCRATCH+2), (a1)
+;    ; wait until finished
+;    WAIT_DMA
+;    ; disable DMA
+;    VDP_REG 1, %01100100
+;    ; put Z80 back on bus
+;    REPLACE_Z80
+;    ; restore VDP address increment
+;    VDP_REG 15, 2
+;
+;    RTS
