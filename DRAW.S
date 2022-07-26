@@ -287,112 +287,6 @@ CLEAR_UI_NEXT:
     POP     a0/d0
     RTS
 
-; ===============================================================
-; MOVE_ROW
-; ---------------------------------------------------------------
-; Copy a row of 12 cells in the screen buffer to the row above it
-; ---------------------------------------------------------------
-; Parameters:
-;   a0 - points to cell in first row of BUFF_PLANE
-;   d1 - row number of top cell, mod 32
-; Thrashed:
-;   none
-; ===============================================================
-MOVE_ROW:
-    PUSH    a0-a1/d1-d2
-    ; make sure d1 is in range 0..31
-    TST.W   d1
-    BGE.B   @MR_ROW_POSITIVE
-@MR_INC_ROW:
-    ADDI.W  #32, d1
-    BLT.B   @MR_INC_ROW
-@MR_ROW_POSITIVE:
-    ANDI.W  #$1F, d1    ; d1 %= 32
-    LSL.W   #7, d1      ; d1 *= 128
-    
-    ADDA.W  d1, a0      ; a0 -> top row
-    MOVE.L  a0, a1      
-    ADDA.W  #128, a1    ; a1 -> bottom row
-    CMP.L   #BUFF_PLANE+128*32, a1
-    BLT.B   @BOTTOM_IN_BOUNDS
-    SUBA.W  #128*32, a1
-@BOTTOM_IN_BOUNDS:
-
-    MOVEQ   #5, d2
-@COPY_LOOP:
-    MOVE.L  (a1)+, (a0)+
-    DBRA    d2, @COPY_LOOP
-
-    POP     a0-a1/d1-d2
-    RTS
-
-; ================================================
-; DRAW_BOARD_ROW
-; ------------------------------------------------
-; Draw an empty game board row in the screen
-; buffer, starting at the given horizontal offset
-; ------------------------------------------------
-; Parameters:
-;   a0 - points to cell in first row of BUFF_PLANE
-;   d1 - row number to write over, mod 32
-; Thrashed:
-;   none
-; ================================================
-DRAW_BOARD_ROW:
-    PUSH    a0-a1/d1-d3
-    ; d3 will act as a flag for which side of the
-    ; screen we're using
-    CMP.L   #BUFF_PLANE+28, a0
-    SGT     d3  ; d3 = (a0 > SCREEN_WIDTH/2)
-
-    ; load the main pattern we need into d2
-    LEA.L   UI_DITHER, a1
-    MOVE.W  (a1), d2
-    SWAP    d2
-    MOVE.W  (a1), d2
-
-    ; make sure d1 is in range 0..31
-    TST.W   d1
-    BGE.B   @DB_ROW_POSITIVE
-@DB_INC_ROW:
-    ADDI.W  #32, d1
-    BLT.B   @DB_INC_ROW
-@DB_ROW_POSITIVE:
-    ANDI.W  #$1F, d1    ; d1 %= 32
-    LSL.W   #7, d1      ; d1 *= 128
-
-    ADDA.W  d1, a0      ; a0 -> row we'll write over
-
-    TST.B   d3
-    BEQ.B   @P1_LEFT
-    ; player 2: left edge
-    MOVE.W  (UI_EDGE_L), (a0)+
-    BRA.B   @P2_LEFT
-@P1_LEFT:
-    ; player 1: vertical separator
-    MOVE.W  (UI_SEP_V), (a0)+
-@P2_LEFT:
-
-    ; both players: 10 dither patterns
-    MOVE.L  d2, (a0)+
-    MOVE.L  d2, (a0)+
-    MOVE.L  d2, (a0)+
-    MOVE.L  d2, (a0)+
-    MOVE.L  d2, (a0)+
-
-    TST.B   d3
-    BEQ.B   @P1_RIGHT
-    ; player 2: vertical separator
-    MOVE.W  (UI_SEP_V), (a0)
-    BRA.B   @P2_RIGHT
-@P1_RIGHT:
-    ; player 1: right edge
-    MOVE.W  (UI_EDGE_R), (a0)
-@P2_RIGHT:
-
-    POP     a0-a1/d1-d3
-    RTS
-
 ; ==============================================
 ; DRAW_JUNK_OUTLINE
 ; ----------------------------------------------
@@ -465,7 +359,7 @@ DRAW_JUNK_OUTLINE:
     MOVE.B  (a4), d0
     BLT.B   @EMPTY_BLOCK    ; -1 == space
     CMPI.B  #8, d0
-    BGE.B   @EMPTY_BLOCK    ; middle or inner corners don't appear in outlines
+    BGE.B   @EMPTY_BLOCK    ; middle blocks and inner corners don't appear in outlines
     LEA.L   OUTLINE_CHARS, a0
     EXT.W   d0
     LSL.W   #5, d0  ; multiply by 32 to get character offset
