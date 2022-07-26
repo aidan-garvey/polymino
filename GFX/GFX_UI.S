@@ -62,6 +62,17 @@ GAME_CURSOR_H:
     DC.L    $00000001
     DC.L    $00000002
     DC.L    $21212120
+
+MENU_CURSOR_C:
+    DC.L    $00000000
+    DC.L    $20022200
+    DC.L    $82008820
+    DC.L    $88200882
+
+    DC.L    $88800888
+    DC.L    $77007770
+    DC.L    $60066600
+    DC.L    $00000000
     
 UI_BRDR_CHARS:
     ; expected position in VRAM: $1000 (char 80)

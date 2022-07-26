@@ -260,7 +260,10 @@ INIT_HUD:
     ; copy right char
     JSR     CopyCharRAM
 
-    ; copy all chars from TEXT_GFX.S
+    ; copy menu cursor
+    JSR     CopyCharRAM
+
+    ; copy all chars from GFX_TEXT.S
     MOVEQ   #25, d1
     LEA.L   TEXT_NEXT, a0
 @TEXT_LOOP:
@@ -268,7 +271,7 @@ INIT_HUD:
     DBRA    d1, @TEXT_LOOP
 
     MOVE.L  #BUFF_PLANE, d0
-    MOVE.W  #16*20, d1 ; 16 chars in TEXT_GFX + 4 for cursor, 16 words per char
+    MOVE.W  #16*21, d1 ; 16 chars in GFX_TEXT + 5 for cursors, 16 words per char
     MOVE.W  #VRAM_SPRITE_GFX, d2
     JSR     DMADump
 
@@ -352,8 +355,14 @@ INIT_HUD:
     MOVE.W  #P2_OUTLINE_CHAR, (a0)+
     MOVE.W  #1, (a0)+
 
-    ; place empty sprite in buffer afterwards
-    ; LEA.L   VAR_SPRITES, a0
+    ; menu cursor
+    MOVE.W  #1, (a0)+
+    MOVE.W  #$0000|MENU_CURSOR_LNK, (a0)+
+    MOVE.W  #0, (a0)+
+    MOVE.W  #1, (a0)+
+
+    ; place empty sprite in buffer afterwards,
+    ; will be overwritten by particles
     MOVE.L  #0, (a0)+
     MOVE.L  #0, (a0)
 

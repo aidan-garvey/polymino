@@ -46,8 +46,9 @@ P2_T_NEXT = $FF0770     ; 8B: "NEXT"
 ;P2_T_LLINES = $FF0780   ; 8B: "LIFE\nLINES"
 ;P2_SCORE_DGTS = $FF0788 ; 16B: player 2 score, 2 sprites
 P2_OUTLINE = $FF0798    ; 8B: next junk outline
+CURSOR_SPRITE = $FF07A0 ; 8B: cursor in the menus
 ; Particles:
-PART_SPRITES = $FF07A0  ; Particle effect sprites, rest of sprite table
+PART_SPRITES = $FF07A8  ; Particle effect sprites, rest of sprite table
 SPRITES_END = $FF0B30   ; Upper bound for sprite data
 
 BUFF_PLANE = $FF0B30    ; $1000 Bytes: Playfield buffer for writing to VRAM
@@ -76,7 +77,8 @@ NUM_PLAYERS = $FF2000   ; 2B: 1 or 2 players
 UPDATE_MAX = $FF2002    ; 2B: frames b/w physics updates
 UPDATE_TIMER = $FF2004  ; 2B: number of frames since last update
 JUNK_MAX = $FF2006      ; 2B: physics updates b/w new junk pieces
-GAME_PAUSED = $FF2008
+GAME_PAUSED = $FF2008   ; 2B: is the game paused? T/F
+CURR_MENU = $FF200A     ; 10B: menu info for current phase of the game
 
 ; Data for each player's game state including the board
 PLAYER_1_DATA = $FF3000
@@ -127,12 +129,7 @@ NEXT_JUNK_X_2 = $FF4346 ; 2B: column number of left edge of next junk
 JUNK_IDS_2 = $FF4348    ; 32B: bitfield that keeps track of which junk IDs are in use
 OUTLN_BUFF_2 = $FF4368  ; $200 Bytes: buffer for junk outline characters
 
-; Data for each particle:
-; - X and Y velocity (2 words)
-; - X and Y acceleration (2 words)
-; - if a projectile: data about color, direction, position
-;   - otherwise: all zeroes
-;   - 1 word
+; Data for each particle, see PARTICLE.S
 PART_DATA = $FF5000
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed
