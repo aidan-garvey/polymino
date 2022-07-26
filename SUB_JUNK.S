@@ -368,6 +368,7 @@ UPDATE_JUNK:
 
     MOVEQ   #0, d1      ; d1 will track the number of junk blocks
     MOVE.W  (a1), d2    ; d2 holds the first junk block
+    MOVEQ   #0, d0
     TST.W   (a0)
     SEQ     d0          ; d0 will track if we can move the row down
 
