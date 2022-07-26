@@ -19,6 +19,10 @@ VRAM_PROJ_GFX = $3460    ; projectile characters, 8*32 bytes
 VRAM_DEBRIS_GFX = $3560  ; debris characters, 4*32 bytes
 VRAM_OUTLINE_GFX_1 = $35E0 ; P1 outline chars, 16*32 bytes
 VRAM_OUTLINE_GFX_2 = $37E0 ; P2 outline chars, 16*32 bytes
+; $39E0
+VRAM_LETTER_GFX = $4000 ; letters, 26*32 bytes
+VRAM_DIGIT_GFX = $4340  ; digits, 10*32 bytes
+; $4480
 VRAM_SPRITETBL = $B800
 VRAM_HSCROLL = $BC00
 VRAM_WINDOW = $C000
