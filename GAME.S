@@ -33,7 +33,7 @@ GAME_INIT:
     LEA.L   GAME_STATE_1, a0
     MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #0, (a0)+       ; bcd score
-    MOVE.W  #3, (a0)+       ; lifelines
+    MOVE.W  #3, (a0)+       ; bombs
     MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
@@ -50,7 +50,7 @@ GAME_INIT:
     LEA.L   GAME_STATE_2, a0
     MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #0, (a0)+       ; bcd score
-    MOVE.W  #3, (a0)+       ; lifelines
+    MOVE.W  #3, (a0)+       ; bombs
     MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers

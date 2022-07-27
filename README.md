@@ -5,13 +5,11 @@ Play with 1 or 2 players!
 
 ## How to Play
 
-(Please note: this game is unfinished. The following section describes how the game will be when it is completed, not its current state)
-
 Beams is a puzzle game along the lines of Tetris, Columns, Dr. Mario, etc.
-Use a cursor to swap blocks horizontally or vertically. Match 3 blocks of the same color to remove them from the board, and shoot a beam of light in the direction of the match!
-Large junk pieces periodically fall from the top of the board. Hit them with a beam of light to shatter them into more blocks that you can match up!
-Beams are the same color as the blocks that you matched. Some junk has a color, and you must hit it with a beam of the same color to shatter them.
-If you run out of blocks to match, use a lifeline to generate more at the bottom of the screen!
+Use a cursor to swap blocks horizontally or vertically. Match 3 blocks of the same color to remove them from the board, and shoot a wave in the direction of the match!
+Large junk pieces periodically fall from the top of the board. Hit them with a wave to shatter them into more blocks that you can match up!
+Waves are the same color as the blocks that you matched. Some junk has a color, and you must hit it with a wave of the same color to shatter it.
+If your board starts to get too crowded, use a bomb to destroy a group of blocks near your cursor!
 The game is over when there is no room for the next junk piece to be placed!
 
 ### Controls
@@ -19,7 +17,7 @@ The game is over when there is no room for the next junk piece to be placed!
 * D-Pad: move cursor
 * A: swap horizontally
 * B: swap vertically
-* C: use a lifeline (coming soon)
+* C: use a bomb
 * Start: pause
 
 ## Running
@@ -41,6 +39,7 @@ Currently, not all of the features in the How To Play section are implemented.
 Ultimately, the goals of this project are:
 
 * Complete all of the features described in How To Play
-* Add music and sound effects
-* Add a proper start menu (currently it boots directly into a game)
+* Music and sound effects
+* A menu system for all menus in the game, which could be reused for other games 
+* A particle system that controls all non-UI sprites, which could be reused for other games
 * Run the game on real hardware!

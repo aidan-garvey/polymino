@@ -13,7 +13,7 @@
 ; S: block is shattering junk, does not interact
 ; C: 3 bits for colour
 ; I: 0: not junk
-;    1..255: 8-bit junk piece ID
+;    1..255: 8-bit junk piece ID or shatter timer
 ;    
 
 ; ===============================================
@@ -49,7 +49,6 @@ GENERATE_ROWS:
     ; if current block is not empty, skip
     TST.W   -(a3)
     BNE.B   @GEN_BLOCK_STEP
-; @GEN_BLOCK_PLACE:
 
     ; d0-d1 contain the random state
     ; use d0 for the block data
@@ -91,9 +90,9 @@ PLAYER_ACTIONS:
     AND.W   d0, d1  ; d1 indicates buttons pressed for the first frame
 
     ; horizontal movement
-    BTST    #3, d1  ; right pressed
+    BTST    #BUTTON_RIGHT, d1  ; right pressed
     BNE.B   @MOVE_RIGHT ; if pressed for the first frame, move
-    BTST    #3, d0  ; right held
+    BTST    #BUTTON_RIGHT, d0  ; right held
     BEQ.B   @SKIP_MOVE_RIGHT ; if not held either, skip moving
     SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
     BNE.B   @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
@@ -105,9 +104,9 @@ PLAYER_ACTIONS:
 @SKIP_MOVE_RIGHT:
 
 
-    BTST    #2, d1  ; left
+    BTST    #BUTTON_LEFT, d1  ; left
     BNE.B   @MOVE_LEFT ; if pressed for first frame, move
-    BTST    #2, d0  ; left held
+    BTST    #BUTTON_LEFT, d0  ; left held
     BEQ.B   @SKIP_MOVE_LEFT ; if not held either, skip moving
     SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
     BNE.B   @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
@@ -119,9 +118,9 @@ PLAYER_ACTIONS:
 @SKIP_MOVE_LEFT:
 
     ; vertical movement
-    BTST    #1, d1  ; down
+    BTST    #BUTTON_DOWN, d1  ; down
     BNE.B   @MOVE_DOWN
-    BTST    #1, d0  ; down held
+    BTST    #BUTTON_DOWN, d0  ; down held
     BEQ.B   @SKIP_MOVE_DOWN
     SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
     BNE.B   @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
@@ -133,9 +132,9 @@ PLAYER_ACTIONS:
 @SKIP_MOVE_DOWN:
 
 
-    BTST    #0, d1  ; up
+    BTST    #BUTTON_UP, d1  ; up
     BNE.B   @MOVE_UP
-    BTST    #0, d0  ; up held
+    BTST    #BUTTON_UP, d0  ; up held
     BEQ.B   @SKIP_MOVE_UP
     SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
     BNE.B   @SKIP_MOVE_UP ; if hold timer not at 0, don't move
@@ -149,7 +148,7 @@ PLAYER_ACTIONS:
     ; d0 not needed for inputs from here on - only D-pad can be held
 
     ; if A pressed, swap horizontally
-    BTST    #6, d1
+    BTST    #BUTTON_A, d1
     BEQ     @SKIP_A_PRESS
 
     ; get cursor pos, convert to RAM offset
@@ -224,7 +223,7 @@ PLAYER_ACTIONS:
 @SKIP_A_PRESS:
 
     ; if B pressed, swap veritcally
-    BTST    #4, d1
+    BTST    #BUTTON_B, d1
     BEQ     @SKIP_B_PRESS
 
     ; get cursor pos, convert to RAM offset
@@ -282,6 +281,16 @@ PLAYER_ACTIONS:
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_2:
 @SKIP_B_PRESS:
+
+    ; if C button pressed, use a bomb
+    BTST    #BUTTON_C, d1
+    BEQ.B   @SKIP_C_PRESS
+    ; don't allow using a bomb when player has zero
+    TST.W   (BOMBS_OFF, a2)
+    BEQ.B   @SKIP_C_PRESS
+    JSR     DROP_BOMB
+    SUBQ.W  #1, (BOMBS_OFF, a2)
+@SKIP_C_PRESS:
 
     POP     a5-a6
     RTS
@@ -662,4 +671,118 @@ SHATTER_ANIM:
     DBRA    d4, @SHATTER_LOOP
 
     POP     a3
+    RTS
+
+; ==============================================
+; DROP_BOMB
+; ----------------------------------------------
+; Drop a bomb at the player's cursor, destroying
+; nearby blocks and shattering any affected junk
+; ----------------------------------------------
+; Parameters:
+;   a1 - game board
+;   a2 - game state
+;   a4 - screen buffer
+; Thrashed:
+;   none
+; ==============================================
+DROP_BOMB:
+    PUSH    a0/d0-d6
+    MOVE.W  (CURSOR_X_OFF, a2), d3
+    MOVE.W  (CURSOR_Y_OFF, a2), d4
+    ; we will start by clearing 3x3 area around cursor
+    SUBQ.W  #1, d3
+    SUBQ.W  #1, d4
+    ; need to multiply y by 20 to get board data offset
+    MOVE.W  d4, d5
+    LSL.W   #4, d5  ; d5 := y * 16
+    ADD.W   d4, d4  
+    ADD.W   d4, d4  ; d4 := y * 4
+    ADD.W   d4, d5  ; d5 := y * 20
+    LSR.W   #2, d4  ; d4 := y
+    
+    ADD.W   d3, d5
+    ADD.W   d3, d5  ; d5 := x * 2 + y * 20
+
+    MOVEA.L a1, a0
+    ADDA.W  d5, a0  ; block top-left of player cursor
+
+    ; clear 3 rows of 3
+    MOVEQ   #2, d5
+@BOMB_ROW_LOOP:
+    MOVEQ   #2, d6
+@BOMB_BLOCK_LOOP:
+    BSR.B   @BOMB_BLOCK_EFFECT
+
+    ; advance to next block
+    ADDQ.W  #2, a0
+    ADDQ.W  #1, d3
+    DBRA    d6, @BOMB_BLOCK_LOOP
+    ; advance to the next row
+    ADDA.W  #BOARD_WIDTH*2-6, a0
+    SUBQ.W  #3, d3
+    ADDQ.W  #1, d4
+    DBRA    d5, @BOMB_ROW_LOOP
+
+    ; now delete 2 blocks left, right, up and down
+    ; currently, pointed 1 row below the 3x3, at the left
+    
+    ; destroy bottom
+    ADDQ.W  #1, d3
+    ADDQ.W  #2, a0
+    BSR.B   @BOMB_BLOCK_EFFECT
+    ; right
+    ADDQ.W  #2, d3
+    SUBQ.W  #2, d4
+    SUBA.W  #BOARD_WIDTH*4-4, a0
+    BSR.B   @BOMB_BLOCK_EFFECT
+    ; left
+    SUBQ.W  #4, d3
+    SUBQ.W  #8, a0
+    BSR.B   @BOMB_BLOCK_EFFECT
+    ; top
+    ADDQ.W  #2, d3
+    SUBQ.W  #2, d4
+    SUBA.W  #BOARD_WIDTH*4-4, a0
+    BSR.B   @BOMB_BLOCK_EFFECT
+
+    POP     a0/d0-d6
+    RTS
+
+; ========================================
+; @BOMB_BLOCK_EFFECT
+; ----------------------------------------
+; Helper for DROP_BOMB, which processes
+; the effects of a bomb destroying a block
+; ========================================
+@BOMB_BLOCK_EFFECT:
+    ; ensure we are in bounds
+    TST.W   d3
+    BLT.B   @BOMB_BLOCK_RET
+    TST.W   d4
+    BLT.B   @BOMB_BLOCK_RET
+    CMP.W   #BOARD_WIDTH, d3
+    BGE.B   @BOMB_BLOCK_RET
+    CMP.W   #BOARD_HEIGHT, d4
+    BGE.B   @BOMB_BLOCK_RET
+
+    MOVE.W  (a0), d0
+    ; if it is empty, skip
+    BEQ.B   @BOMB_BLOCK_RET
+    ; if it is non-shattering junk, shatter it before deleting
+    BTST    #SHATTER_FLAG_W, d0
+    BNE.B   @BOMB_BLOCK_DELETE
+    TST.B   d0
+    BEQ.B   @BOMB_BLOCK_DELETE
+    JSR     SHATTER_JUNK
+@BOMB_BLOCK_DELETE:
+    ; delete from board data
+    CLR.W   (a0)
+    ; erase from screen buffer
+    JSR     ERASE_BLOCK
+    ; for non-junk, non-empty blocks, spawn debris
+    TST.B   d0
+    BNE.B   @BOMB_BLOCK_RET
+    JSR     SPAWN_DEBRIS
+@BOMB_BLOCK_RET:
     RTS
