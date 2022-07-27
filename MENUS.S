@@ -51,9 +51,7 @@ MENU_CURSOR:
     ; make cursor wrap around if it is at the top
     TST.B   (MENU_BTNINDEX, a0)
     BNE.B   @MOVE_UP_SUB
-    ; MOVE.B  (MENU_NBUTTONS, a0), (MENU_BTNINDEX, a0)
-    MOVE.B  (MENU_NBUTTONS, a0), d1
-    MOVE.B  d1, (MENU_BTNINDEX, a0)
+    MOVE.B  (MENU_NBUTTONS, a0), (MENU_BTNINDEX, a0)
 @MOVE_UP_SUB:
     ; move up
     SUBQ.B  #1, (MENU_BTNINDEX, a0)
@@ -83,17 +81,16 @@ MENU_CURSOR:
 
     ; check for A press
     BTST    #BUTTON_A, d0
-    BEQ.B   @SKIP_SELECTED
-    MOVE.B  #-1, (MENU_SELECTED, a0)
-@SKIP_SELECTED:
+    SNE.B   (MENU_SELECTED, a0)
 
     POP     a0/a1/d0/d1
     RTS
     
 
-MAIN_MENU_1P: DC.B  '1 PLAYER',0,0
-MAIN_MENU_2P: DC.B  '2 PLAYERS',0
+MAIN_MENU_1P: DC.B '1 PLAYER',0,0
+MAIN_MENU_2P: DC.B '2 PLAYERS',0
 MAIN_MENU_OPT: DC.B 'OPTIONS',0
+MAIN_MENU_MISSING: DC.B 'COMING SOON',0
 
 MAIN_MENU_TX = 16
 MAIN_MENU_TY = 22
@@ -148,6 +145,10 @@ MAIN_MENU_LOOP:
     CMP.B   #1, (MENU_BTNINDEX, a0)
     BEQ.B   @PLAYER_2_START ; button 1 is "2 PLAYERS"
     ; if options is pressed, do nothing for now
+    LEA.L   MAIN_MENU_MISSING, a0
+    MOVE.W  #MAIN_MENU_TX+9, d3
+    MOVE.W  #MAIN_MENU_TY+4, d4
+    JSR     DRAW_STRING
     CLR.B   (MENU_SELECTED, a0)
     BRA.B   @MAIN_MENU_LOOP_RET
 @PLAYER_1_START:
