@@ -446,7 +446,7 @@ CHECK_MATCH:
     BLT     @NO_H_MATCH
     
     ; clear the blocks
-    ; >= 4 words is >= 2 blocks of space, is >= 2+1 blocks to clear
+    ; >= 4 words is >= 2 blocks of space, >= 2+1 blocks to clear
     LSR.W   #1, d1
     
     ; d2 will be x coordinate of leftmost block in the match

@@ -6,16 +6,16 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
 
-; ===
+; ==============================================
 ; DRAW_STRING
-; ---
+; ----------------------------------------------
 ; Display a null-terminated string in BUFF_PLANE
-; ---
+; ----------------------------------------------
 ; Parameters:
 ;   a0 - null-terminated string
 ;   d3 - x position of string (cell number)
 ;   d4 - y position of string (cell number)
-; ===
+; ==============================================
 DRAW_STRING:
     PUSH    a0-a2/d0/d3-d4
 

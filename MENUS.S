@@ -12,8 +12,10 @@ MENU_YPOS = 2       ; 2B - what the cursor's y pos should be for the first optio
 MENU_YSPACING = 4   ; 2B - vertical spacing b/w buttons
 MENU_NBUTTONS = 6   ; 1B - number of buttons
 MENU_BTNINDEX = 7   ; 1B - index of current button
-MENU_SELECTED = 8   ; 1B - has the button in BTNINDEX been selected with an A press?
+MENU_SELECTED = 8   ; 1B - 0 = no, -1 = menu exitted, +1 = option selected
 MENU_PLAYER = 9     ; 1B - does player 1 or 2 have control of this menu? (0 = p1, 1 = p2)
+MENU_CON_MASK = 10  ; 1B - mask for buttons that confirm a selection
+MENU_EX_MASK = 11   ; 1B - mask for buttons that exit the menu
 
 ; ========================================================
 ; MENU_CURSOR
@@ -79,10 +81,20 @@ MENU_CURSOR:
     ; copy to sprite table buffer
     MOVE.W  d1, (a1)
 
-    ; check for A press
-    BTST    #BUTTON_A, d0
+    ; check for selection
+    MOVE.B  (MENU_CON_MASK, a0), d1
+    ; BTST    #BUTTON_A, d0
+    AND.B   d0, d1
+    ; if selection made, set MENU_SELECTED to +1
+    BEQ.B   @MENU_EXIT_CHECK
+    MOVE.B  #1, (MENU_SELECTED, a0)
+    BRA.B   @MENU_CURSOR_RET
+@MENU_EXIT_CHECK:
+    ; check for exit
+    MOVE.B  (MENU_EX_MASK, a0), d1
+    AND.B   d0, d1
     SNE.B   (MENU_SELECTED, a0)
-
+@MENU_CURSOR_RET:
     POP     a0/a1/d0/d1
     RTS
 
@@ -94,6 +106,8 @@ MAIN_MENU_PY = $80+MAIN_MENU_TY*8
 MAIN_MENU_VSPACE = $10
 MAIN_MENU_NBUTTONS = 3
 MAIN_MENU_PLAYER = 0
+MAIN_MENU_CON_MASK = %11000000
+MAIN_MENU_EX_MASK = %00000000
 
 MAIN_MENU_INIT:
     LOAD_STATE ; disable display & interrupts
@@ -126,6 +140,8 @@ MAIN_MENU_INIT:
     CLR.B   (MENU_BTNINDEX, a0)
     CLR.B   (MENU_SELECTED, a0)
     MOVE.B  #MAIN_MENU_PLAYER, (MENU_PLAYER, a0)
+    MOVE.B  #MAIN_MENU_CON_MASK, (MENU_CON_MASK, a0)
+    MOVE.B  #MAIN_MENU_EX_MASK, (MENU_EX_MASK, a0)
 
     MOVE.L  #MAIN_MENU_LOOP, (MAIN_VECTOR)
     END_LOAD_STATE
@@ -133,8 +149,8 @@ MAIN_MENU_INIT:
 
 MAIN_MENU_LOOP:
     JSR     MENU_CURSOR
-    
     LEA.L   CURR_MENU, a0
+
     TST.B   (MENU_SELECTED, a0)
     BEQ.B   @MAIN_MENU_LOOP_RET ; if no button is selected, take no action
     ; if a button was selected:

@@ -78,7 +78,7 @@ UPDATE_MAX = $FF2002    ; 2B: frames b/w physics updates
 UPDATE_TIMER = $FF2004  ; 2B: number of frames since last update
 JUNK_MAX = $FF2006      ; 2B: physics updates b/w new junk pieces
 GAME_PAUSED = $FF2008   ; 2B: is the game paused? T/F
-CURR_MENU = $FF200A     ; 10B: menu info for current phase of the game
+CURR_MENU = $FF200A     ; 12B: menu info for current phase of the game
 
 ; Data for each player's game state including the board
 PLAYER_1_DATA = $FF3000
