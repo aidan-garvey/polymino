@@ -7,8 +7,6 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *********************************************************************
 
-INTRO_MSG: DC.B 'INTRO SCREEN',0,0
-START_MSG: DC.B 'PRESS START',0
 INTRO_MSG_X = 14
 INTRO_MSG_Y = 14
 START_MSG_X = 14
@@ -16,6 +14,9 @@ START_MSG_Y = 26
 INTRO_LENGTH = 150
 
 INTRO_INIT:
+    ; disable display & interrupts
+    LOAD_STATE
+
     JSR     CLEAR_BUFF_PLANE
 
     ; load character graphics into VRAM
@@ -32,16 +33,15 @@ INTRO_INIT:
     ; write intro message to screen
     MOVE.W  #INTRO_MSG_X, d3
     MOVE.W  #INTRO_MSG_Y, d4
-    LEA.L   INTRO_MSG, a0
+    LEA.L   STR_INTRO, a0
     JSR     DRAW_STRING
-
-    ;MOVE.L  #BUFF_PLANE, d0
-    ;MOVE.W  #VRAM_SCROLLA_SIZE/2, d1
-    ;MOVE.W  #VRAM_SCROLLA, d2
-    ;JSR     DMADump
 
     MOVE.L  #INTRO_ANIM, (MAIN_VECTOR)
     MOVE.W  #0, (MAIN_TICK)
+
+    ; re-enable display and interrupts
+    END_LOAD_STATE
+
     RTS
 
 ; wait for 2 seconds before advancing stage
@@ -54,10 +54,12 @@ INTRO_ANIM:
     RTS
 
 STARTSCRN_INIT:
+    LOAD_STATE
+
     JSR     CLEAR_BUFF_PLANE
     MOVE.W  #START_MSG_X, d3
     MOVE.W  #START_MSG_Y, d4
-    LEA.L   START_MSG, a0
+    LEA.L   STR_START, a0
     JSR     DRAW_STRING
 
     MOVE.L  #BUFF_PLANE, d0
@@ -66,6 +68,8 @@ STARTSCRN_INIT:
     JSR     DMADump
 
     MOVE.L  #STARTSCRN_LOOP, (MAIN_VECTOR)
+    END_LOAD_STATE
+
     RTS
 
 STARTSCRN_LOOP:

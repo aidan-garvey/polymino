@@ -85,12 +85,7 @@ MENU_CURSOR:
 
     POP     a0/a1/d0/d1
     RTS
-    
 
-MAIN_MENU_1P: DC.B '1 PLAYER',0,0
-MAIN_MENU_2P: DC.B '2 PLAYERS',0
-MAIN_MENU_OPT: DC.B 'OPTIONS',0
-MAIN_MENU_MISSING: DC.B 'COMING SOON',0
 
 MAIN_MENU_TX = 16
 MAIN_MENU_TY = 22
@@ -101,22 +96,24 @@ MAIN_MENU_NBUTTONS = 3
 MAIN_MENU_PLAYER = 0
 
 MAIN_MENU_INIT:
+    LOAD_STATE ; disable display & interrupts
+
     ; initialize UI sprites for both players
     JSR     LOAD_SPRITES
 
     JSR     CLEAR_BUFF_PLANE
 
-    LEA.L   MAIN_MENU_1P, a0
+    LEA.L   STR_1P, a0
     MOVE.W  #MAIN_MENU_TX, d3
     MOVE.W  #MAIN_MENU_TY, d4
     JSR     DRAW_STRING
 
-    LEA.L   MAIN_MENU_2P, a0
+    LEA.L   STR_2P, a0
     MOVE.W  #MAIN_MENU_TX, d3
     MOVE.W  #MAIN_MENU_TY+2, d4
     JSR     DRAW_STRING
 
-    LEA.L   MAIN_MENU_OPT, a0
+    LEA.L   STR_OPTIONS, a0
     MOVE.W  #MAIN_MENU_TX, d3
     MOVE.W  #MAIN_MENU_TY+4, d4
     JSR     DRAW_STRING
@@ -131,6 +128,7 @@ MAIN_MENU_INIT:
     MOVE.B  #MAIN_MENU_PLAYER, (MENU_PLAYER, a0)
 
     MOVE.L  #MAIN_MENU_LOOP, (MAIN_VECTOR)
+    END_LOAD_STATE
     RTS
 
 MAIN_MENU_LOOP:
@@ -145,7 +143,7 @@ MAIN_MENU_LOOP:
     CMP.B   #1, (MENU_BTNINDEX, a0)
     BEQ.B   @PLAYER_2_START ; button 1 is "2 PLAYERS"
     ; if options is pressed, do nothing for now
-    LEA.L   MAIN_MENU_MISSING, a0
+    LEA.L   STR_MISSING, a0
     MOVE.W  #MAIN_MENU_TX+9, d3
     MOVE.W  #MAIN_MENU_TY+4, d4
     JSR     DRAW_STRING

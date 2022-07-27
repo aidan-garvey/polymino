@@ -32,6 +32,8 @@ STARTUP_RUN:
     MOVE.L  #"SEGA", ($A14000)
 @SecuritySkip:
 
+@HotStart:
+    LEA.L   STACK_END, SP   ; initialize stack pointer
     ; when we write to VDP, we want addresses to increment by 2
     VDP_REG 15, %00000010
 
@@ -43,11 +45,8 @@ STARTUP_RUN:
     LEA.L   RAM_BASE, a0        ; Begin clearing at start of work ram
     MOVE.W  #(RAM_SIZE/4)-1, d0 ; size of work ram in longwords minus 1
 @Clear68kRAMLoop:
-    MOVE.L  d1, (a0)+           ; set a LW of RAM to 0
+    CLR.L   (a0)+
     DBRA    d0, @Clear68kRAMLoop
-    
-@HotStart:
-    LEA.L   STACK_END, SP   ; initialize stack pointer
 
     ; ********************
     ; ** Initialize Z80 **
@@ -72,11 +71,10 @@ STARTUP_RUN:
     ; ***************
     ; ** Flush DMA **
     ; ***************
-    MOVE.W  #$2300, SR  ; allow DMA
-    WAIT_DMA            ; bug occurs here after soft reset in Exodus
-    MOVE.W  #$2700, SR  ; stop DMA
-    
     MOVE.L  #VBDUMMY, VBVECTOR  ; while setting up system, don't need to do anything during VBI
+    MOVE.W  #$2300, SR  ; allow H and V interrupts
+    WAIT_DMA
+    MOVE.W  #$2700, SR  ; stop H and V interrupts
     
     ; ******************************
     ; ** Initialize VDP Registers **

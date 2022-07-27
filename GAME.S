@@ -12,6 +12,8 @@
 ; Do all necessary preparation for GAME_LOOP to be run
 ; ====================================================
 GAME_INIT:
+    LOAD_STATE
+
     ; load block graphics into VRAM
     MOVE.L  #BLOCK_CHARS, d0    ; address
     MOVE.W  #16*8, d1           ; 16 words * 8 chars
@@ -76,6 +78,7 @@ GAME_INIT:
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
 
+    END_LOAD_STATE
     RTS
 
 ; ===========================================================
