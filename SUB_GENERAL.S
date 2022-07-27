@@ -16,9 +16,9 @@ CLEAR_CRAM:
     MOVEQ   #0, d1
     MOVE.W  #31, d0     ; 31 = 128 bytes / (4 bytes / long word) - 1
     LEA.L   VDP_DATA, a0
-CL_CRAM_LOOP:
+@CL_CRAM_LOOP:
     MOVE.L  d1, (a0)
-    DBRA    d0, CL_CRAM_LOOP
+    DBRA    d0, @CL_CRAM_LOOP
     
     RTS
     
@@ -31,9 +31,9 @@ CLEAR_VSRAM:
     MOVEQ   #0, d1
     MOVE.W  #19, d0     ; 19 = 80 bytes / (4 bytes / long word) - 1
     LEA.L   VDP_DATA, a0
-CL_VSRAM_LOOP:
+@CL_VSRAM_LOOP:
     MOVE.L  d1, (a0)
-    DBRA    d0, CL_VSRAM_LOOP
+    DBRA    d0, @CL_VSRAM_LOOP
     
     RTS
     
@@ -44,9 +44,9 @@ CL_VSRAM_LOOP:
 CLEAR_VRAM:
     MOVE.L  #VDP_W_VRAM, VDP_CTRL
     MOVEQ.L #0, d1
-    MOVE.L  #$800-1, d0     ; $800 = VRAM size in bytes * (LW/B) / number of writes per loop
+    MOVE.L  #$800-1, d0     ; VRAM size in bytes * 1/4 / number of writes per loop
     LEA.L   VDP_DATA, a0    ;      = $1 0000 * 1/4 / 8 = $800
-CL_VRAM_LOOP:
+@CL_VRAM_LOOP:
     MOVE.L  d1, (a0)
     MOVE.L  d1, (a0)
     MOVE.L  d1, (a0)
@@ -56,8 +56,26 @@ CL_VRAM_LOOP:
     MOVE.L  d1, (a0)
     MOVE.L  d1, (a0)
     
-    DBRA    d0, CL_VRAM_LOOP
+    DBRA    d0, @CL_VRAM_LOOP
     
+    RTS
+
+; --------------------------------
+; CLEAR_BUFF_PLANE:
+; Clear the contents of BUFF_PLANE
+; Thrashed: none
+; --------------------------------
+CLEAR_BUFF_PLANE:
+    PUSH    a0/d0
+    MOVE.W  #VRAM_SCROLLA_SIZE/16-1, d0
+    LEA.L   BUFF_PLANE, a0
+@CLEAR_BUFF_PLANE_LOOP:
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    DBRA    d0, @CLEAR_BUFF_PLANE_LOOP
+    POP     a0/d0
     RTS
 
 ; -------------------------------------
@@ -80,9 +98,9 @@ LOAD_PALETTE:
     
     ; Move palette
     MOVE.L  #$F, d0
-LOAD_PALETTE_LOOP:
+@LOAD_PALETTE_LOOP:
     MOVE.W  (a0)+, (a1)+
-    DBRA    d0, LOAD_PALETTE_LOOP
+    DBRA    d0, @LOAD_PALETTE_LOOP
     
     RTS
 
@@ -99,9 +117,9 @@ DUMP_PALETTES:
     LEA.L   VDP_DATA, a1
     LEA.L   BUFF_PALETTES, a0
     MOVE.W  #63, d0
-DUMP_PALETTES_LOOP:
+@DUMP_PALETTES_LOOP:
     MOVE.W  (a0)+, (a1)
-    DBRA    d0, DUMP_PALETTES_LOOP
+    DBRA    d0, @DUMP_PALETTES_LOOP
     
     RTS
 

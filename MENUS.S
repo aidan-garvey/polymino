@@ -51,7 +51,9 @@ MENU_CURSOR:
     ; make cursor wrap around if it is at the top
     TST.B   (MENU_BTNINDEX, a0)
     BNE.B   @MOVE_UP_SUB
-    MOVE.B  (MENU_NBUTTONS, a0), (MENU_BTNINDEX, a0)
+    ; MOVE.B  (MENU_NBUTTONS, a0), (MENU_BTNINDEX, a0)
+    MOVE.B  (MENU_NBUTTONS, a0), d1
+    MOVE.B  d1, (MENU_BTNINDEX, a0)
 @MOVE_UP_SUB:
     ; move up
     SUBQ.B  #1, (MENU_BTNINDEX, a0)
@@ -63,7 +65,7 @@ MENU_CURSOR:
     MOVE.B  (MENU_BTNINDEX, a0), d1
     ADDQ.B  #1, d1
     CMP.B   (MENU_NBUTTONS), d1
-    BLT.B   @MOVE_DOWN_WRITE
+    BLE.B   @MOVE_DOWN_WRITE
     ; if cursor is below bottom, wrap around to top
     MOVEQ   #0, d1
 @MOVE_DOWN_WRITE:
@@ -73,8 +75,7 @@ MENU_CURSOR:
     ; calculate y position of cursor sprite
     MOVE.B  (MENU_BTNINDEX, a0), d1
     EXT.W   d1
-    MOVE.B  (MENU_YSPACING, a0), d2
-    EXT.W   d2
+    MOVE.W  (MENU_YSPACING, a0), d2
     MULU.W  d2, d1
     ADD.W   (MENU_YPOS, a0), d1
     ; copy to sprite table buffer
@@ -82,7 +83,7 @@ MENU_CURSOR:
 
     ; check for A press
     BTST    #BUTTON_A, d0
-    BNE.B   @SKIP_SELECTED
+    BEQ.B   @SKIP_SELECTED
     MOVE.B  #-1, (MENU_SELECTED, a0)
 @SKIP_SELECTED:
 
@@ -90,14 +91,73 @@ MENU_CURSOR:
     RTS
     
 
+MAIN_MENU_1P: DC.B  '1 PLAYER',0,0
+MAIN_MENU_2P: DC.B  '2 PLAYERS',0
+MAIN_MENU_OPT: DC.B 'OPTIONS',0
+
+MAIN_MENU_TX = 16
+MAIN_MENU_TY = 22
+MAIN_MENU_PX = $80+(MAIN_MENU_TX-2)*8
+MAIN_MENU_PY = $80+MAIN_MENU_TY*8
+MAIN_MENU_VSPACE = $10
+MAIN_MENU_NBUTTONS = 3
+MAIN_MENU_PLAYER = 0
 
 MAIN_MENU_INIT:
-    ; ...
+    ; initialize UI sprites for both players
+    JSR     LOAD_SPRITES
+
+    JSR     CLEAR_BUFF_PLANE
+
+    LEA.L   MAIN_MENU_1P, a0
+    MOVE.W  #MAIN_MENU_TX, d3
+    MOVE.W  #MAIN_MENU_TY, d4
+    JSR     DRAW_STRING
+
+    LEA.L   MAIN_MENU_2P, a0
+    MOVE.W  #MAIN_MENU_TX, d3
+    MOVE.W  #MAIN_MENU_TY+2, d4
+    JSR     DRAW_STRING
+
+    LEA.L   MAIN_MENU_OPT, a0
+    MOVE.W  #MAIN_MENU_TX, d3
+    MOVE.W  #MAIN_MENU_TY+4, d4
+    JSR     DRAW_STRING
+
+    LEA.L   CURR_MENU, a0
+    MOVE.W  #MAIN_MENU_PX, (MENU_XPOS, a0)
+    MOVE.W  #MAIN_MENU_PY, (MENU_YPOS, a0)
+    MOVE.W  #MAIN_MENU_VSPACE, (MENU_YSPACING, a0)
+    MOVE.B  #MAIN_MENU_NBUTTONS, (MENU_NBUTTONS, a0)
+    CLR.B   (MENU_BTNINDEX, a0)
+    CLR.B   (MENU_SELECTED, a0)
+    MOVE.B  #MAIN_MENU_PLAYER, (MENU_PLAYER, a0)
+
     MOVE.L  #MAIN_MENU_LOOP, (MAIN_VECTOR)
     RTS
 
 MAIN_MENU_LOOP:
-    ; ...
+    JSR     MENU_CURSOR
+    
+    LEA.L   CURR_MENU, a0
+    TST.B   (MENU_SELECTED, a0)
+    BEQ.B   @MAIN_MENU_LOOP_RET ; if no button is selected, take no action
+    ; if a button was selected:
+    TST.B   (MENU_BTNINDEX, a0)
+    BEQ.B   @PLAYER_1_START ; button 0 is "1 PLAYER"
+    CMP.B   #1, (MENU_BTNINDEX, a0)
+    BEQ.B   @PLAYER_2_START ; button 1 is "2 PLAYERS"
+    ; if options is pressed, do nothing for now
+    CLR.B   (MENU_SELECTED, a0)
+    BRA.B   @MAIN_MENU_LOOP_RET
+@PLAYER_1_START:
+    MOVE.W  #1, (NUM_PLAYERS)
+    MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+    BRA.B   @MAIN_MENU_LOOP_RET
+@PLAYER_2_START:
+    MOVE.W  #2, (NUM_PLAYERS)
+    MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+@MAIN_MENU_LOOP_RET:
     RTS
 
 ; ===========================

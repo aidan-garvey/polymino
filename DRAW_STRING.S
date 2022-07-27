@@ -28,12 +28,12 @@ DRAW_STRING:
 @DRAW_STRING_LOOP:
     MOVE.B  (a0)+, d0
     BEQ.B   @DRAW_STRING_RET
-    CMP.B   ' ', d0
+    CMP.B   #' ', d0
     BEQ.B   @DRAW_STRING_SPACE
-    CMP.B   '9', d0
+    CMP.B   #'9', d0
     BLE.B   @DRAW_STRING_DIGIT
     ; if it is a letter:
-    SUB.B   'A', d0
+    SUB.B   #'A', d0
     EXT.W   d0
     ; multiply by 2 to get word index
     ADD.W   d0, d0
@@ -45,7 +45,7 @@ DRAW_STRING:
     CLR.W   (a1)+
     BRA.B   @DRAW_STRING_LOOP
 @DRAW_STRING_DIGIT:
-    SUB.B   '0', d0
+    SUB.B   #'0', d0
     EXT.W   d0
     ADD.W   d0, d0
     LEA.L   DIGIT_PATTERNS, a2
