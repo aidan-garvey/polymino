@@ -71,6 +71,7 @@ INIT_PAUSED_P1:
     JSR     DRAW_STRING
 
     MOVE.L  #PAUSE1_LOOP, (MAIN_VECTOR)
+    MOVE.W  #-1, (GAME_PAUSED)
 
     RTS
 
@@ -107,6 +108,7 @@ INIT_PAUSED_P2:
     JSR     DRAW_STRING
 
     MOVE.L  #PAUSE2_LOOP, (MAIN_VECTOR)
+    MOVE.W  #-1, (GAME_PAUSED)
 
     RTS
 
@@ -159,6 +161,7 @@ UNPAUSE_1:
     DBRA    d1, @LOAD_BUFF1_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
+    CLR.W   (GAME_PAUSED)
     RTS
 
 UNPAUSE_2:
@@ -176,6 +179,7 @@ UNPAUSE_2:
     DBRA    d0, @LOAD_BUFF2_TILE
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
+    CLR.W   (GAME_PAUSED)
     RTS
 
 ; un-load parts of the game before going back to the start screen
