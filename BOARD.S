@@ -289,7 +289,11 @@ PLAYER_ACTIONS:
     TST.W   (BOMBS_OFF, a2)
     BEQ.B   @SKIP_C_PRESS
     JSR     DROP_BOMB
-    SUBQ.W  #1, (BOMBS_OFF, a2)
+    ; SUBQ.W  #1, (BOMBS_OFF, a2)
+    MOVE.B  (BOMBS_OFF+1, a2), d0
+    MOVEQ   #1, d1
+    SBCD    d1, d0
+    MOVE.B  d0, (BOMBS_OFF+1, a2)
 @SKIP_C_PRESS:
 
     POP     a5-a6

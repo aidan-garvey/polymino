@@ -48,6 +48,17 @@ VBMAIN:
     MOVE.W  #VRAM_SCORE_GFX_2, d2
     JSR     DMADump
 
+    ; Dump player bomb buffers
+    MOVE.L  #BOMBS_BUFF_1, d0
+    MOVE.W  #BOMBS_BUFF_SIZE/2, d1
+    MOVE.W  #VRAM_BOMBS_GFX_1, d2
+    JSR     DMADump
+
+    MOVE.L  #BOMBS_BUFF_2, d0
+    MOVE.W  #BOMBS_BUFF_SIZE/2, d1
+    MOVE.W  #VRAM_BOMBS_GFX_2, d2
+    JSR     DMADump
+
     ; Dump player outline buffers
     MOVE.L  #OUTLN_BUFF_1, d0
     MOVE.W  #OUTLN_BUFF_SIZE/2, d1

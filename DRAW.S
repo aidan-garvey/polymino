@@ -114,6 +114,41 @@ DRAW_SCORE:
     POP     a1/a3
     RTS
 
+; =============================================
+; DRAW_BOMBS
+; ---------------------------------------------
+; Copy the digits of the player's bomb count to
+; VRAM so the bomb count sprite displays them
+; ---------------------------------------------
+; Parameters:
+;   a2 - player state
+; ---------------------------------------------
+; Thrashed:
+;   a0, d0-d2
+; =============================================
+DRAW_BOMBS:
+    PUSH    a1
+
+    MOVE.L  a2, a1
+    ADDA.W  #BOMBS_BUFF_OFF, a1
+    ; get both digits of score
+    MOVE.B  (BOMBS_OFF+1, a2), d1
+    LSL.W   #5, d1
+    MOVE.W  d1, d2
+    ANDI.W  #$F0<<5, d2 ; first digit
+    LSR.W   #4, d2
+    ANDI.W  #$0F<<5, d1 ; second digit
+
+    LEA.L   TEXT_DIGITS, a0
+    ADDA.W  d2, a0
+    JSR     CopyCharRAM
+    LEA.L   TEXT_DIGITS, a0
+    ADDA.W  d1, a0
+    JSR     CopyCharRAM
+
+    POP     a1
+    RTS
+
 ; ==================================
 ; PLACE_BLOCK
 ; ----------------------------------

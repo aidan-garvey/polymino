@@ -259,15 +259,17 @@ LOAD_SPRITES:
     ; copy menu cursor
     JSR     CopyCharRAM
 
-    ; copy all chars from GFX_TEXT.S
-    MOVEQ   #25, d1
+    ; copy the chars for "NEXT," "SCORE," and "BOMBS" from GFX_TEXT.S
+    MOVEQ   #11, d1
     LEA.L   TEXT_NEXT, a0
-@TEXT_LOOP:
+@TEXT_LOOP_1:
     JSR     CopyCharRAM
-    DBRA    d1, @TEXT_LOOP
+    DBRA    d1, @TEXT_LOOP_1
+
+    ; copy the last
 
     MOVE.L  #BUFF_PLANE, d0
-    MOVE.W  #16*21, d1 ; 16 chars in GFX_TEXT + 5 for cursors, 16 words per char
+    MOVE.W  #16*17, d1 ; 12 chars in GFX_TEXT + 5 for cursors, 16 words per char
     MOVE.W  #VRAM_SPRITE_GFX, d2
     JSR     DMADump
 
@@ -290,10 +292,16 @@ LOAD_SPRITES:
     MOVE.W  #T_SCORE_CHAR, (a0)+
     MOVE.W  #1, (a0)+
 
-    ; "LIFE\nLINES"
+    ;; "LIFE\nLINES"
+    ;MOVE.W  #1, (a0)+
+    ;MOVE.W  #$0D00|P1_LLINES_LNK, (a0)+ ; 4x2
+    ;MOVE.W  #T_LLINES_CHAR, (a0)+
+    ;MOVE.W  #1, (a0)+
+
+    ; "BOMBS"
     MOVE.W  #1, (a0)+
-    MOVE.W  #$0D00|P1_LLINES_LNK, (a0)+ ; 4x2
-    MOVE.W  #T_LLINES_CHAR, (a0)+
+    MOVE.W  #$0C00|P1_BOMBS_LNK, (a0)+ ; 4x1
+    MOVE.W  #T_BOMBS_CHAR, (a0)+
     MOVE.W  #1, (a0)+
 
     ; upper 3 digits of score
@@ -313,6 +321,12 @@ LOAD_SPRITES:
     MOVE.W  #P1_OUTLINE_CHAR, (a0)+
     MOVE.W  #1, (a0)+
 
+    ; both digits for number of bombs
+    MOVE.W  #1, (a0)+
+    MOVE.W  #$0400|P1_BOMBDGT_LNK, (a0)+ ; 2x1
+    MOVE.W  #P1_BOMBS_DGTS, (a0)+
+    MOVE.W  #1, (a0)+
+
     ; initialize HUD text for P2
 
     ; "NEXT"
@@ -328,10 +342,16 @@ LOAD_SPRITES:
     MOVE.W  #T_SCORE_CHAR, (a0)+
     MOVE.W  #1, (a0)+
 
-    ; "LIFE\nLINES"
+    ;; "LIFE\nLINES"
+    ;MOVE.W  #1, (a0)+
+    ;MOVE.W  #$0D00|P2_LLINES_LNK, (a0)+ ; 4x2
+    ;MOVE.W  #T_LLINES_CHAR, (a0)+
+    ;MOVE.W  #1, (a0)+
+
+    ; "BOMBS"
     MOVE.W  #1, (a0)+
-    MOVE.W  #$0D00|P2_LLINES_LNK, (a0)+ ; 4x2
-    MOVE.W  #T_LLINES_CHAR, (a0)+
+    MOVE.W  #$0C00|P2_BOMBS_LNK, (a0)+ ; 4x1
+    MOVE.W  #T_BOMBS_CHAR, (a0)+
     MOVE.W  #1, (a0)+
 
     ; upper 3 digits of score
@@ -349,6 +369,12 @@ LOAD_SPRITES:
     MOVE.W  #$90, (a0)+
     MOVE.W  #$0F00|P2_OUTLINE_LNK, (a0)+
     MOVE.W  #P2_OUTLINE_CHAR, (a0)+
+    MOVE.W  #1, (a0)+
+
+    ; both digits for number of bombs
+    MOVE.W  #1, (a0)+
+    MOVE.W  #$0400|P2_BOMBDGT_LNK, (a0)+ ; 2x1
+    MOVE.W  #P2_BOMBS_DGTS, (a0)+
     MOVE.W  #1, (a0)+
 
     ; menu cursor
@@ -370,39 +396,6 @@ LOAD_SPRITES:
 ; Initialize the positions of the sprites used during gameplay
 ; ============================================================
 INIT_HUD:
-    ;; copy cursor chars
-    ;LEA.L   BUFF_PLANE, a1
-    ;LEA.L   GAME_CURSOR_V, a0
-    ;; copy top and centre
-    ;JSR     CopyCharRAM
-    ;JSR     CopyCharRAM
-    ;; copy a blank char
-    ;MOVEQ   #7, d0
-;@BLANK_LOOP_1:
-    ;MOVE.L  #0, (a1)+
-    ;DBRA    d0, @BLANK_LOOP_1
-    ;; copy right char
-    ;JSR     CopyCharRAM
-
-    ;; copy menu cursor
-    ;JSR     CopyCharRAM
-
-    ;; copy all chars from GFX_TEXT.S
-    ;MOVEQ   #25, d1
-    ;LEA.L   TEXT_NEXT, a0
-;@TEXT_LOOP:
-    ;JSR     CopyCharRAM
-    ;DBRA    d1, @TEXT_LOOP
-
-    ;MOVE.L  #BUFF_PLANE, d0
-    ;MOVE.W  #16*21, d1 ; 16 chars in GFX_TEXT + 5 for cursors, 16 words per char
-    ;MOVE.W  #VRAM_SPRITE_GFX, d2
-    ;JSR     DMADump
-
-    ;; initialize size and link data for P1 and P2 cursors
-    ;MOVE.W  #$0500|P1_CURSOR_LNK, (P1_SPRITE+2)
-    ;MOVE.W  #$0500|P2_CURSOR_LNK, (P2_SPRITE+2)
-
     ; initialize HUD text for P1
 
     ; "NEXT"
@@ -416,10 +409,15 @@ INIT_HUD:
     ADDQ.W  #4, a0
     MOVE.W  #T_SCORE_HPOS_1, (a0)+
 
-    ; "LIFE\nLINES"
-    MOVE.W  #T_LLINES_VPOS, (a0)+
+    ;; "LIFE\nLINES"
+    ;MOVE.W  #T_LLINES_VPOS, (a0)+
+    ;ADDQ.W  #4, a0
+    ;MOVE.W  #T_LLINES_HPOS_1, (a0)+
+
+    ; "BOMBS"
+    MOVE.W  #T_BOMBS_VPOS, (a0)+
     ADDQ.W  #4, a0
-    MOVE.W  #T_LLINES_HPOS_1, (a0)+
+    MOVE.W  #T_BOMBS_HPOS_1, (a0)+
 
     ; upper 3 digits of score
     MOVE.W  #SCORE_DGTS_VPOS, (a0)+
@@ -431,9 +429,14 @@ INIT_HUD:
     MOVE.W  #SCORE_DGTS_HLOW_1, (a0)+
 
     ; outline
-    MOVE.W  #$90, (a0)+
+    MOVE.W  #JUNK_OUTLINE_VPOS, (a0)+
     ADDQ.W  #4, a0
     MOVE.W  #1, (a0)+
+
+    ; number of bombs
+    MOVE.W  #BOMBS_DGTS_VPOS, (a0)+
+    ADDQ.W  #4, a0
+    MOVE.W  #BOMBS_DGTS_HPOS_1, (a0)+
 
     ; initialize HUD text for P2
 
@@ -451,10 +454,15 @@ INIT_HUD:
     ADDQ.W  #4, a0
     MOVE.W  #T_SCORE_HPOS_2, (a0)+
 
-    ; "LIFE\nLINES"
-    MOVE.W  #T_LLINES_VPOS, (a0)+
+    ;; "LIFE\nLINES"
+    ;MOVE.W  #T_LLINES_VPOS, (a0)+
+    ;ADDQ.W  #4, a0
+    ;MOVE.W  #T_LLINES_HPOS_2, (a0)+
+
+    ; "BOMBS"
+    MOVE.W  #T_BOMBS_VPOS, (a0)+
     ADDQ.W  #4, a0
-    MOVE.W  #T_LLINES_HPOS_2, (a0)+
+    MOVE.W  #T_BOMBS_HPOS_2, (a0)+
 
     ; upper 3 digits of score
     MOVE.W  #SCORE_DGTS_VPOS, (a0)+
@@ -469,6 +477,11 @@ INIT_HUD:
     MOVE.W  #$90, (a0)+
     ADDQ.W  #4, a0
     MOVE.W  #1, (a0)+
+
+    ; number of bombs
+    MOVE.W  #BOMBS_DGTS_VPOS, (a0)+
+    ADDQ.W  #4, a0
+    MOVE.W  #BOMBS_DGTS_HPOS_2, (a0)+
 
 @INIT_HUD_1P:
     LEA.L   CURSOR_SPRITE, a0
