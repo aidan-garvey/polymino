@@ -78,6 +78,21 @@ CLEAR_BUFF_PLANE:
     POP     a0/d0
     RTS
 
+; ----------------------------------
+; CLEAR_BUFF_SPRITES:
+; Clear the contents of BUFF_SPRITES
+; Thrashed: none
+; ----------------------------------
+CLEAR_BUFF_SPRITES:
+    PUSH    a0/d0
+    MOVE.W  #VRAM_SPRITETBL_SIZE/4-1, d0
+    LEA.L   BUFF_SPRITES, a0
+@CLEAR_BUFF_SPRITES_LOOP:
+    CLR.L   (a0)+
+    DBRA    d0, @CLEAR_BUFF_SPRITES_LOOP
+    POP     a0/d0
+    RTS
+
 ; -------------------------------------
 ; LOAD_PALETTE:
 ; Load a colour palette into colour

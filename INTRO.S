@@ -57,15 +57,21 @@ STARTSCRN_INIT:
     LOAD_STATE
 
     JSR     CLEAR_BUFF_PLANE
+    ; use cleared plane to clear SCROLL B
+    ;MOVE.L  #BUFF_PLANE, d0
+    ;MOVE.W  #VRAM_SCROLLB_SIZE/2, d1
+    ;MOVE.W  #VRAM_SCROLLB, d2
+    ;JSR     DMADump
+    ; now use it for the menu in SCROLL A
     MOVE.W  #START_MSG_X, d3
     MOVE.W  #START_MSG_Y, d4
     LEA.L   STR_START, a0
     JSR     DRAW_STRING
 
-    MOVE.L  #BUFF_PLANE, d0
-    MOVE.W  #VRAM_SCROLLA_SIZE/2, d1
-    MOVE.W  #VRAM_SCROLLA, d2
-    JSR     DMADump
+    ; hide any sprites by copying a null sprite to the first entry
+    ;LEA.L   BUFF_SPRITES, a0
+    ;CLR.L   (a0)+
+    ;CLR.L   (a0)+
 
     MOVE.L  #STARTSCRN_LOOP, (MAIN_VECTOR)
     END_LOAD_STATE

@@ -30,6 +30,15 @@ GAME_INIT:
     MOVE.W  #0, (a0)+   ; game is not paused
 
     ; p1:
+
+    ; clear board data
+    LEA.L   BOARD_1, a0
+    MOVE.W  #(BOARD_WIDTH*BOARD_HEIGHT/2)-1, d0
+@CLEAR_BOARD_1:
+    CLR.L   (a0)+
+    DBRA    d0, @CLEAR_BOARD_1
+
+    ; game state
     LEA.L   GAME_STATE_1, a0
     MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #0, (a0)+       ; bcd score
@@ -47,6 +56,15 @@ GAME_INIT:
     MOVE.W  #0, (a0)+       ; index of next junk piece type
 
     ; p2:
+
+    ; clear board data
+    LEA.L   BOARD_2, a0
+    MOVE.W  #(BOARD_WIDTH*BOARD_HEIGHT/2)-1, d0
+@CLEAR_BOARD_2:
+    CLR.L   (a0)+
+    DBRA    d0, @CLEAR_BOARD_2
+
+    ; game state
     LEA.L   GAME_STATE_2, a0
     MOVE.W  #5, (a0)+       ; starting rows
     MOVE.L  #0, (a0)+       ; bcd score

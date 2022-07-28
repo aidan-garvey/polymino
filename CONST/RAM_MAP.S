@@ -132,5 +132,7 @@ OUTLN_BUFF_2 = $FF4368  ; $200 Bytes: buffer for junk outline characters
 ; Data for each particle, see PARTICLE.S
 PART_DATA = $FF5000
 
+PAUSE_BUFFER = $FF6000  ; 60B: storage for the patterns in SCROLL A overwritten by pausing
+
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed
 DMA_SCRATCH = $FFFFFC   ; DMA needs a long-word of RAM

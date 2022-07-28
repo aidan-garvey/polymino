@@ -64,8 +64,8 @@ MENU_CURSOR:
     ; move down
     MOVE.B  (MENU_BTNINDEX, a0), d1
     ADDQ.B  #1, d1
-    CMP.B   (MENU_NBUTTONS), d1
-    BLE.B   @MOVE_DOWN_WRITE
+    CMP.B   (MENU_NBUTTONS, a0), d1
+    BLT.B   @MOVE_DOWN_WRITE
     ; if cursor is below bottom, wrap around to top
     MOVEQ   #0, d1
 @MOVE_DOWN_WRITE:
@@ -175,15 +175,15 @@ MAIN_MENU_LOOP:
 @MAIN_MENU_LOOP_RET:
     RTS
 
-; ===========================
+; ===============================================
 ; UPDATE_PAUSED
-; ---------------------------
-; Pause/unpause the game when
-; player 1 presses start
-; ---------------------------
-; Thrashed:
-; ===========================
+; -----------------------------------------------
+; Pause the game when player 1 or 2 presses start
+; -----------------------------------------------
+; Thrashed: d0-d1
+; ===============================================
 UPDATE_PAUSED:
+    ; check for P1 pressing start
     MOVE.W  (JOY1), d0    ; current joypad inputs
     MOVE.W  (JOY1+4), d1   ; previous frame's inputs
     ; to get buttons pressed this frame but not held:
@@ -191,10 +191,24 @@ UPDATE_PAUSED:
     EOR.W   d0, d1
     AND.W   d0, d1  ; d1 indicates buttons pressed for the first frame
 
-    ; if start not pressed, return
-    BTST    #7, d1
-    BEQ     @UPDATE_PAUSED_RET
-    BCHG    #0, (GAME_PAUSED) ; toggle game pause
+    ; if start pressed by P1, pause
+    BTST    #BUTTON_START, d1
+    BEQ.B   @UPDATE_PAUSED_P2
+    MOVE.L  #INIT_PAUSED_P1, (MAIN_VECTOR)
+    BRA.B   @UPDATE_PAUSED_RET
+
+@UPDATE_PAUSED_P2:
+    MOVE.W  (JOY2), d0
+    MOVE.W  (JOY2+4), d1
+    EOR.W   d0, d1
+    AND.W   d0, d1
+
+    ; if start pressed by P2, pause
+    BTST    #BUTTON_START, d1
+    BEQ.B   @UPDATE_PAUSED_RET
+    MOVE.L  #INIT_PAUSED_P2, (MAIN_VECTOR)
+
+    ; BCHG    #0, (GAME_PAUSED) ; toggle game pause
 
 @UPDATE_PAUSED_RET:
     RTS
