@@ -47,14 +47,15 @@ INIT_PAUSED_P1:
     MOVE.B  #PAUSE_CON_MASK, (MENU_CON_MASK, a0)
     MOVE.B  #PAUSE_EX_MASK, (MENU_EX_MASK, a0)
 
-    ; save the patterns that the pause menu will overwrite
+    ; save the patterns that the pause menu will overwrite, then clear them
     LEA.L   PAUSE1_BUFF, a0     ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
     MOVEQ   #2, d1  ; 3 rows
 @SAVE_BUFF1_ROW:
     MOVEQ   #4, d0  ; 5 long-words for 10 patterns
 @SAVE_BUFF1_TILE:
-    MOVE.L  (a0)+, (a1)+
+    MOVE.L  (a0), (a1)+
+    CLR.L   (a0)+
     DBRA    d0, @SAVE_BUFF1_TILE
     ADDA.W  #128-20, a0
     DBRA    d1, @SAVE_BUFF1_ROW
@@ -98,7 +99,8 @@ INIT_PAUSED_P2:
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
     MOVEQ   #4, d0  ; 5 long-words for 10 patterns
 @SAVE_BUFF2_TILE:
-    MOVE.L  (a0)+, (a1)+
+    MOVE.L  (a0), (a1)+
+    CLR.L   (a0)+
     DBRA    d0, @SAVE_BUFF2_TILE
 
     ; draw menu

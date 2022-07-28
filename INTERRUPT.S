@@ -27,7 +27,7 @@ VBMAIN:
 
     ; Dump sprite buffer to VRAM
     MOVE.L  #BUFF_SPRITES, d0           ; source address
-    MOVE.W  #VRAM_SPRITETBL_SIZE/2, d1  ; size of data (in words)
+    MOVE.W  #VRAM_SPRITETBL_SIZE/2, d1  ; size of data in words
     MOVE.W  #VRAM_SPRITETBL, d2         ; VDP dest address
     JSR     DMADump
 

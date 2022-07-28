@@ -292,6 +292,7 @@ PLAYER_ACTIONS:
     ; SUBQ.W  #1, (BOMBS_OFF, a2)
     MOVE.B  (BOMBS_OFF+1, a2), d0
     MOVEQ   #1, d1
+    ANDI.B  #0, CCR ; reset flags so no erroneous extend bit
     SBCD    d1, d0
     MOVE.B  d0, (BOMBS_OFF+1, a2)
 @SKIP_C_PRESS:
