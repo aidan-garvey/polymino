@@ -32,11 +32,10 @@ ADD_MATCH_SCORE:
 ; ==============================================
 ADD_SHATTER_SCORE:
     MOVE.L  #SHATTER_POINTS, (SCRATCH)
-    TST.W   (COMBO_OFF, a2)
-    BNE.B   ADD_SCORE
-    MOVE.W  #1, (COMBO_OFF, a2)
+    ;TST.W   (COMBO_OFF, a2)
+    ;BNE.B   ADD_SCORE
+    ;MOVE.W  #1, (COMBO_OFF, a2)
     BRA.B   ADD_SCORE
-    NOP
 
 ; =============================================
 ; ADD_SCORE
@@ -49,6 +48,7 @@ ADD_SHATTER_SCORE:
 ; Thrashed:
 ;   none
 ; =============================================
+    NOP
 ADD_SCORE:
     PUSH    a0-a1/d0
 
