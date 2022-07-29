@@ -71,6 +71,12 @@ INIT_PAUSED_P1:
     MOVE.W  #PAUSE_TY+2, d4
     JSR     DRAW_STRING
 
+    ; hide player's game cursor by moving it off-screen.
+    ; will be updated once game resumes by DRAW_CURSOR
+    LEA.L   P1_SPRITE, a0
+    MOVE.W  #0, (a0)
+    MOVE.W  #0, 6(a0)
+
     MOVE.L  #PAUSE1_LOOP, (MAIN_VECTOR)
     MOVE.W  #-1, (GAME_PAUSED)
 
@@ -108,6 +114,12 @@ INIT_PAUSED_P2:
     MOVE.W  #PAUSE2_TX, d3
     MOVE.W  #PAUSE_TY, d4
     JSR     DRAW_STRING
+
+    ; hide player's game cursor by moving it off-screen.
+    ; will be updated once game resumes by DRAW_CURSOR
+    LEA.L   P2_SPRITE, a0
+    MOVE.W  #0, (a0)
+    MOVE.W  #0, 6(a0)
 
     MOVE.L  #PAUSE2_LOOP, (MAIN_VECTOR)
     MOVE.W  #-1, (GAME_PAUSED)
