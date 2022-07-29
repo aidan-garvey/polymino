@@ -59,7 +59,7 @@ ADD_SCORE:
     BRA.B   @MULT_SCORE_STEP
 
 @MULT_SCORE_LOOP:
-    ANDI.B  #0, CCR ; reset flags so no erroneous extend bit
+    MOVE.W  #0, CCR ; reset flags so no erroneous extend bit
     ABCD    -(a1), -(a0)
     ABCD    -(a1), -(a0)
     ABCD    -(a1), -(a0)
@@ -85,7 +85,7 @@ ADD_SCORE:
 @ADD_BOMB:
     MOVE.B  (BOMBS_OFF+1, a2), d0
     MOVEQ   #1, d1
-    ANDI.B  #0, CCR ; reset flags so no erroneous extend bit
+    MOVE.W  #0, CCR ; reset flags so no erroneous extend bit
     ABCD    d1, d0
     MOVE.B  d0, (BOMBS_OFF+1, a2)
 

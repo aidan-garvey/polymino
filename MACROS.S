@@ -60,16 +60,15 @@ VDP_ACCESS_REG: MACRO
     MOVE.L  \2, VDP_CTRL    ; Pass our control instruction to the VDP
     ENDM
 
-; Put the system in a state for loading graphics
-; in the main game loop - i.e. disable interrupts
-; and the display
+; Put the system in a state for loading graphics outside
+; of VBLANK - i.e. disable interrupts and the display
 LOAD_STATE: MACRO
     MOVE.W  #$2700, SR
     VDP_REG 1, %00000100 ; disable display, V-INT & DMA, use V28 cells
     ENDM
 
-; Undo the changes made in LOAD_STATE so the
-; system is ready to function during gameplay
+; Undo the changes made in LOAD_STATE - i.e. enable
+; interrupts and the display
 END_LOAD_STATE: MACRO
     MOVE.W  #$2000, SR
     VDP_REG 1, %01100100 ; enable display & V-INT, disable DMA, V28 cells
