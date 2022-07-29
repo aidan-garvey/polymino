@@ -341,6 +341,10 @@ UPDATE_PHYSICS:
     ; if (a0) not empty, (a1) can't move down
     BNE.B   @UPDATE_BLOCK_STEP
 
+    TST.W   (a1)
+    ; if (a1) is empty, skip moving it down
+    BEQ.B   @UPDATE_BLOCK_STEP
+
     ; move (a1) downwards
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
