@@ -139,7 +139,7 @@ BOMBS_BUFF_2 = $FF4568  ; 64B: buffer for graphics that display number of bombs
 ; Data for each particle, see PARTICLE.S
 PART_DATA = $FF5000
 
-PAUSE_BUFFER = $FF6000  ; 60B: storage for the patterns in SCROLL A overwritten by pausing
+PAUSE_BUFFER = $FF6000  ; 140B: storage for the patterns in SCROLL A overwritten by pausing
 
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed
 DMA_SCRATCH = $FFFFFC   ; DMA needs a long-word of RAM

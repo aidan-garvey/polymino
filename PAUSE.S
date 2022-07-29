@@ -24,16 +24,17 @@
     JSR     DUMP_PALETTES
     RTS
 
-PAUSE1_TX = 11
+; 15 cells on either side
+PAUSE1_TX = 17
 PAUSE_TY = 12
-PAUSE1_XPOS = 9*8+$80
+PAUSE1_XPOS = 15*8+$80
 PAUSE_YPOS = 12*8+$80
 PAUSE_YSPACING = $10
 PAUSE1_NBUTTONS = 2
 PAUSE1_PLAYER = 0
 PAUSE_CON_MASK = %01000000 ; A
 PAUSE_EX_MASK = %10010000 ; START, B
-PAUSE1_BUFF = BUFF_PLANE+(9<<1)+(12<<7)
+PAUSE1_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
 INIT_PAUSED_P1:
     ; initialize menu
     LEA.L   CURR_MENU, a0
@@ -50,7 +51,7 @@ INIT_PAUSED_P1:
     ; save the patterns that the pause menu will overwrite, then clear them
     LEA.L   PAUSE1_BUFF, a0     ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
-    MOVEQ   #2, d1  ; 3 rows
+    MOVEQ   #6, d1  ; 7 rows
 @SAVE_BUFF1_ROW:
     MOVEQ   #4, d0  ; 5 long-words for 10 patterns
 @SAVE_BUFF1_TILE:
@@ -61,6 +62,11 @@ INIT_PAUSED_P1:
     DBRA    d1, @SAVE_BUFF1_ROW
 
     ; draw menu
+    LEA.L   STR_PAUSE1, a0
+    MOVE.W  #PAUSE1_TX-1, d3
+    MOVE.W  #PAUSE_TY-2, d4
+    JSR     DRAW_STRING
+
     LEA.L   STR_CONTINUE, a0
     MOVE.W  #PAUSE1_TX, d3
     MOVE.W  #PAUSE_TY, d4
@@ -71,9 +77,12 @@ INIT_PAUSED_P1:
     MOVE.W  #PAUSE_TY+2, d4
     JSR     DRAW_STRING
 
-    ; hide player's game cursor by moving it off-screen.
+    ; hide both game cursors by moving them off-screen.
     ; will be updated once game resumes by DRAW_CURSOR
     LEA.L   P1_SPRITE, a0
+    MOVE.W  #0, (a0)
+    MOVE.W  #0, 6(a0)
+    LEA.L   P2_SPRITE, a0
     MOVE.W  #0, (a0)
     MOVE.W  #0, 6(a0)
 
@@ -82,11 +91,11 @@ INIT_PAUSED_P1:
 
     RTS
 
-PAUSE2_TX = 23
-PAUSE2_XPOS = 21*8+$80
+PAUSE2_TX = 17
+PAUSE2_XPOS = 15*8+$80
 PAUSE2_NBUTTONS = 1
 PAUSE2_PLAYER = 1
-PAUSE2_BUFF = BUFF_PLANE+(21<<1)+(12<<7)
+PAUSE2_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
 INIT_PAUSED_P2:
     ; initialize menu
     LEA.L   CURR_MENU, a0
@@ -103,20 +112,32 @@ INIT_PAUSED_P2:
     ; save the patterns that the pause menu will overwrite
     LEA.L   PAUSE2_BUFF, a0     ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
+    MOVEQ   #4, d1  ; 5 rows
+@SAVE_BUFF2_ROW:
     MOVEQ   #4, d0  ; 5 long-words for 10 patterns
 @SAVE_BUFF2_TILE:
     MOVE.L  (a0), (a1)+
     CLR.L   (a0)+
     DBRA    d0, @SAVE_BUFF2_TILE
+    ADDA.W  #128-20, a0
+    DBRA    d1, @SAVE_BUFF2_ROW
 
     ; draw menu
+    LEA.L   STR_PAUSE2, a0
+    MOVE.W  #PAUSE2_TX-1, d3
+    MOVE.W  #PAUSE_TY-2, d4
+    JSR     DRAW_STRING
+
     LEA.L   STR_CONTINUE, a0
     MOVE.W  #PAUSE2_TX, d3
     MOVE.W  #PAUSE_TY, d4
     JSR     DRAW_STRING
 
-    ; hide player's game cursor by moving it off-screen.
+    ; hide both game cursors by moving them off-screen.
     ; will be updated once game resumes by DRAW_CURSOR
+    LEA.L   P1_SPRITE, a0
+    MOVE.W  #0, (a0)
+    MOVE.W  #0, 6(a0)
     LEA.L   P2_SPRITE, a0
     MOVE.W  #0, (a0)
     MOVE.W  #0, 6(a0)
@@ -165,7 +186,7 @@ UNPAUSE_1:
     ; copy PAUSE_BUFF back to screen buffer
     LEA.L   PAUSE_BUFFER, a0
     LEA.L   PAUSE1_BUFF, a1
-    MOVEQ   #2, d1  ; 3 rows
+    MOVEQ   #6, d1  ; 7 rows
 @LOAD_BUFF1_ROW:
     MOVEQ   #4, d0  ; 5 long words for 10 patterns
 @LOAD_BUFF1_TILE:
@@ -187,10 +208,14 @@ UNPAUSE_2:
     ; copy PAUSE_BUFF back to screen buffer
     LEA.L   PAUSE_BUFFER, a0
     LEA.L   PAUSE2_BUFF, a1
+    MOVEQ   #4, d1  ; 5 rows
+@LOAD_BUFF2_ROW:
     MOVEQ   #4, d0  ; 5 long words for 10 patterns
 @LOAD_BUFF2_TILE:
     MOVE.L  (a0)+, (a1)+
     DBRA    d0, @LOAD_BUFF2_TILE
+    ADDA.W  #128-20, a1
+    DBRA    d1, @LOAD_BUFF2_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
     CLR.W   (GAME_PAUSED)
