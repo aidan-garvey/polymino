@@ -324,7 +324,6 @@ UPDATE_PHYSICS:
     MOVEQ   #BOARD_HEIGHT-1, d4
 
     ; we will iterate every row except the top
-    ; MOVE.W  #BOARD_WIDTH*(BOARD_HEIGHT-1)-1, d0
 @UPDATE_BLOCK_LOOP:
     SUBA.W  #2, a1
     SUBA.W  #2, a0

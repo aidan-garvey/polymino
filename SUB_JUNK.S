@@ -354,6 +354,7 @@ SHATTER_JUNK:
 ; Parameters:
 ;   a0 - the tile below a1
 ;   a1 - rightmost junk block in the row
+;   a2 - player game state
 ;   d3 - x position of block (a0)
 ;   d4 - y position of block (a0)
 ; After execution:
@@ -418,6 +419,9 @@ UPDATE_JUNK:
     DBRA    d1, @JUNK_FALL_LOOP
 
     POP     a0-a1/d3
+
+    ; since junk moved, set flag that tells us to check projectile-junk collisions
+    MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
 
 @UPDATE_JUNK_RET:
     POP     d0-d2/d5

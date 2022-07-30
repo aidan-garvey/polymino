@@ -170,16 +170,16 @@ GAME_LOOP:
     ADDQ.W  #1, (JUNK_TIMER_OFF, a2)
     MOVE.W  (JUNK_TIMER_OFF, a2), d0
     CMP.W   (JUNK_MAX), d0
-    BLT     @SKIP_MATCH_ALL
+    BLT.B   @SKIP_MATCH_ALL
     CLR.W   (JUNK_TIMER_OFF, a2)
 
-    BRA     @SKIP_MATCH_ALL
+    BRA.B   @SKIP_MATCH_ALL
 @SKIP_UPDATE_PHYSICS:
     ; to spread the load, update matches the frame before physics
     MOVE.W  (UPDATE_MAX), d0
     SUBQ    #1, d0
     CMP.W   (UPDATE_TIMER), d0
-    BNE     @SKIP_MATCH_ALL
+    BNE.B   @SKIP_MATCH_ALL
     JSR     CHECK_ALL_MATCHES
 @SKIP_MATCH_ALL:
 
