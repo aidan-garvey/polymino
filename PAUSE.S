@@ -1,10 +1,46 @@
 
 ; *****************************************************************
 ; PAUSE.S
-; Code for the pause menus
+; Subroutines that handle pausing the game and the pause menus
 ;
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
+
+; ===============================================
+; UPDATE_PAUSED
+; -----------------------------------------------
+; Pause the game when player 1 or 2 presses start
+; -----------------------------------------------
+; Thrashed: d0-d1
+; ===============================================
+UPDATE_PAUSED:
+    ; check for P1 pressing start
+    MOVE.W  (JOY1), d0    ; current joypad inputs
+    MOVE.W  (JOY1+4), d1   ; previous frame's inputs
+    ; to get buttons pressed this frame but not held:
+    ; XOR new inputs into old inputs, then AND result with new inputs
+    EOR.W   d0, d1
+    AND.W   d0, d1  ; d1 indicates buttons pressed for the first frame
+
+    ; if start pressed by P1, pause
+    BTST    #BUTTON_START, d1
+    BEQ.B   @UPDATE_PAUSED_P2
+    MOVE.L  #INIT_PAUSED_P1, (MAIN_VECTOR)
+    BRA.B   @UPDATE_PAUSED_RET
+
+@UPDATE_PAUSED_P2:
+    MOVE.W  (JOY2), d0
+    MOVE.W  (JOY2+4), d1
+    EOR.W   d0, d1
+    AND.W   d0, d1
+
+    ; if start pressed by P2, pause
+    BTST    #BUTTON_START, d1
+    BEQ.B   @UPDATE_PAUSED_RET
+    MOVE.L  #INIT_PAUSED_P2, (MAIN_VECTOR)
+
+@UPDATE_PAUSED_RET:
+    RTS
 
 ; make background black by changing the palette
 @HIDE_BCKGRND:
@@ -24,7 +60,7 @@
     JSR     DUMP_PALETTES
     RTS
 
-; 15 cells on either side
+; constants for P1's pause menu, or shared by P1 and P2
 PAUSE1_TX = 17
 PAUSE_TY = 12
 PAUSE1_XPOS = 15*8+$80
@@ -35,6 +71,8 @@ PAUSE1_PLAYER = 0
 PAUSE_CON_MASK = %01000000 ; A
 PAUSE_EX_MASK = %10010000 ; START, B
 PAUSE1_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
+
+; set up player 1's pause menu
 INIT_PAUSED_P1:
     ; initialize menu
     LEA.L   CURR_MENU, a0
@@ -91,11 +129,14 @@ INIT_PAUSED_P1:
 
     RTS
 
+; constants for P2's pause menu
 PAUSE2_TX = 17
 PAUSE2_XPOS = 15*8+$80
 PAUSE2_NBUTTONS = 1
 PAUSE2_PLAYER = 1
 PAUSE2_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
+
+; set up player 2's pause menu
 INIT_PAUSED_P2:
     ; initialize menu
     LEA.L   CURR_MENU, a0
@@ -147,6 +188,8 @@ INIT_PAUSED_P2:
 
     RTS
 
+; main game loop subroutine when P1 has paused the game.
+; lets P1 unpause with START or B, unpause with the "continue" option, or quit the game
 PAUSE1_LOOP:
     JSR     MENU_CURSOR
     LEA.L   CURR_MENU, a0
@@ -164,6 +207,8 @@ PAUSE1_LOOP:
 @PAUSE1_RET:
     RTS
 
+; main game loop subroutine when P2 has paused the game.
+; lets P2 unpause with START or B, or unpause with the "continue" option
 PAUSE2_LOOP:
     JSR     MENU_CURSOR
     LEA.L   CURR_MENU, a0
@@ -199,6 +244,8 @@ UNPAUSE_1:
     CLR.W   (GAME_PAUSED)
     RTS
 
+; to unpause, copy PAUSE_BUFFER back to screen buffer,
+; move cursor off screen
 UNPAUSE_2:
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
@@ -233,6 +280,8 @@ PAUSE_EXIT_INIT:
     JSR     DMADump
     ; delete all sprites
     JSR     CLEAR_BUFF_SPRITES
+
+    CLR.W   (GAME_PAUSED)
 
     MOVE.L  #STARTSCRN_INIT, (MAIN_VECTOR)
     END_LOAD_STATE
