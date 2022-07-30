@@ -115,8 +115,9 @@ GAME_LOOP:
     JSR     UPDATE_PAUSED
 
     ; if game is paused, do not update anything else
-    TST.W   (GAME_PAUSED)
-    BNE     @GAME_LOOP_END
+    ;TST.W   (GAME_PAUSED)
+    ;BNE     @GAME_LOOP_END
+    ; unneeded now that different subroutine is in MAIN_VECTOR if game is paused
 
     ; move particles, called once for both players
     JSR     UPDATE_PARTICLES

@@ -476,8 +476,12 @@ UPDATE_PARTICLES:
     
     ; if we didn't delete this sprite, a2 will track it
     MOVE.L  a0, a2
+    ; if link data is zero, we're at the end of the list, return
+    TST.B   3(a2)
+    BNE.B   @UPDATE_PARTICLES_STEP
+    BRA.B   @UPDATE_PARTICLES_RET
     
-    BRA.B   @UPDATE_PARTICLES_STEP
+    ; BRA.B   @UPDATE_PARTICLES_STEP
 
 @DELETE_PARTICLE:
     ; to delete a particle:
@@ -485,6 +489,8 @@ UPDATE_PARTICLES:
     ; - set the previous sprite's link data to the deleted sprite's link data
     MOVE.W  #0, (a0)
     MOVE.B  3(a0), 3(a2)
+    ; if the link data was zero, there are no more sprites, so return
+    BEQ.B   @UPDATE_PARTICLES_RET
 
 @UPDATE_PARTICLES_STEP:
     ADDA.W  #PART_SPRITE_SIZE, a0
@@ -493,6 +499,7 @@ UPDATE_PARTICLES:
     CMPA.L  #SPRITES_END, a0
     BLT.W   @UPDATE_PARTICLES_LOOP
 
+@UPDATE_PARTICLES_RET:
     RTS
 
 ; =====================================
