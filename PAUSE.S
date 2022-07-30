@@ -42,21 +42,18 @@ UPDATE_PAUSED:
 @UPDATE_PAUSED_RET:
     RTS
 
-; make background black by changing the palette
-@HIDE_BCKGRND:
+; =================================================
+; HIDE_BCKGRND
+; helper subroutine that uses palette-swaps to hide
+; the SCROLLB layer
+; =================================================
+
+HIDE_BCKGRND:
     LEA.L   BUFF_PALETTES+96, a1
     MOVEQ   #7, d0
 @HIDE_BCKGRND_LOOP:
     CLR.L   (a1)+
     DBRA    d0, @HIDE_BCKGRND_LOOP
-    JSR     DUMP_PALETTES
-    RTS
-
-; restore background
-@SHOW_BCKGRND:
-    LEA.L   BCKGND_PAL, a0
-    MOVEQ   #3, d0
-    JSR     LOAD_PALETTE
     JSR     DUMP_PALETTES
     RTS
 
@@ -74,6 +71,8 @@ PAUSE1_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
 
 ; set up player 1's pause menu
 INIT_PAUSED_P1:
+    BSR.B   HIDE_BCKGRND
+
     ; initialize menu
     LEA.L   CURR_MENU, a0
     MOVE.W  #PAUSE1_XPOS, (MENU_XPOS, a0)
@@ -138,6 +137,8 @@ PAUSE2_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
 
 ; set up player 2's pause menu
 INIT_PAUSED_P2:
+    BSR.W   HIDE_BCKGRND 
+
     ; initialize menu
     LEA.L   CURR_MENU, a0
     MOVE.W  #PAUSE2_XPOS, (MENU_XPOS, a0)
@@ -220,9 +221,22 @@ PAUSE2_LOOP:
 @PAUSE2_RET:
     RTS
 
+; ====================================================
+; SHOW_BCKGRND
+; helper subroutine that restores the SCROLL B palette
+; ====================================================
+SHOW_BCKGRND:
+    LEA.L   BCKGND_PAL, a0
+    MOVEQ   #3, d0
+    JSR     LOAD_PALETTE
+    JSR     DUMP_PALETTES
+    RTS
+
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_1:
+    BSR.B   SHOW_BCKGRND
+
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
     MOVE.W  #0, (a0)
@@ -247,6 +261,8 @@ UNPAUSE_1:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_2:
+    BSR.B   SHOW_BCKGRND
+
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
     MOVE.W  #0, (a0)
@@ -272,6 +288,7 @@ UNPAUSE_2:
 PAUSE_EXIT_INIT:
     LOAD_STATE
 
+    BSR.W   SHOW_BCKGRND
     JSR     CLEAR_BUFF_PLANE
     ; use cleared screen buffer to clear SCROLL B
     MOVE.L  #BUFF_PLANE, d0
