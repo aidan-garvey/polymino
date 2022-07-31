@@ -109,6 +109,7 @@ MAIN_MENU_PLAYER = 0
 MAIN_MENU_CON_MASK = %11000000
 MAIN_MENU_EX_MASK = %00000000
 
+; configure and draw the main menu
 MAIN_MENU_INIT:
     LOAD_STATE ; disable display & interrupts
 
@@ -147,6 +148,7 @@ MAIN_MENU_INIT:
     END_LOAD_STATE
     RTS
 
+; detect if the player has chosen an option on the main menu
 MAIN_MENU_LOOP:
     JSR     MENU_CURSOR
     LEA.L   CURR_MENU, a0
@@ -167,10 +169,82 @@ MAIN_MENU_LOOP:
     BRA.B   @MAIN_MENU_LOOP_RET
 @PLAYER_1_START:
     MOVE.W  #1, (NUM_PLAYERS)
-    MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+    ; MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+    MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
     BRA.B   @MAIN_MENU_LOOP_RET
 @PLAYER_2_START:
     MOVE.W  #2, (NUM_PLAYERS)
-    MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+    ; MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+    MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
 @MAIN_MENU_LOOP_RET:
     RTS
+
+DIFF_MENU_TX = 20
+DIFF_MENU_TY = 9
+DIFF_MENU_PX = $80+(DIFF_MENU_TX-2)*8
+DIFF_MENU_PY = $80+DIFF_MENU_TY*8
+DIFF_MENU_VSPACE = $10
+DIFF_MENU_NBUTTONS = 5
+DIFF_MENU_PLAYER = 0
+DIFF_MENU_CON_MASK = %11000000
+DIFF_MENU_EX_MASK = %00010000
+DIFF_MENU_PLANE = BUFF_PLANE+(DIFF_MENU_TX<<1)+(DIFF_MENU_TY<<7)
+
+; configure and draw the menu for selecting a difficulty
+DIFF_MENU_INIT:
+    LOAD_STATE
+
+    JSR     CLEAR_BUFF_PLANE
+
+    LEA.L   STR_DIFF, a0
+    MOVEQ   #11, d3
+    MOVEQ   #DIFF_MENU_TY-2, d4
+    JSR     DRAW_STRING
+
+    LEA.L   DIGIT_PATTERNS+2, a0 ; pattern for '1'
+    LEA.L   DIFF_MENU_PLANE, a1
+    MOVEQ   #4, d0
+@DIFF_MENU_OPTS:
+    MOVE.W  (a0)+, (a1)
+    ADDA.W  #256, a1
+    DBRA    d0, @DIFF_MENU_OPTS
+
+    LEA.L   CURR_MENU, a0
+    MOVE.W  #DIFF_MENU_PX, (MENU_XPOS, a0)
+    MOVE.W  #DIFF_MENU_PY, (MENU_YPOS, a0)
+    MOVE.W  #DIFF_MENU_VSPACE, (MENU_YSPACING, a0)
+    MOVE.B  #DIFF_MENU_NBUTTONS, (MENU_NBUTTONS, a0)
+    CLR.B   (MENU_BTNINDEX, a0)
+    CLR.B   (MENU_SELECTED, a0)
+    MOVE.B  #DIFF_MENU_PLAYER, (MENU_PLAYER, a0)
+    MOVE.B  #DIFF_MENU_CON_MASK, (MENU_CON_MASK, a0)
+    MOVE.B  #DIFF_MENU_EX_MASK, (MENU_EX_MASK, a0)
+
+    MOVE.L  #DIFF_MENU_LOOP, (MAIN_VECTOR)
+    END_LOAD_STATE
+    RTS
+
+; detect if the player has chosen an option on the difficulty menu
+DIFF_MENU_LOOP:
+    JSR     MENU_CURSOR
+    LEA.L   CURR_MENU, a0
+    
+    TST.B   (MENU_SELECTED, a0)
+    BLT.B   @DIFF_MENU_EXIT
+    BEQ.B   @DIFF_MENU_RET
+    ; if difficulty was selected, calculate speed and start game
+    MOVE.B  (MENU_BTNINDEX, a0), d0
+    EXT.W   d0
+    ; frames b/w physics updates = 15 - 2 * (difficulty - 1)
+    MOVEQ   #15, d1
+    SUB.W   d0, d1
+    SUB.W   d0, d1
+    MOVE.W  d1, (UPDATE_MAX)
+    MOVE.L  #GAME_INIT, (MAIN_VECTOR)
+    BRA.B   @DIFF_MENU_RET
+    ; if exitted, return to main menu
+@DIFF_MENU_EXIT:
+    MOVE.L  #MAIN_MENU_INIT, (MAIN_VECTOR)
+@DIFF_MENU_RET:
+    RTS
+

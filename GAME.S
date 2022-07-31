@@ -23,9 +23,11 @@ GAME_INIT:
     ; temporary hard-coded game setup
     
     ; global:
-    LEA.L   GLOBAL_STATE+2, a0 ; first value is number of players, determined in main menu
-    MOVE.W  #10, (a0)+  ; frames b/w physics updates
-    MOVE.W  #0, (a0)+   ; counter for above
+    ; first word is number of players, determined in main menu
+    ; second word is frames b/w physics updates, determined by difficulty selection
+    LEA.L   GLOBAL_STATE+4, a0
+    ; MOVE.W  #10, (a0)+  ; frames b/w physics updates
+    MOVE.W  #0, (a0)+   ; counter for physics updates
     MOVE.W  #40, (a0)+  ; physics updates b/w junk
     MOVE.W  #0, (a0)+   ; game is not paused
 
