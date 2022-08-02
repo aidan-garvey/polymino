@@ -235,8 +235,9 @@ DIFF_MENU_LOOP:
     ; if difficulty was selected, calculate speed and start game
     MOVE.B  (MENU_BTNINDEX, a0), d0
     EXT.W   d0
-    ; frames b/w physics updates = 15 - 2 * (difficulty - 1)
+    ; frames b/w physics updates = 15 - 3 * (difficulty - 1)
     MOVEQ   #15, d1
+    SUB.W   d0, d1
     SUB.W   d0, d1
     SUB.W   d0, d1
     MOVE.W  d1, (UPDATE_MAX)
