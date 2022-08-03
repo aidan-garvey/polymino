@@ -39,6 +39,11 @@ INIT_PARTICLES:
     MOVE.W  #VRAM_DEBRIS_GFX, d2
     JSR     DMADump
 
+    MOVE.L  #COMBO_CHARS, d0
+    MOVE.W  #VRAM_COMBO_SIZE/2, d1
+    MOVE.W  #VRAM_COMBO_GFX, d2
+    JSR     DMADump
+
     RTS
 
 ; ===========================
@@ -287,7 +292,7 @@ SPAWN_DEBRIS:
     LSR.W   #8, d2      ; d2 := color[1:0]
     ADDI.W  #DEBRIS_CHAR, d2
     ; use the random data from RAND to randomly flip the debris
-    ANDI.W  #$1800, d1  ; 1x1 size
+    ANDI.W  #$1800, d1
     OR.W    d1, d2
     BTST    #10, d0
     BNE.B   @SD_PAL2
@@ -341,6 +346,58 @@ SPAWN_DEBRIS:
     JSR     ADD_PARTICLE
 
     POP     a0/d1-d7
+    RTS
+
+; ===============================================
+; SPAWN_COMBO_NUM
+; -----------------------------------------------
+; Spawn a floating number with the player's combo
+; -----------------------------------------------
+; Parameters:
+;   a2 - player's game state
+; Thrashed: none
+; ===============================================
+SPAWN_COMBO_NUM:
+    PUSH    d1-d7
+    ; d1 := 2nd sprite attribute word
+    MOVEQ   #0, d1  ; 1x1 size
+
+    ; d2 := 3rd sprite attribute word
+    MOVE.W  #COMBO_GFX_CHAR-1, d2 ; character for "x1" is at offset 0
+    ADD.W   (COMBO_OFF, a2), d2
+
+    ; d7 := extra particle data
+    MOVEQ   #0, d7
+
+    ; d3 := x coordinate / 4th sprite attribute word
+    MOVE.W  (CURSOR_X_OFF, a2), d3
+    ADDI.W  #P1_BOARD_COL_OFFSET, d3
+    ; if this particle is for player 2, it should be further right
+    CMPA.L  #GAME_STATE_2, a2
+    BNE.B   @COMBO_NUM_P1
+    ADDI.W  #(P2_BOARD_COL_OFFSET-P1_BOARD_COL_OFFSET), d3
+    BSET    #PART_PLAYER_FLAG_W, d7 ; set flag to indicate player 2
+@COMBO_NUM_P1:
+    ; multiply x by 8 to get pixel position
+    LSL.W   #3, d3
+    ; add left screen bound
+    ADDI.W  #$80, d3
+
+    ; d4 := y coordinate / 1st sprite attribute word
+    MOVE.W  (CURSOR_Y_OFF, a2), d4
+    ADDQ.W  #BOARD_ROW_OFFSET, d4
+    LSL.W   #3, d4
+    ADDI.W  #$80, d4
+
+    ; d5 := x and y velocity
+    MOVEQ   #COMBO_Y_VEL, d5
+    
+    ; d6 := x and y acceleration
+    MOVEQ   #0, d6
+    MOVE.W  #COMBO_Y_ACCEL, d6
+
+    BSR.B   ADD_PARTICLE
+    POP     d1-d7
     RTS
 
 ; ===============================================

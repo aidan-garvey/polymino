@@ -266,8 +266,6 @@ LOAD_SPRITES:
     JSR     CopyCharRAM
     DBRA    d1, @TEXT_LOOP_1
 
-    ; copy the last
-
     MOVE.L  #BUFF_PLANE, d0
     MOVE.W  #16*17, d1 ; 12 chars in GFX_TEXT + 5 for cursors, 16 words per char
     MOVE.W  #VRAM_SPRITE_GFX, d2

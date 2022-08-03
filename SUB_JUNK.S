@@ -284,9 +284,6 @@ SHATTER_JUNK:
     ; shatter the junk
     ; ****************
 
-    ; when a new block is shattered, increase the
-    ; player's combo and award points
-    ADDQ.W  #1, (COMBO_OFF, a2)
     JSR     ADD_SHATTER_SCORE
 
     ; save data for junk piece

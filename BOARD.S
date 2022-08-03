@@ -77,7 +77,7 @@ GENERATE_ROWS:
 ;   a3 - joypad inputs
 ;   a4 - start of screen buffer
 ; Thrashed:
-;   a0, d0-d4
+;   a0, d0-d6
 ; =========================================
 PLAYER_ACTIONS:
     PUSH    a5-a6
@@ -147,6 +147,8 @@ PLAYER_ACTIONS:
 
     ; d0 not needed for inputs from here on - only D-pad can be held
 
+    MOVE.W  (COMBO_OFF, a2), d5 ; d5 will hold old combo
+
     ; if A pressed, swap horizontally
     BTST    #BUTTON_A, d1
     BEQ     @SKIP_A_PRESS
@@ -204,8 +206,10 @@ PLAYER_ACTIONS:
     SWAP    d2
     MOVE.L  d2, (a5)
     JSR     SWAP_BLOCKS_H
-    ; since player made a move, reset combo counter
-    MOVE.W  #0, (COMBO_OFF, a2)
+
+    ; Save player's score. If it is unchanged after checking matches,
+    ; reset player's combo due to not making a move which made a match
+    MOVE.L  (SCORE_OFF, a2), d6
 
     ; check for matches at swapped blocks
     TST.W   (a5)
@@ -220,6 +224,12 @@ PLAYER_ACTIONS:
     ADDQ    #1, d3
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_2:
+
+    ; if no score was gained after the move, reset combo
+    CMP.L   (SCORE_OFF, a2), d6
+    BNE.B   @SKIP_A_PRESS
+    MOVE.W  #1, (COMBO_OFF, a2)
+
 @SKIP_A_PRESS:
 
     ; if B pressed, swap veritcally
@@ -249,6 +259,7 @@ PLAYER_ACTIONS:
     SUBA.W  #BOARD_WIDTH*2, a6
 
     ; don't allow a vertical swap b/w a block and a space
+    ; (also prevents swapping 2 spaces)
     TST.W   (a5)
     BEQ.B   @SKIP_B_PRESS
     TST.W   (a6)
@@ -265,8 +276,9 @@ PLAYER_ACTIONS:
     MOVE.W  (a6), (a5)
     MOVE.W  d2, (a6)
     JSR     SWAP_BLOCKS_V
-    ; since player made a move, reset combo counter
-    MOVE.W  #0, (COMBO_OFF, a2)
+
+    ; save old score to check if combo should be reset
+    MOVE.L  (SCORE_OFF, a2), d6
 
     ; check for matches at swapped blocks
     TST.W   (a5)
@@ -280,7 +292,19 @@ PLAYER_ACTIONS:
     SUBQ.W  #1, d4
     JSR     CHECK_MATCH
 @SKIP_CHECK_B_2:
+
+    ; if score is unchanged, reset combo
+    CMP.L   (SCORE_OFF, a2), d6
+    BNE.B   @SKIP_B_PRESS
+    MOVE.W  #1, (COMBO_OFF, a2)
+
 @SKIP_B_PRESS:
+
+    ; if combo changed, display a floating number
+    CMP.W   (COMBO_OFF, a2), d5
+    BEQ.B   @SKIP_COMBO_PART
+    JSR     SPAWN_COMBO_NUM
+@SKIP_COMBO_PART:
 
     ; if C button pressed, use a bomb
     BTST    #BUTTON_C, d1
@@ -414,19 +438,19 @@ CHECK_MATCH:
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
     ; if piece is junk, it can't be matched, so return
     TST.B   d0
-    BNE     @CHECK_MATCH_RET
+    BNE.W   @CHECK_MATCH_RET
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
     MOVE.W  d3, d1
     MOVEQ   #0, d2      ; so we don't break the loop instantly
-    BRA     @CHECK_LEFT_STEP
+    BRA.B   @CHECK_LEFT_STEP
 @CHECK_LEFT_LOOP:
     CMP.W   -(a1), d0
 @CHECK_LEFT_STEP:
     DBNE    d1, @CHECK_LEFT_LOOP
     ; if we exitted the loop due to the count, (a1) matches d0.
     ; if we exitted due to the NE condition, (a1 + 2) matches d0, but (a1) doesn't.
-    BEQ     @CHECK_LEFT_DONE
+    BEQ.B   @CHECK_LEFT_DONE
     ADDA.W  #2, a1
 @CHECK_LEFT_DONE:
     
@@ -435,14 +459,14 @@ CHECK_MATCH:
     SUB.W   d3, d1
     SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
     MOVEQ   #0, d2  ; so we don't break the loop instantly
-    BRA     @CHECK_RIGHT_STEP
+    BRA.B   @CHECK_RIGHT_STEP
 @CHECK_RIGHT_LOOP:
     CMP.W   (a3)+, d0
 @CHECK_RIGHT_STEP:
     DBNE    d1, @CHECK_RIGHT_LOOP
     ; if we exitted the loop due to the count, (a3 - 2) matches d0.
     ; if we exitted due to the NE condition, (a3 - 4) matches d0, but (a3 - 2) doesn't.
-    BEQ     @CHECK_RIGHT_DONE
+    BEQ.B   @CHECK_RIGHT_DONE
     SUBA.W  #2, a3
 @CHECK_RIGHT_DONE:
     SUBA.W  #2, a3
@@ -487,11 +511,14 @@ CHECK_MATCH:
     ; blocks, increase player's combo and award points
     TST.W   d6
     BEQ.B   @NO_H_MATCH
-    ADDQ.W  #1, (COMBO_OFF, a2)
     ; award points
     JSR     ADD_MATCH_SCORE
     ; spawn projectile
     JSR     SPAWN_H_PROJ
+    ; increase combo
+    CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
+    BGE.B   @NO_H_MATCH
+    ADDQ.W  #1, (COMBO_OFF, a2)
 
 @NO_H_MATCH:
 
@@ -568,11 +595,14 @@ CHECK_MATCH:
     ; blocks, increase player's combo and award points
     TST.W   d6
     BEQ.B   @NO_V_MATCH
-    ADDQ.W  #1, (COMBO_OFF, a2)
     ; award points
     JSR     ADD_MATCH_SCORE
     ; spawn projectile
     JSR     SPAWN_V_PROJ
+    ; increase combo
+    CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
+    BGE.B   @NO_V_MATCH
+    ADDQ.W  #1, (COMBO_OFF, a2)
 
 @NO_V_MATCH:
 @CHECK_MATCH_RET:

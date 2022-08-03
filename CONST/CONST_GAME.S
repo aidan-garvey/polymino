@@ -6,6 +6,7 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; ********************************************************************
 
+MAX_COMBO = 5   ; maximum player combo
 MATCH_POINTS = $5 ; base points awarded for matching blocks - BCD
 SHATTER_POINTS = $50 ; base points awarded for destroying junk - BCD
                      ; (this is awarded once for the whole piece)
@@ -77,6 +78,12 @@ PROJ_X_ACCEL = 4
 ; debris random velocity is limited to 31 in each direction
 DEBRIS_VEL_MASK = $001F001F
 GRAVITY = 2 ; vertical acceleration
+
+; velocity & acceleration for floating numbers
+COMBO_X_VEL = 0
+COMBO_Y_VEL = 8
+COMBO_X_ACCEL = 0
+COMBO_Y_ACCEL = -1
 
 ; bit indexes
 JUNK_COLOR_FLAG = 14

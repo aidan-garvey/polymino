@@ -48,7 +48,7 @@ GAME_INIT:
     MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
-    MOVE.W  #0, (a0)+       ; combo multiplier
+    MOVE.W  #1, (a0)+       ; combo multiplier
     MOVE.W  #0, (a0)+       ; no projectiles to check
     MOVE.W  #0, (a0)+       ; game not over
     MOVE.W  #0, (a0)+       ; game over timer
@@ -74,7 +74,7 @@ GAME_INIT:
     MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
     MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
     MOVE.L  #0, (a0)+       ; cursor h&v timers
-    MOVE.W  #0, (a0)+       ; combo multiplier
+    MOVE.W  #1, (a0)+       ; combo multiplier
     MOVE.W  #0, (a0)+       ; no projectiles to check
     MOVE.W  #0, (a0)+       ; game not over
     MOVE.W  #0, (a0)+       ; game over timer
