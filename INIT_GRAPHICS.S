@@ -50,12 +50,6 @@ INIT_SCROLLA:
     LEA.L   UI_BRDR_3WAY_D, a1
     MOVE.W  (a1), d3
 
-    ; d6 := DITHER, DITHER
-    LEA.L   UI_DITHER, a1
-    MOVE.W  (a1), d6
-    SWAP    d6
-    MOVE.W  (a1), d6
-
     ; horizontal layout: 1 border, 7 P1 info,
     ; 1 border, 10 P1 board, 2 border, 10 P2 board,
     ; 1 border, 7 P2 info, 1 border, 24 filler
@@ -116,11 +110,7 @@ INIT_SCROLLA:
     ; d2 := EDGE_L, EDGE_R 
     LEA.L   UI_EDGE_L, a1
     MOVE.L  (a1), d2
-    ; d3 := DITHER, DITHER
-    LEA.L   UI_DITHER, a1
-    MOVE.W  (a1), d3
-    SWAP    d3
-    MOVE.W  (a1), d3
+    
     ; copy 24 rows of the horizontal layout pattern
     MOVEQ   #23, d5
 @H_LAYOUT_LOOP:
@@ -128,31 +118,31 @@ INIT_SCROLLA:
     SWAP    d2
     MOVE.W  d2, (a0)+
     ; 7 info
-    MOVE.L  d6, (a0)+
-    MOVE.L  d6, (a0)+
-    MOVE.L  d6, (a0)+
-    MOVE.W  d6, (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    CLR.W   (a0)+
     ; 1 separator
     MOVE.W  d1, (a0)+
     ; 10 P1 board
     MOVEQ   #4, d4
 @H_LAYOUT_BOARD_1:
-    MOVE.L  d3, (a0)+
+    CLR.L   (a0)+
     DBRA    d4, @H_LAYOUT_BOARD_1
     ; 2 border
     MOVE.L  d2, (a0)+
     ; 10 P2 board
     MOVEQ   #4, d4
 @H_LAYOUT_BOARD_2:
-    MOVE.L  d3, (a0)+
+    CLR.L   (a0)+
     DBRA    d4, @H_LAYOUT_BOARD_2
     ; 1 separator
     MOVE.W  d1, (a0)+
     ; 7 P2 info
-    MOVE.L  d6, (a0)+
-    MOVE.L  d6, (a0)+
-    MOVE.L  d6, (a0)+
-    MOVE.W  d6, (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
+    CLR.W   (a0)+
     ; 1 border
     SWAP    d2
     MOVE.W  d2, (a0)+
@@ -486,80 +476,6 @@ INIT_HUD:
     MOVE.W  #1, (a0)+
     ADDQ.W  #4, a0
     MOVE.W  #1, (a0)+
-
-    RTS
-
-INIT_BACKGROUND:
-    ; load star graphics into VRAM
-    MOVE.L  #BCKGND_STAR_CHARS, d0       ; address
-    MOVE.W  #16*3, d1               ; 16 words * 3 chars
-    MOVE.W  #VRAM_BCKGND_GFX, d2    ; start at tile $100 (address $2000)
-    JSR     DMADump
-
-    ; *******************************
-    ; ** STAR GENERATION ALGORITHM **
-    ; -------------------------------
-    ; Place stars in a uniform but
-    ; random-looking arrangement in
-    ; the scroll buffer. Uses two
-    ; patterns - one for a small star
-    ; and one for a large star. The
-    ; small star is in the upper-left
-    ; of the tile so flipping it will
-    ; vary placement further.
-    ; *******************************
-    
-    LEA.L   BUFF_PLANE, a0
-    ; pattern consists of 32*64 tiles
-    MOVE.W  #32*64-1, d0
-
-    MOVEQ   #0, d1  ; counter for small stars
-    MOVEQ   #0, d2  ; counter for large stars
-    MOVE.W  (SMALL_STAR_PATTERN), d3 ; tile with small star
-    MOVE.W  (LARGE_STAR_PATTERN), d4 ; tile with large star
-    MOVEQ   #0, d5  ; blank pattern for tile with no star
-    MOVEQ   #23, d6 ; used as limit for large star counter
-    MOVEQ   #11, d7 ; used as limit for small star counter
-
-@NIGHT_SKY_LOOP:
-    ; if the small star counter has reached its limit, place a small star
-    CMP.W   d7, d1
-    BNE     @LARGE_STAR_CHECK
-    ; if the large star counter is also at its limit, reset it
-    CMP.B   d6, d2
-    BNE     @SMALL_STAR_PLACE
-    MOVEQ   #0, d2      ; reset large counter
-    BCHG    #2, d6      ; change value of large star limit to vary the spacing
-@SMALL_STAR_PLACE:
-    BCHG    #3, d7      ; change value of small star limit to vary spacing
-    MOVEQ   #0, d1      ; reset small counter
-    MOVE.W  d3, (a0)+   ; place a small star
-    BCHG    #12, d3     ; toggle small star vertical flip
-    BEQ     @NIGHT_SKY_STEP
-    BCHG    #11, d3     ; every second small star, toggle horizontal flip
-    BRA     @NIGHT_SKY_STEP
-@LARGE_STAR_CHECK:
-    CMP.B   d6, d2      ; check if large star counter has hit the limit
-    BNE     @NO_STAR_PLACE
-    MOVEQ   #0, d2      ; reset large counter
-    BCHG    #1, d6      ; change value of large limit to vary spacing
-    MOVE.W  d4, (a0)+   ; place large star
-    BCHG    #11, d3     ; toggle *small* star horizontal flip
-    BNE     @NIGHT_SKY_STEP
-    BCHG    #12, d3     ; every second large star, toggle small v flip
-    BRA     @NIGHT_SKY_STEP
-@NO_STAR_PLACE:
-    MOVE.W  d5, (a0)+   ; place empty tile
-@NIGHT_SKY_STEP:
-    ADDQ.W  #1, d1      
-    ADDQ.W  #1, d2      ; increment counters
-    DBRA    d0, @NIGHT_SKY_LOOP
-
-    ; DMA transfer to VRAM
-    MOVE.L  #BUFF_PLANE, d0
-    MOVE.W  #VRAM_SCROLLB_SIZE/2, d1
-    MOVE.W  #VRAM_SCROLLB, d2
-    JSR     DMADump
 
     RTS
 

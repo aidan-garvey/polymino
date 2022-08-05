@@ -14,6 +14,9 @@
 GAME_INIT:
     LOAD_STATE
 
+    ; set background color
+    VDP_REG 7, $30
+
     ; load block graphics into VRAM
     MOVE.L  #BLOCK_CHARS, d0    ; address
     MOVE.W  #16*8, d1           ; 16 words * 8 chars

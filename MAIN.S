@@ -72,9 +72,6 @@ MAIN_INIT:
 
     JSR     DUMP_PALETTES
 
-    ; background: palette 3, color 0
-    VDP_REG 7, $30
-
     ; prepare to show intro screen
     MOVE.L  #INTRO_INIT, (MAIN_VECTOR)
 

@@ -6,8 +6,6 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
 
-NUM_CIRC_CHARS = 34
-
 ; ==========================================================
 ; INIT_CIRC_CHARS
 ; ----------------------------------------------------------
@@ -31,11 +29,6 @@ INIT_CIRC_CHARS:
     LSL.W   #2, d0  ; each row is 4 bytes
     
     MOVE.L  (a0, d0.w), (a1)+
-    ;EXT.W   d0
-    ;; each row is 4 bytes
-    ;LSL.W   #2, d0
-    ;ADDA.W  d0, a3
-    ;MOVE.L  (a3), (a1)+
     
     DBRA    d1, @CIRC_CHAR_LOOP
 

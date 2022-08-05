@@ -76,7 +76,7 @@ MENU_CURSOR_C:
     
 UI_BRDR_CHARS:
     ; expected position in VRAM: $1000 (char 80)
-NUM_UI_CHARS EQU 7
+NUM_UI_CHARS EQU 6
 UI_BRDR_CORNER_C:   ; 80
     ; top-left corner
     DC.L    $55555555
@@ -148,17 +148,6 @@ UI_FILLER_C:        ; 85
     DC.L    $55555555
     DC.L    $55555555
 
-UI_DITHER_C:        ; 86
-    DC.L    $11110110
-    DC.L    $10001110
-    DC.L    $01111101
-    DC.L    $01101011
-    
-    DC.L    $11010110
-    DC.L    $10111110
-    DC.L    $01110001
-    DC.L    $01101111
-
 UI_BRDR_PAT:
 
 UI_BRDR_TL:
@@ -187,6 +176,3 @@ UI_SEP_V:
 
 UI_FILLER:
     DC.W    $8000|UI_GFX_CHAR+5
-UI_DITHER:
-    DC.W    0
-;    DC.W    $0000|UI_GFX_CHAR+6

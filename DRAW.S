@@ -256,7 +256,7 @@ ERASE_BLOCK:
     LSL.W   #1, d3 ; each cell is 2 bytes
     ADD.W   d3, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
-    MOVE.W  (UI_DITHER), (a4) ; clear the block
+    CLR.W   (a4) ; clear the block
 
     POP     a4/d3-d4
     RTS
@@ -298,28 +298,23 @@ PLACE_JUNK_BLOCK:
 ;   none
 ; =======================================
 CLEAR_UI_NEXT:
-    PUSH    a0/d0
-
-    LEA.L   UI_DITHER, a0
-    MOVE.W  (a0), d0
-    SWAP    d0
-    MOVE.W  (a0), d0
+    PUSH    a0
 
     LEA.L   P_NEXT_POS_1, a0
     CMP.L   #GAME_STATE_1, a2
     BEQ.B   @CLEAR_UI_P1
     LEA.L   P_NEXT_POS_2, a0
 @CLEAR_UI_P1:
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
     ADDA.W  #120, a0
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
     ADDA.W  #120, a0
-    MOVE.L  d0, (a0)+
-    MOVE.L  d0, (a0)+
+    CLR.L   (a0)+
+    CLR.L   (a0)+
 
-    POP     a0/d0
+    POP     a0
     RTS
 
 ; ==============================================

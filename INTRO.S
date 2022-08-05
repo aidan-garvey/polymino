@@ -17,6 +17,9 @@ INTRO_INIT:
     ; disable display & interrupts
     LOAD_STATE
 
+    ; set background color
+    VDP_REG 7, $00
+
     JSR     CLEAR_BUFF_PLANE
 
     ; load character graphics into VRAM
@@ -55,6 +58,9 @@ INTRO_ANIM:
 
 STARTSCRN_INIT:
     LOAD_STATE
+
+    ; set background color
+    VDP_REG 7, $00
 
     JSR     CLEAR_BUFF_PLANE
     ; use cleared plane to clear SCROLL B
