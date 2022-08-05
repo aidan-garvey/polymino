@@ -72,19 +72,25 @@ VBMAIN:
 
     ; scroll background if game is not paused
     TST.W   (GAME_PAUSED)
-    BNE     @SKIP_B_SCROLL
+    BNE.B   @SKIP_B_SCROLL
 
-    ; HSCROLL is uniform for whole screen
-    ADD.W   #1, (BUFF_HSCROLLB)
-    MOVE.W  (BUFF_HSCROLLB), d0
+    SUB.W   #1, (BUFF_VSCROLLB)
+    MOVE.W  (BUFF_VSCROLLB), d0
     LSR.W   #SCROLL_DIV, d0
-    ; write new HSCROLL to VRAM
-    VDP_ACCESS VDP_W_VRAM, VRAM_HSCROLL+2
-    MOVE.W  d0, (VDP_DATA)
-    LSR.W   #1, d0
-    ; do the same for VSCROLL
     VDP_ACCESS VDP_W_VSRAM, 2
     MOVE.W  d0, (VDP_DATA)
+
+    ;; HSCROLL is uniform for whole screen
+    ;ADD.W   #1, (BUFF_HSCROLLB)
+    ;MOVE.W  (BUFF_HSCROLLB), d0
+    ;LSR.W   #SCROLL_DIV, d0
+    ;; write new HSCROLL to VRAM
+    ;VDP_ACCESS VDP_W_VRAM, VRAM_HSCROLL+2
+    ;MOVE.W  d0, (VDP_DATA)
+    ;LSR.W   #1, d0
+    ;; do the same for VSCROLL
+    ;VDP_ACCESS VDP_W_VSRAM, 2
+    ;MOVE.W  d0, (VDP_DATA)
 
 @SKIP_B_SCROLL:
     ADD.W   #1, (FRAME_TICK)

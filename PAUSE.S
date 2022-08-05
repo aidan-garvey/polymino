@@ -71,7 +71,7 @@ PAUSE1_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
 
 ; set up player 1's pause menu
 INIT_PAUSED_P1:
-    BSR.B   HIDE_BCKGRND
+    ; BSR.B   HIDE_BCKGRND
 
     ; initialize menu
     LEA.L   CURR_MENU, a0
@@ -137,7 +137,7 @@ PAUSE2_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
 
 ; set up player 2's pause menu
 INIT_PAUSED_P2:
-    BSR.W   HIDE_BCKGRND 
+    ; BSR.W   HIDE_BCKGRND 
 
     ; initialize menu
     LEA.L   CURR_MENU, a0
@@ -226,7 +226,7 @@ PAUSE2_LOOP:
 ; helper subroutine that restores the SCROLL B palette
 ; ====================================================
 SHOW_BCKGRND:
-    LEA.L   BCKGND_PAL, a0
+    LEA.L   BCKGND_STARS_PAL, a0
     MOVEQ   #3, d0
     JSR     LOAD_PALETTE
     JSR     DUMP_PALETTES
@@ -235,7 +235,7 @@ SHOW_BCKGRND:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_1:
-    BSR.B   SHOW_BCKGRND
+    ; BSR.B   SHOW_BCKGRND
 
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
@@ -261,7 +261,7 @@ UNPAUSE_1:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_2:
-    BSR.B   SHOW_BCKGRND
+    ; BSR.B   SHOW_BCKGRND
 
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
@@ -288,7 +288,7 @@ UNPAUSE_2:
 PAUSE_EXIT_INIT:
     LOAD_STATE
 
-    BSR.W   SHOW_BCKGRND
+    ; BSR.W   SHOW_BCKGRND
     JSR     CLEAR_BUFF_PLANE
     ; use cleared screen buffer to clear SCROLL B
     MOVE.L  #BUFF_PLANE, d0

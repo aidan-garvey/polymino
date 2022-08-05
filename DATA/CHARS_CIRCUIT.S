@@ -1,0 +1,348 @@
+
+; *****************************************************************
+; CHARS_CIRCUIT.S
+; Compressed graphics for the circuit backgrounds used in the game.
+;
+; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
+; *****************************************************************
+
+; Compressed with charcomp.py
+; https://github.com/aidan-garvey/charcomp
+
+CIRCUIT_PAL:
+    DC.W    $0444 ; 0: medium gray
+    DC.W    $0222 ; 1: dark gray
+    DC.W    $0666 ; 2: light gray
+    DC.W    $0000 ; 3
+
+    DC.W    $0484 ; 4: P1 dark wire
+    DC.W    $04C4 ; 5: P1 light wire
+    DC.W    $0A44 ; 6: P2 dark wire
+    DC.W    $0C44 ; 7: P2 light wire
+    
+    DC.W    $0000 ; 8
+    DC.W    $0000 ; 9
+    DC.W    $0000 ; A
+    DC.W    $0000 ; B
+    
+    DC.W    $0000 ; C
+    DC.W    $0000 ; D
+    DC.W    $0000 ; E
+    DC.W    $0000 ; F
+
+CIRC_COMP_ROWS:
+	DC.L	$00000000
+	DC.L	$44444444
+	DC.L	$55555555
+	DC.L	$00454000
+	DC.L	$00044444
+	DC.L	$00455555
+	DC.L	$00454444
+	DC.L	$44440000
+	DC.L	$55554000
+	DC.L	$44454000
+	DC.L	$44454444
+	DC.L	$22222222
+	DC.L	$01000000
+	DC.L	$00021000
+	DC.L	$01021000
+	DC.L	$22210000
+	DC.L	$00024444
+	DC.L	$00025555
+	DC.L	$00001111
+	DC.L	$22221111
+	DC.L	$01001111
+	DC.L	$11110000
+	DC.L	$11112222
+	DC.L	$11111111
+	DC.L	$11100000
+	DC.L	$11114444
+	DC.L	$11115555
+	DC.L	$66666666
+	DC.L	$77777777
+	DC.L	$00676000
+	DC.L	$00066666
+	DC.L	$00677777
+	DC.L	$00676666
+	DC.L	$66660000
+	DC.L	$77776000
+	DC.L	$66676000
+	DC.L	$66676666
+	DC.L	$00026666
+	DC.L	$00027777
+	DC.L	$11116666
+	DC.L	$11117777
+
+CIRC_COMP_CHARS:
+	DC.B	0
+	DC.B	0
+	DC.B	1
+	DC.B	2
+	DC.B	1
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	0
+	DC.B	0
+	DC.B	4
+	DC.B	5
+	DC.B	6
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	0
+	DC.B	0
+	DC.B	7
+	DC.B	8
+	DC.B	9
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	6
+	DC.B	5
+	DC.B	4
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	3
+	DC.B	3
+	DC.B	9
+	DC.B	8
+	DC.B	7
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	3
+	DC.B	3
+	DC.B	10
+	DC.B	2
+	DC.B	1
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	3
+	DC.B	3
+	DC.B	6
+	DC.B	5
+	DC.B	6
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	11
+	DC.B	0
+	DC.B	12
+	DC.B	0
+	DC.B	13
+	DC.B	13
+	DC.B	13
+	DC.B	13
+	DC.B	13
+	DC.B	13
+	DC.B	14
+	DC.B	13
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	15
+	DC.B	13
+	DC.B	14
+	DC.B	13
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	11
+	DC.B	0
+	DC.B	12
+	DC.B	0
+	DC.B	13
+	DC.B	13
+	DC.B	16
+	DC.B	17
+	DC.B	16
+	DC.B	13
+	DC.B	14
+	DC.B	13
+	DC.B	18
+	DC.B	18
+	DC.B	18
+	DC.B	18
+	DC.B	19
+	DC.B	18
+	DC.B	20
+	DC.B	18
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	22
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	13
+	DC.B	13
+	DC.B	13
+	DC.B	13
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	24
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	3
+	DC.B	21
+	DC.B	21
+	DC.B	25
+	DC.B	26
+	DC.B	25
+	DC.B	21
+	DC.B	21
+	DC.B	21
+	DC.B	0
+	DC.B	0
+	DC.B	27
+	DC.B	28
+	DC.B	27
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	0
+	DC.B	0
+	DC.B	30
+	DC.B	31
+	DC.B	32
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	0
+	DC.B	0
+	DC.B	33
+	DC.B	34
+	DC.B	35
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	32
+	DC.B	31
+	DC.B	30
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	29
+	DC.B	29
+	DC.B	35
+	DC.B	34
+	DC.B	33
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	29
+	DC.B	29
+	DC.B	36
+	DC.B	28
+	DC.B	27
+	DC.B	0
+	DC.B	0
+	DC.B	0
+	DC.B	29
+	DC.B	29
+	DC.B	32
+	DC.B	31
+	DC.B	32
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	11
+	DC.B	0
+	DC.B	12
+	DC.B	0
+	DC.B	13
+	DC.B	13
+	DC.B	37
+	DC.B	38
+	DC.B	37
+	DC.B	13
+	DC.B	14
+	DC.B	13
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	23
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	29
+	DC.B	21
+	DC.B	21
+	DC.B	39
+	DC.B	40
+	DC.B	39
+	DC.B	21
+	DC.B	21
+	DC.B	21

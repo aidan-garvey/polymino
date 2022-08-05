@@ -85,7 +85,9 @@ GAME_INIT:
 
     JSR     RAND_SEED       ; initialize pseudorandom number generator
 
-    JSR     INIT_BACKGROUND ; copy background to VRAM
+    ; JSR     INIT_BACKGROUND ; copy background to VRAM
+    JSR     INIT_CIRC_CHARS ; copy background chars to VRAM
+    JSR     INIT_CIRC_PLANE ; copy background patterns to VRAM
     JSR     INIT_HUD        ; initialize UI sprites for both players
     JSR     INIT_JUNK       ; generate chars for junk, copy to VRAM
     JSR     INIT_PARTICLES  ; copy particle graphics to VRAM

@@ -6,7 +6,7 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *******************************************************************
 
-BCKGND_PAL:
+BCKGND_STARS_PAL:
             ; BGR
     DC.W    $0000 ; 0: black/transparent
     DC.W    $0EEE ; 1: white
@@ -32,7 +32,7 @@ BCKGND_PAL:
 ; CHARACTERS
 ; ----------
 
-BCKGND_CHARS:
+BCKGND_STAR_CHARS:
     ; 0: LARGE DOT
     DC.L    $00000000
     DC.L    $00000000

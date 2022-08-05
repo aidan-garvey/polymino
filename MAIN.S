@@ -65,14 +65,15 @@ MAIN_INIT:
     JSR     LOAD_PALETTE
 
     ; palette 3: background
-    LEA.L   BCKGND_PAL, a0
+    ; LEA.L   BCKGND_STARS_PAL, a0
+    LEA.L   CIRCUIT_PAL, a0
     MOVEQ   #3, d0
     JSR     LOAD_PALETTE
 
     JSR     DUMP_PALETTES
 
-    ; background: palette 0, color 1 (color of SCROLLA mask)
-    VDP_REG 7, $01
+    ; background: palette 3, color 0
+    VDP_REG 7, $30
 
     ; prepare to show intro screen
     MOVE.L  #INTRO_INIT, (MAIN_VECTOR)
@@ -99,6 +100,7 @@ MAIN_LOOP:
 ; ***********
     INCLUDE MENUS.S
     INCLUDE INIT_GRAPHICS.S
+    INCLUDE INIT_CIRCUIT.S
     INCLUDE BOARD.S 
     INCLUDE DRAW.S 
     INCLUDE PARTICLES.S
@@ -115,6 +117,8 @@ MAIN_LOOP:
     INCLUDE DATA/GFX_UI.S 
     INCLUDE DATA/GFX_BLOCK.S 
     INCLUDE DATA/GFX_BCKGRND.S
+    INCLUDE DATA/CHARS_CIRCUIT.S
+    INCLUDE DATA/PAT_CIRCUIT.S
     INCLUDE DATA/GFX_TEXT.S
     INCLUDE DATA/GFX_JUNK.S
     INCLUDE DATA/GFX_PARTICLE.S
