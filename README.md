@@ -22,8 +22,7 @@ The game is over when there is no room for the next junk piece to be placed!
 
 ## Running
 
-Download and open [beams.bin](beams.bin) in a Sega Genesis emulator to play!  
-This binary has been tested with the emulators Gens KMod (and should therefore work with stock Gens) and Exodus (which emulates the Genesis down to the clock cycle, but is overkill unless you are debugging a game).
+Download and open [beams.bin](beams.bin) in a Sega Genesis emulator to play!
 
 ## Building
 
@@ -33,12 +32,14 @@ Two batch files are included to build the game with different assemblers. They o
 * [BUILD_VASM.bat](BUILD_VASM.BAT) will build the game with the Motorola syntax module for [VASM](http://sun.hasenbraten.de/vasm/). It is intended to be used with the VASM executable in the same directory as the source code.
 * If you build the binary with a different assembler, ensure the output is a pure binary file. Then, you should be able to run it with the emulator of your choice.
 
-## Project State and Goals
+## Project State
 
-Currently, not all of the features in the How To Play section are implemented.
-Ultimately, the goals of this project are:
+The mechanics described in How to Play are implemented, and the game may be played with one or two players. A difficulty from 1-5 is selected to determine the game's speed, but the difficulty will need to be tested and balanced.
 
-* Complete all of the features described in How To Play
+## Roadmap
+
+* Playtest the game, use feedback to balance the difficulty and tweak the rules
+* Add polish to the game's graphics and menus
 * Music and sound effects
 * A menu system for all menus in the game, which could be reused for other games 
 * A particle system that controls all non-UI sprites, which could be reused for other games
