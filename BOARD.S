@@ -318,12 +318,6 @@ PLAYER_ACTIONS:
 
 @SKIP_B_PRESS:
 
-    ; if combo changed, display a floating number
-    CMP.W   (COMBO_OFF, a2), d5
-    BEQ.B   @SKIP_COMBO_PART
-    JSR     SPAWN_COMBO_NUM
-@SKIP_COMBO_PART:
-
     ; if C button pressed, use a bomb
     BTST    #BUTTON_C, d1
     BEQ.B   @SKIP_C_PRESS
@@ -533,7 +527,10 @@ CHECK_MATCH:
     JSR     ADD_MATCH_SCORE
     ; spawn projectile
     JSR     SPAWN_H_PROJ
-    ; increase combo
+    
+    ; spawn particle with player's current combo
+    JSR     SPAWN_COMBO_NUM
+    ; if combo isn't maxed, increase it
     CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
     BGE.B   @NO_H_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
@@ -617,7 +614,10 @@ CHECK_MATCH:
     JSR     ADD_MATCH_SCORE
     ; spawn projectile
     JSR     SPAWN_V_PROJ
-    ; increase combo
+    
+    ; spawn particle with player's current combo
+    JSR     SPAWN_COMBO_NUM
+    ; if combo isn't maxed, increase it
     CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
     BGE.B   @NO_V_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)

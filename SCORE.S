@@ -17,19 +17,13 @@
 ;   none
 ; =============================================
 ADD_MATCH_SCORE:
-    PUSH    d0-d2
+    PUSH    d0
 
-    ; add MATCH_POINTS*COMBO to SCORE_BIN
-    MOVE.W  (COMBO_OFF, a2), d0
-    SUBQ.W  #1, d0
-    MOVEQ   #MATCH_POINTS, d1
-    MOVE.L  (SCORE_BIN_OFF, a2), d2
-@MATCH_SCORE_COMBO:
-    ADD.L   d1, d2
-    DBRA    d0, @MATCH_SCORE_COMBO
-    MOVE.L  d2, (SCORE_BIN_OFF, a2)
+    MOVEQ   #MATCH_POINTS, d0
+    MULU.W  (COMBO_OFF, a2), d0
+    ADD.L   d0, (SCORE_BIN_OFF, a2)
 
-    POP     d0-d2
+    POP     d0
     RTS
 
 ; ==============================================
@@ -43,18 +37,13 @@ ADD_MATCH_SCORE:
 ;   none
 ; ==============================================
 ADD_SHATTER_SCORE:
-    PUSH    d0-d2
-    ; add SHATTER_POINTS*COMBO to SCORE_BIN
-    MOVE.W  (COMBO_OFF, a2), d0
-    SUBQ.W  #1, d0
-    MOVEQ   #MATCH_POINTS, d1
-    MOVE.L  (SCORE_BIN_OFF, a2), d2
-@SHATTER_SCORE_COMBO:
-    ADD.L   d1, d2
-    DBRA    d0, @SHATTER_SCORE_COMBO
-    MOVE.L  d2, (SCORE_BIN_OFF, a2)
+    PUSH    d0
+    
+    MOVEQ   #SHATTER_POINTS, d0
+    MULU.W  (COMBO_OFF, a2), d0
+    ADD.L   d0, (SCORE_BIN_OFF, a2)
 
-    POP     d0-d2
+    POP     d0
     RTS
 
 ; ========================================

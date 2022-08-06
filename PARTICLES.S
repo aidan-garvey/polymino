@@ -355,6 +355,8 @@ SPAWN_DEBRIS:
 ; -----------------------------------------------
 ; Parameters:
 ;   a2 - player's game state
+;   d3 - column number to place particle
+;   d4 - row number to place particle
 ; Thrashed: none
 ; ===============================================
 SPAWN_COMBO_NUM:
@@ -370,7 +372,6 @@ SPAWN_COMBO_NUM:
     MOVEQ   #0, d7
 
     ; d3 := x coordinate / 4th sprite attribute word
-    MOVE.W  (CURSOR_X_OFF, a2), d3
     ADDI.W  #P1_BOARD_TX, d3
     ; if this particle is for player 2, it should be further right
     CMPA.L  #GAME_STATE_2, a2
@@ -384,7 +385,6 @@ SPAWN_COMBO_NUM:
     ADDI.W  #$80, d3
 
     ; d4 := y coordinate / 1st sprite attribute word
-    MOVE.W  (CURSOR_Y_OFF, a2), d4
     ADDQ.W  #BOARD_TY, d4
     LSL.W   #3, d4
     ADDI.W  #$80, d4
