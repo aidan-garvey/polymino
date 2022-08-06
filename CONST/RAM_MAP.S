@@ -88,9 +88,10 @@ CURR_MENU = $FF200A     ; 12B: menu info for current phase of the game
 ; Data for each player's game state including the board
 PLAYER_1_DATA = $FF3000
 BOARD_1 = $FF3000       ; $1E0 Bytes: 240 cells * 2B
+
 GAME_STATE_1 = $FF31E0
 NEW_ROWS_1 = $FF31E0    ; 2B: Rows of blocks to place next frame
-SCORE_1 = $FF31E2       ; 4B: BCD 7-digit score
+SCORE_BCD_1 = $FF31E2   ; 4B: BCD 7-digit score
 BOMBS_1 = $FF31E6       ; 2B: Number of bombs, BCD 2-digit
 CURSOR_1_X = $FF31E8    ; 2B: horizontal position of cursor
 CURSOR_1_Y = $FF31EA    ; 2B: vertical position of cursor
@@ -100,6 +101,7 @@ COMBO_1 = $FF31F0       ; 2B: player's combo multiplier
 CHECK_PROJ_1 = $FF31F2  ; 2B: should projectiles be checked? T/F
 GAME_OVER_1 = $FF31F4   ; 2B: has the player lost the game? T/F
 GAME_OVER_T_1 = $FF31F6 ; 2B: animation timer for game over
+SCORE_BIN_1 = $FF31F8   ; 4B: binary score, same value as SCORE_BCD_1
 
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
@@ -113,9 +115,10 @@ BOMBS_BUFF_1 = $FF3568  ; 64B: buffer for graphics that display number of bombs
 
 PLAYER_2_DATA = $FF4000
 BOARD_2 = $FF4000       ; $1E0 Bytes: 240 cells * 2B
+
 GAME_STATE_2 = $FF41E0
 NEW_ROWS_2 = $FF41E0    ; 2B: Rows of blocks to place next frame
-SCORE_2 = $FF41E2       ; 4B: BCD 7-digit score
+SCORE_BCD_2 = $FF41E2   ; 4B: BCD 7-digit score
 BOMBS_2 = $FF41E6       ; 2B: Number of bombs, BCD 2-digit
 CURSOR_2_X = $FF41E8    ; 2B: horizontal position of cursor
 CURSOR_2_Y = $FF41EA    ; 2B: vertical position of cursor
@@ -125,6 +128,7 @@ COMBO_2 = $FF41F0       ; 2B: player's combo multiplier
 CHECK_PROJ_2 = $FF41F2  ; 2B: should projectiles be checked? T/F
 GAME_OVER_2 = $FF41F4   ; 2B: has the player lost the game? T/F
 GAME_OVER_T_2 = $FF41F6 ; 2B: animation timer for game over
+SCORE_BIN_2 = $FF41F8   ; 4B: binary score, same value as SCORE_BCD_2
 
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score

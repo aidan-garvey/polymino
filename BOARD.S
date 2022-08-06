@@ -227,7 +227,7 @@ PLAYER_ACTIONS:
 
     ; Save player's score. If it is unchanged after checking matches,
     ; reset player's combo due to not making a move which made a match
-    MOVE.L  (SCORE_OFF, a2), d6
+    MOVE.L  (SCORE_BIN_OFF, a2), d6
 
     ; check for matches at swapped blocks
     TST.W   (a5)
@@ -244,7 +244,7 @@ PLAYER_ACTIONS:
 @SKIP_CHECK_A_2:
 
     ; if no score was gained after the move, reset combo
-    CMP.L   (SCORE_OFF, a2), d6
+    CMP.L   (SCORE_BIN_OFF, a2), d6
     BNE.B   @SKIP_A_PRESS
     MOVE.W  #1, (COMBO_OFF, a2)
 
@@ -296,7 +296,7 @@ PLAYER_ACTIONS:
     JSR     SWAP_BLOCKS_V
 
     ; save old score to check if combo should be reset
-    MOVE.L  (SCORE_OFF, a2), d6
+    MOVE.L  (SCORE_BIN_OFF, a2), d6
 
     ; check for matches at swapped blocks
     TST.W   (a5)
@@ -312,7 +312,7 @@ PLAYER_ACTIONS:
 @SKIP_CHECK_B_2:
 
     ; if score is unchanged, reset combo
-    CMP.L   (SCORE_OFF, a2), d6
+    CMP.L   (SCORE_BIN_OFF, a2), d6
     BNE.B   @SKIP_B_PRESS
     MOVE.W  #1, (COMBO_OFF, a2)
 
@@ -752,7 +752,7 @@ DROP_BOMB:
     ; need to multiply y by 20 to get board data offset
     MOVE.W  d4, d5
     LSL.W   #4, d5  ; d5 := y * 16
-    ADD.W   d4, d4  
+    ADD.W   d4, d4
     ADD.W   d4, d4  ; d4 := y * 4
     ADD.W   d4, d5  ; d5 := y * 20
     LSR.W   #2, d4  ; d4 := y

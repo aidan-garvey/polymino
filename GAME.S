@@ -55,6 +55,8 @@ GAME_INIT:
     MOVE.W  #0, (a0)+       ; no projectiles to check
     MOVE.W  #0, (a0)+       ; game not over
     MOVE.W  #0, (a0)+       ; game over timer
+    MOVE.L  #0, (a0)+       ; binary score
+
     LEA.L   JUNK_TIMER_1, a0
     MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
@@ -81,6 +83,8 @@ GAME_INIT:
     MOVE.W  #0, (a0)+       ; no projectiles to check
     MOVE.W  #0, (a0)+       ; game not over
     MOVE.W  #0, (a0)+       ; game over timer
+    MOVE.L  #0, (a0)+       ; binary score
+
     LEA.L   JUNK_TIMER_2, a0
     MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
     MOVE.W  #0, (a0)+       ; id of next junk
@@ -214,6 +218,9 @@ GAME_LOOP:
 
     ; write to sprite buffer
     JSR     DRAW_CURSOR
+
+    ; convert binary score to BCD so it can be displayed
+    JSR     UPDATE_BCD_SCORE
 
     ; write digit characters to where score sprites get their chars
     JSR     DRAW_SCORE

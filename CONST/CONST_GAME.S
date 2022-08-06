@@ -6,10 +6,10 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; ********************************************************************
 
-MAX_COMBO = 5   ; maximum player combo
-MATCH_POINTS = $5 ; base points awarded for matching blocks - BCD
-SHATTER_POINTS = $50 ; base points awarded for destroying junk - BCD
-                     ; (this is awarded once for the whole piece)
+MAX_COMBO = 5       ; maximum player combo
+MATCH_POINTS = 5    ; base points awarded for matching blocks - binary
+SHATTER_POINTS = 50 ; base points awarded for destroying junk - binary
+                        ; (this is awarded once for the whole piece)
 BOARD_HEIGHT = 24 ; in cells
 BOARD_WIDTH = 10 ; in cells
 BOARD_SIZE = 480 ; size of board in bytes

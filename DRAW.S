@@ -82,7 +82,7 @@ DRAW_SCORE:
     MOVE.L  a2, a1
     ADDA.W  #SCORE_BUFF_OFF, a1 ;= score graphics dest
     MOVE.L  a2, a3
-    ADDA.W  #SCORE_OFF, a3 ;= BCD score
+    ADDA.W  #SCORE_BCD_OFF, a3 ;= BCD score
 
     ; first byte only uses lower 4b
     MOVE.B  (a3)+, d1
