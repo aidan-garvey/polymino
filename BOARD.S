@@ -46,15 +46,33 @@ GENERATE_ROWS:
 @GEN_BLOCK_LOOP:
     ; use RNG to generate each block's colour
     JSR     RAND
-    ; if current block is not empty, skip
-    TST.W   -(a3)
-    BNE.B   @GEN_BLOCK_STEP
 
     ; d0-d1 contain the random state
     ; use d0 for the block data
     BSET    #14, d0     ; set N
     ANDI.W  #$4700, d0  ; clear all except N and color
-    MOVE.W  d0, (a3)
+    
+    ; if new block would create a match, generate a different one
+
+    ; check blocks to the right if possible
+    CMP.W   #BOARD_WIDTH-3, d3
+    BGT.B   @GEN_BLOCK_HSKIP
+    CMP.W   (a3), d0
+    BNE.B   @GEN_BLOCK_HSKIP
+    CMP.W   2(a3), d0
+    BEQ.B   @GEN_BLOCK_LOOP    
+@GEN_BLOCK_HSKIP:
+
+    ; check blocks below if possible
+    CMP.W   #BOARD_HEIGHT-3, d4
+    BGT.B   @GEN_BLOCK_VSKIP
+    CMP.W   (BOARD_WIDTH*2-2, a3), d0
+    BNE.B   @GEN_BLOCK_VSKIP
+    CMP.W   (BOARD_WIDTH*4-2, a3), d0
+    BEQ.B   @GEN_BLOCK_LOOP
+@GEN_BLOCK_VSKIP:
+
+    MOVE.W  d0, -(a3)
 
     JSR     PLACE_BLOCK
 @GEN_BLOCK_STEP:
