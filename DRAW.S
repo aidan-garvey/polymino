@@ -341,14 +341,14 @@ DRAW_JUNK_OUTLINE:
     ADDI.W  #$80, d0 ; add left edge offset
 
     ; assume P1, change if P2
-    MOVEQ   #P1_BOARD_COL_OFFSET*8, d1  ; d1 := board position
-    LEA.L   P1_OUTLINE, a0              ; a0 := sprite buffer
+    MOVEQ   #P1_BOARD_TX*8, d1  ; d1 := board position
+    LEA.L   P1_OUTLINE, a0      ; a0 := sprite buffer
 
     CMP.L   #GAME_STATE_2, a2
     BNE.B   @P1_POS
     
-    MOVE.W  #P2_BOARD_COL_OFFSET*8, d1  ; d1 := board position
-    LEA.L   P2_OUTLINE, a0              ; a0 := sprite buffer
+    MOVE.W  #P2_BOARD_TX*8, d1  ; d1 := board position
+    LEA.L   P2_OUTLINE, a0      ; a0 := sprite buffer
 
 @P1_POS:
     ADD.W   d1, d0

@@ -52,7 +52,7 @@ PAUSE1_NBUTTONS = 2
 PAUSE1_PLAYER = 0
 PAUSE_CON_MASK = %01000000 ; A
 PAUSE_EX_MASK = %10010000 ; START, B
-PAUSE1_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
+PAUSE1_BUFF = BUFF_PLANE+(15*2)+(9*128)
 
 ; set up player 1's pause menu
 INIT_PAUSED_P1:
@@ -78,7 +78,7 @@ INIT_PAUSED_P1:
     MOVE.L  (a0), (a1)+
     CLR.L   (a0)+
     DBRA    d0, @SAVE_BUFF1_TILE
-    ADDA.W  #128-20, a0
+    ADDA.W  #BOARD_ROW_GAP, a0
     DBRA    d1, @SAVE_BUFF1_ROW
 
     ; draw menu
@@ -116,7 +116,7 @@ PAUSE2_TX = 17
 PAUSE2_XPOS = 15*8+$80
 PAUSE2_NBUTTONS = 1
 PAUSE2_PLAYER = 1
-PAUSE2_BUFF = BUFF_PLANE+(15<<1)+(9<<7)
+PAUSE2_BUFF = BUFF_PLANE+(15*2)+(9*128)
 
 ; set up player 2's pause menu
 INIT_PAUSED_P2:
@@ -142,7 +142,7 @@ INIT_PAUSED_P2:
     MOVE.L  (a0), (a1)+
     CLR.L   (a0)+
     DBRA    d0, @SAVE_BUFF2_TILE
-    ADDA.W  #128-20, a0
+    ADDA.W  #BOARD_ROW_GAP, a0
     DBRA    d1, @SAVE_BUFF2_ROW
 
     ; draw menu
@@ -219,7 +219,7 @@ UNPAUSE_1:
 @LOAD_BUFF1_TILE:
     MOVE.L  (a0)+, (a1)+
     DBRA    d0, @LOAD_BUFF1_TILE
-    ADDA.W  #128-20, a1
+    ADDA.W  #BOARD_ROW_GAP, a1
     DBRA    d1, @LOAD_BUFF1_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
@@ -243,7 +243,7 @@ UNPAUSE_2:
 @LOAD_BUFF2_TILE:
     MOVE.L  (a0)+, (a1)+
     DBRA    d0, @LOAD_BUFF2_TILE
-    ADDA.W  #128-20, a1
+    ADDA.W  #BOARD_ROW_GAP, a1
     DBRA    d1, @LOAD_BUFF2_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)

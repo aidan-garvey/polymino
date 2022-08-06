@@ -93,11 +93,11 @@ SPAWN_V_PROJ:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
-    ADDI.W  #P1_BOARD_COL_OFFSET, d3
+    ADDI.W  #P1_BOARD_TX, d3
     ; if a2 points to player 2's game state, add additional distance
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @SKIP_P2_ADD_V
-    ADDI.W  #(P2_BOARD_COL_OFFSET-P1_BOARD_COL_OFFSET), d3
+    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
 @SKIP_P2_ADD_V:
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
@@ -106,7 +106,7 @@ SPAWN_V_PROJ:
 
     ; d4 := y position
     ; add number of cells b/w top edge and board
-    ADDQ.W  #BOARD_ROW_OFFSET, d4
+    ADDQ.W  #BOARD_TY, d4
     ; multiply by 8 to get pixel position
     LSL.W   #3, d4
     ; add upper screen bound
@@ -199,11 +199,11 @@ SPAWN_H_PROJ:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
-    ADDI.W  #P1_BOARD_COL_OFFSET, d3
+    ADDI.W  #P1_BOARD_TX, d3
     ; if a2 points to player 2's game state, add additional distance
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @SKIP_P2_ADD_H
-    ADDI.W  #(P2_BOARD_COL_OFFSET-P1_BOARD_COL_OFFSET), d3
+    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
 @SKIP_P2_ADD_H:
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
@@ -212,7 +212,7 @@ SPAWN_H_PROJ:
 
     ; d4 := y position
     ; add number of cells b/w top edge and board
-    ADDQ.W  #BOARD_ROW_OFFSET, d4
+    ADDQ.W  #BOARD_TY, d4
     ; multiply by 8 to get pixel position
     LSL.W   #3, d4
     ; add upper screen bound
@@ -307,11 +307,11 @@ SPAWN_DEBRIS:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
-    ADDI.W  #P1_BOARD_COL_OFFSET, d3
+    ADDI.W  #P1_BOARD_TX, d3
     ; if a2 points to player 2's game state, add additional distance
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @SKIP_P2_ADD_D
-    ADDI.W  #(P2_BOARD_COL_OFFSET-P1_BOARD_COL_OFFSET), d3
+    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
 @SKIP_P2_ADD_D:
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
@@ -320,7 +320,7 @@ SPAWN_DEBRIS:
 
     ; d4 := y position
     ; add number of cells b/w top edge and board
-    ADDQ.W  #BOARD_ROW_OFFSET, d4
+    ADDQ.W  #BOARD_TY, d4
     LSL.W   #3, d4
     ADDI.W  #$80, d4
 
@@ -371,11 +371,11 @@ SPAWN_COMBO_NUM:
 
     ; d3 := x coordinate / 4th sprite attribute word
     MOVE.W  (CURSOR_X_OFF, a2), d3
-    ADDI.W  #P1_BOARD_COL_OFFSET, d3
+    ADDI.W  #P1_BOARD_TX, d3
     ; if this particle is for player 2, it should be further right
     CMPA.L  #GAME_STATE_2, a2
     BNE.B   @COMBO_NUM_P1
-    ADDI.W  #(P2_BOARD_COL_OFFSET-P1_BOARD_COL_OFFSET), d3
+    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
     BSET    #PART_PLAYER_FLAG_W, d7 ; set flag to indicate player 2
 @COMBO_NUM_P1:
     ; multiply x by 8 to get pixel position
@@ -385,7 +385,7 @@ SPAWN_COMBO_NUM:
 
     ; d4 := y coordinate / 1st sprite attribute word
     MOVE.W  (CURSOR_Y_OFF, a2), d4
-    ADDQ.W  #BOARD_ROW_OFFSET, d4
+    ADDQ.W  #BOARD_TY, d4
     LSL.W   #3, d4
     ADDI.W  #$80, d4
 

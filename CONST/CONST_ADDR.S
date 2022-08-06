@@ -44,7 +44,7 @@ VRAM_COMBO_SIZE = 32*5
 
 BOARD1_OFFSET = 274
 BOARD2_OFFSET = BOARD1_OFFSET+24
-; BOARD_ROW_OFFSET = 108
+BOARD_ROW_GAP = 108 ; number of bytes between board rows in screen buffer
 
 ; length, in bytes, of each particle's sprite attributes
 PART_SPRITE_SIZE = 8
