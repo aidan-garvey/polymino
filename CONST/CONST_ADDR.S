@@ -21,8 +21,8 @@ VRAM_OUTLINE_GFX_1 = $35E0 ; P1 outline chars, 16*32 bytes
 VRAM_OUTLINE_GFX_2 = $37E0 ; P2 outline chars, 16*32 bytes
 VRAM_BOMBS_GFX_1 = $39E0 ; P1_BOMBS_DGTS
 VRAM_BOMBS_GFX_2 = $3A20 ; P2_BOMBS_DGTS
-VRAM_COMBO_GFX = $3A60  ; Floating numbers when combos earned, 5*32 bytes
-; $3AE0
+VRAM_COMBO_GFX = $3A60  ; Floating numbers when combos earned, 10*32 bytes
+; $3BA0
 VRAM_LETTER_GFX = $4000 ; letters, 26*32 bytes
 VRAM_DIGIT_GFX = $4340  ; digits, 10*32 bytes
 ; $4480
@@ -40,7 +40,7 @@ VRAM_SCROLLB_SIZE = $1000
 VRAM_JUNK_SIZE = $5A0
 VRAM_PROJ_SIZE = 32*8
 VRAM_DEBRIS_SIZE = 32*4
-VRAM_COMBO_SIZE = 32*MAX_COMBO
+VRAM_COMBO_SIZE = 32*10
 
 BOARD1_OFFSET = 274
 BOARD2_OFFSET = BOARD1_OFFSET+24

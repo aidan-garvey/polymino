@@ -26,8 +26,7 @@
 ; set to 0.
 ; -----------------------------------------------
 ; Parameters:
-;   a1 - points to board (P1 or P2)
-;   a2 - points to NEW_ROWS (P1 or P2)
+;   a2 - points to player game state
 ;   a4 - points to screen buffer
 ; Thrashed:
 ;   d0-d4
@@ -718,8 +717,6 @@ SHATTER_ANIM:
     ANDI.W  #$4700, d0  ; clear all except N and color
     MOVE.W  d0, (a3)    ; store in board data
     JSR     PLACE_BLOCK ; place block in screen buffer
-    ;; when a junk block is replaced, add points for the player
-    ;JSR     ADD_SHATTER_SCORE
 
 @SHATTER_STEP:
     DBRA    d3, @SHATTER_LOOP

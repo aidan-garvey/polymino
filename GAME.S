@@ -92,7 +92,6 @@ GAME_INIT:
 
     JSR     RAND_SEED       ; initialize pseudorandom number generator
 
-    ; JSR     INIT_BACKGROUND ; copy background to VRAM
     JSR     INIT_CIRC_CHARS ; copy background chars to VRAM
     JSR     INIT_CIRC_PLANE ; copy background patterns to VRAM
     JSR     INIT_HUD        ; initialize UI sprites for both players
@@ -103,6 +102,18 @@ GAME_INIT:
     ; in BUFF_PLANE for the duration of a game
     JSR     INIT_SCROLLA
 
+    ; generate initial blocks for both players
+    LEA.L   GAME_STATE_1, a2
+    LEA.L   BUFF_PLANE+BOARD1_OFFSET, a4
+    JSR     GENERATE_ROWS
+
+    CMP.W   #1, (NUM_PLAYERS)
+    BEQ.B   @GAME_INIT_END
+    LEA.L   GAME_STATE_2, a2
+    LEA.L   BUFF_PLANE+BOARD2_OFFSET, a4
+    JSR     GENERATE_ROWS
+
+@GAME_INIT_END:
     MOVE.L  #0, (MAIN_TICK) ; init main and frame tick, each is 2B
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
@@ -110,18 +121,11 @@ GAME_INIT:
     END_LOAD_STATE
     RTS
 
-; ===========================================================
+; ==========================================================
 ; GAME_LOOP
-; -----------------------------------------------------------
-; Performs the following for P1, then for P2 if multiplayer
-; 1) Generate rows of blocks
-; 2) Process player actions
-; 3) Update physics, process matches
-; 4) Place new junk, game over if no room
-; -----------------------------------------------------------
-; For each subroutine called by this loop, data registers and
-; a0 are caller-saved and address registers are callee-saved.
-; ===========================================================
+; ----------------------------------------------------------
+; Performs all game logic for P1, then for P2 if multiplayer
+; ==========================================================
 GAME_LOOP:
     JSR     UPDATE_PAUSED
 
@@ -134,7 +138,7 @@ GAME_LOOP:
     ; compare update timer to timer limit
     MOVE.W  (a0), d0
     CMP.W   -(a0), d0
-    BLT     @SKIP_UPDATE_RESET
+    BLT.B   @SKIP_UPDATE_RESET
     CLR.W   2(a0)    ; if we're at the limit, reset timer
     
 @SKIP_UPDATE_RESET:
@@ -166,7 +170,6 @@ GAME_LOOP:
     BRA.W   @GAME_LOOP_END
 
 @NOT_GAME_OVER:
-    JSR     GENERATE_ROWS
     ; handle inputs from player
     JSR     PLAYER_ACTIONS
     ; if update timer is at zero, update game physics
@@ -205,7 +208,8 @@ GAME_LOOP:
     JSR     CLEAR_BLOCKS
 
     ; check current player's projectiles, see if they can destroy junk.
-    ; only run once a new projectile is spawned, or new junk arrives
+    ; only run once a new projectile or junk piece is spawned, or junk
+    ; moves during a physics update
     TST.W   (CHECK_PROJ_OFF, a2)
     BEQ.B   @SKIP_PROJ_CHECK
     JSR     PROJ_CHECK

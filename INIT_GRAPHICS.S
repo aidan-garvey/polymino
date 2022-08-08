@@ -102,7 +102,6 @@ INIT_SCROLLA:
     BSR     SCROLLA_FILLER
 
 
-
     ; don't need corners or h. edges for a while
     ; d1 := vertical separator
     LEA.L   UI_SEP_V, a1

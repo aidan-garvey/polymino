@@ -6,22 +6,19 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *****************************************************************
 
-; ------------------------
+; -------------------------------
 ; VERTICAL BLANK INTERRUPT
-; ------------------------
+; Jump to the routine in VBVECTOR
+; -------------------------------
 VBLANK:
-    MOVE.L  VBVECTOR, -(SP) ; push address stored in VBVECTOR to SP
-    RTS                     ; jump to VBVECTOR
+    MOVE.L  (VBVECTOR), -(SP)
+    RTS
 
-; -----------------------------
+; ------------------------------------------
 ; MAIN VBI ROUTINE
-; If VBVECTOR contains #VBMAIN,
-; this is what will be executed
-; after a VBI. VBDUMMY is also
-; executed after, since all it
-; does is set VBLANKON and
-; return from the VB exception.
-; -----------------------------
+; Copies the sprite and scroll plane buffers
+; to VRAM and flushes the DMA queue.
+; ------------------------------------------
 VBMAIN:
     PUSH    a0-a2/d0-d3
 
@@ -74,30 +71,25 @@ VBMAIN:
     TST.W   (GAME_PAUSED)
     BNE.B   @SKIP_B_SCROLL
 
-    SUB.W   #1, (BUFF_VSCROLLB)
-    MOVE.W  (BUFF_VSCROLLB), d0
+    LEA.L   BUFF_VSCROLLB, a0
+    SUBQ.W  #1, (a0)
+    MOVE.W  (a0), d0
     LSR.W   #SCROLL_DIV, d0
     VDP_ACCESS VDP_W_VSRAM, 2
     MOVE.W  d0, (VDP_DATA)
 
 @SKIP_B_SCROLL:
     ADD.W   #1, (FRAME_TICK)
+    MOVE.W  #1, (VBLANKON)
 
     POP     a0-a2/d0-d3
+    RTE
 
-; INTENTIONAL FALL-THRU TO VBDUMMY
-
-; -------------------------------
+; -----------------
 ; DUMMY VBI ROUTINE
-; If VBVECTOR contains #VBDUMMY,
-; or after executing VBMAIN,
-; this will be executed. Sets
-; indicator that VBI routine is
-; done and returns to what was
-; executing before the interrupt.
-; -------------------------------
+; -----------------
 VBDUMMY:
-    MOVE.W  #1, VBLANKON
+    MOVE.W  #1, (VBLANKON)
     RTE
 
 ; --------------------------
@@ -118,4 +110,4 @@ EXTINT:
 Exception:
     MOVE.W  #$2700, SR  ; disable interrupts
 INF_LOOP:
-    BRA.S INF_LOOP      ; infinite loop  
+    BRA.S INF_LOOP      ; infinite loop
