@@ -6,7 +6,7 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; ********************************************************************
 
-MAX_COMBO = 5       ; maximum player combo
+MAX_COMBO = 10      ; maximum player combo
 MATCH_POINTS = 5    ; base points awarded for matching blocks - binary
 SHATTER_POINTS = 50 ; base points awarded for destroying junk - binary
                         ; (this is awarded once for the whole piece)
