@@ -165,9 +165,13 @@ DRAW_BOMBS:
 PLACE_BLOCK:
     PUSH    a0/a4/d0/d3-d4
 
-    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
-    LSL.W   #1, d3 ; each cell is 2 bytes
+    ; convert d4 into offset from a4.
+    ; each cell is 2 bytes, each row is 128 bytes.
+    ; d4 := d4 * 128 + d3 * 2
+    ;     = 2 * (d4 * 64 + d3)
+    LSL.W   #6, d4
     ADD.W   d3, d4
+    ADD.W   d4, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
 
     ; determine pattern to use for block
@@ -195,9 +199,13 @@ PLACE_BLOCK:
 SWAP_BLOCKS_H:
     PUSH    a4/d3-d4
 
-    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
-    LSL.W   #1, d3 ; each cell is 2 bytes
+    ; convert d4 into offset from a4.
+    ; each cell is 2 bytes, each row is 128 bytes.
+    ; d4 := d4 * 128 + d3 * 2
+    ;     = 2 * (d4 * 64 + d3)
+    LSL.W   #6, d4
     ADD.W   d3, d4
+    ADD.W   d4, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     ; swap the blocks
     MOVE.L  (a4), d3
@@ -222,9 +230,13 @@ SWAP_BLOCKS_H:
 SWAP_BLOCKS_V:
     PUSH    a4-a5/d3-d4
 
-    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
-    LSL.W   #1, d3 ; each cell is 2 bytes
+    ; convert d4 into offset from a4.
+    ; each cell is 2 bytes, each row is 128 bytes.
+    ; d4 := d4 * 128 + d3 * 2
+    ;     = 2 * (d4 * 64 + d3)
+    LSL.W   #6, d4
     ADD.W   d3, d4
+    ADD.W   d4, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     MOVE.L  a4, a5
     SUBA.W  #128, a5 ; a5 points 1 row lower than a4
@@ -251,9 +263,13 @@ SWAP_BLOCKS_V:
 ERASE_BLOCK:
     PUSH    a4/d3-d4
 
-    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
-    LSL.W   #1, d3 ; each cell is 2 bytes
+    ; convert d4 into offset from a4.
+    ; each cell is 2 bytes, each row is 128 bytes.
+    ; d4 := d4 * 128 + d3 * 2
+    ;     = 2 * (d4 * 64 + d3)
+    LSL.W   #6, d4
     ADD.W   d3, d4
+    ADD.W   d4, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     CLR.W   (a4) ; clear the block
 
@@ -276,9 +292,13 @@ ERASE_BLOCK:
 PLACE_JUNK_BLOCK:
     PUSH    a4/d3-d4
 
-    LSL.W   #7, d4 ; each row is 64 cells = 128 bytes
-    LSL.W   #1, d3 ; each cell is 2 bytes
+    ; convert d4 into offset from a4.
+    ; each cell is 2 bytes, each row is 128 bytes.
+    ; d4 := d4 * 128 + d3 * 2
+    ;     = 2 * (d4 * 64 + d3)
+    LSL.W   #6, d4
     ADD.W   d3, d4
+    ADD.W   d4, d4
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     MOVE.W  (a5), (a4) ; copy block data
 

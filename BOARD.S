@@ -111,13 +111,13 @@ PLAYER_ACTIONS:
     BNE.B   @MOVE_RIGHT ; if pressed for the first frame, move
     BTST    #BUTTON_RIGHT, d0  ; right held
     BEQ.B   @SKIP_MOVE_RIGHT ; if not held either, skip moving
-    SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
+    SUBQ.W  #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
     BNE.B   @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
 @MOVE_RIGHT:
     MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2) ; reset hold timer
-    CMPI.W  #BOARD_WIDTH-1, (CURSOR_X_OFF, a2) ; CURSOR_X
+    CMPI.W  #BOARD_WIDTH-1, (CURSOR_X_OFF, a2)
     BEQ.B   @SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
-    ADDI.W  #1, (CURSOR_X_OFF, a2)
+    ADDQ.W  #1, (CURSOR_X_OFF, a2)
 @SKIP_MOVE_RIGHT:
 
 
@@ -125,13 +125,13 @@ PLAYER_ACTIONS:
     BNE.B   @MOVE_LEFT ; if pressed for first frame, move
     BTST    #BUTTON_LEFT, d0  ; left held
     BEQ.B   @SKIP_MOVE_LEFT ; if not held either, skip moving
-    SUB.W   #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
+    SUBQ.W  #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
     BNE.B   @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
 @MOVE_LEFT:
     MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2)
     TST.W   (CURSOR_X_OFF, a2)   ; CURSOR_X
     BEQ.B   @SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
-    SUBI.W  #1, (CURSOR_X_OFF, a2)
+    SUBQ.W  #1, (CURSOR_X_OFF, a2)
 @SKIP_MOVE_LEFT:
 
     ; vertical movement
@@ -139,13 +139,13 @@ PLAYER_ACTIONS:
     BNE.B   @MOVE_DOWN
     BTST    #BUTTON_DOWN, d0  ; down held
     BEQ.B   @SKIP_MOVE_DOWN
-    SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
+    SUBQ.W  #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
     BNE.B   @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
 @MOVE_DOWN:
     MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
     CMPI.W  #BOARD_HEIGHT-1, (CURSOR_Y_OFF, a2) ; CURSOR_Y
     BEQ.B   @SKIP_MOVE_DOWN
-    ADDI.W  #1, (CURSOR_Y_OFF, a2)
+    ADDQ.W  #1, (CURSOR_Y_OFF, a2)
 @SKIP_MOVE_DOWN:
 
 
@@ -153,30 +153,28 @@ PLAYER_ACTIONS:
     BNE.B   @MOVE_UP
     BTST    #BUTTON_UP, d0  ; up held
     BEQ.B   @SKIP_MOVE_UP
-    SUB.W   #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
+    SUBQ.W  #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
     BNE.B   @SKIP_MOVE_UP ; if hold timer not at 0, don't move
 @MOVE_UP:
     MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
     TST.W   (CURSOR_Y_OFF, a2)   ; CURSOR_Y
     BEQ.B   @SKIP_MOVE_UP
-    SUBI.W  #1, (CURSOR_Y_OFF, a2)
+    SUBQ.W  #1, (CURSOR_Y_OFF, a2)
 @SKIP_MOVE_UP:
 
     ; d0 not needed for inputs from here on - only D-pad can be held
 
-    MOVE.W  (COMBO_OFF, a2), d5 ; d5 will hold old combo
-
     ; if A pressed, swap horizontally
     BTST    #BUTTON_A, d1
-    BEQ     @SKIP_A_PRESS
+    BEQ.W   @SKIP_A_PRESS
 
     ; get cursor pos, convert to RAM offset
     MOVE.W  (CURSOR_X_OFF, a2), d0 ; horizontal position
     ; if cursor is all the way to the right, the
     ; horizontal component is shifted to the left
     CMPI.W  #BOARD_WIDTH-1, d0
-    BNE     @A_PRESS_NO_SUB
-    SUBQ    #1, d0
+    BNE.B   @A_PRESS_NO_SUB
+    SUBQ.W  #1, d0
 @A_PRESS_NO_SUB:
     ; save x pos
     MOVE.W  d0, d3
@@ -185,7 +183,11 @@ PLAYER_ACTIONS:
     MOVE.W  (CURSOR_Y_OFF, a2), d2
     MOVE.W  d2, d4
     ; multiply it by row width
-    MULU.W  #BOARD_WIDTH, d2
+    ; MULU.W  #BOARD_WIDTH, d2
+    ; since BOARD_WIDTH is always going to be 10:
+    LSL.W   #3, d2  ; d2 = CURSOR_Y * 8
+    ADD.W   d4, d2
+    ADD.W   d4, d2  ; d2 = CURSOR_Y * 10
     ; calculate RAM offset
     ADD.W   d2, d0
     ASL.W   #1, d0
@@ -230,15 +232,15 @@ PLAYER_ACTIONS:
 
     ; check for matches at swapped blocks
     TST.W   (a5)
-    BEQ     @SKIP_CHECK_A_1
+    BEQ.B   @SKIP_CHECK_A_1
     MOVE.L  a5, a0
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_1:
     MOVE.L  a5, a0
     ADDA.W  #2, a0
     TST.W   (a0)
-    BEQ     @SKIP_CHECK_A_2
-    ADDQ    #1, d3
+    BEQ.B   @SKIP_CHECK_A_2
+    ADDQ.W  #1, d3
     JSR     CHECK_MATCH
 @SKIP_CHECK_A_2:
 
@@ -251,7 +253,7 @@ PLAYER_ACTIONS:
 
     ; if B pressed, swap veritcally
     BTST    #BUTTON_B, d1
-    BEQ     @SKIP_B_PRESS
+    BEQ.B   @SKIP_B_PRESS
 
     ; get cursor pos, convert to RAM offset
     MOVE.W  (CURSOR_X_OFF, a2), d0 ; horizontal position
@@ -266,17 +268,20 @@ PLAYER_ACTIONS:
     MOVE.W  d2, d4
     
     ; multiply by row width
-    MULU.W  #BOARD_WIDTH, d2
+    ; MULU.W  #BOARD_WIDTH, d2
+    ; since BOARD_WIDTH is always going to be 10:
+    LSL.W   #3, d2  ; d2 = CURSOR_Y * 8
+    ADD.W   d4, d2
+    ADD.W   d4, d2  ; d2 = CURSOR_Y * 10
     ; calculate RAM offset for top and bottom blocks
     ADD.W   d2, d0
-    ASL.W   #1, d0
+    ADD.W   d0, d0
     MOVE.L  a1, a5
     ADDA.W  d0, a5
     MOVE.L  a5, a6
     SUBA.W  #BOARD_WIDTH*2, a6
 
-    ; don't allow a vertical swap b/w a block and a space
-    ; (also prevents swapping 2 spaces)
+    ; don't allow a vertical swap involving a space
     TST.W   (a5)
     BEQ.B   @SKIP_B_PRESS
     TST.W   (a6)
@@ -366,6 +371,7 @@ UPDATE_PHYSICS:
     ; if (a1) is junk, call subroutine to move it
     TST.B   1(a1)
     BEQ.B   @UPDATE_NOT_JUNK
+    ; don't update junk during its shatter animation
     BTST.B  #SHATTER_FLAG_B, (a1)
     BNE.B   @UPDATE_BLOCK_STEP
     BSR     UPDATE_JUNK
@@ -385,10 +391,10 @@ UPDATE_PHYSICS:
     JSR     SWAP_BLOCKS_V
 
 @UPDATE_BLOCK_STEP:
-    SUBQ    #1, d3
+    SUBQ.W  #1, d3
     BGE.B   @UPDATE_BLOCK_LOOP
     MOVEQ   #BOARD_WIDTH-1, d3
-    SUBQ    #1, d4
+    SUBQ.W  #1, d4
     BGT.B   @UPDATE_BLOCK_LOOP
 
     POP     a1
@@ -411,8 +417,12 @@ CHECK_ALL_MATCHES:
 @CHECK_ROW_LOOP:
     MOVE.W  #BOARD_WIDTH-1, d3 ; x pos
 @CHECK_CELL_LOOP:
+    ; don't check empty blocks
     TST.W   -(a0)
     BEQ.B   @SKIP_CHECK_MATCH
+    ; don't check junk blocks
+    TST.B   1(a0)
+    BNE.B   @SKIP_CHECK_MATCH
     JSR     CHECK_MATCH
 @SKIP_CHECK_MATCH:
     DBRA    d3, @CHECK_CELL_LOOP
@@ -423,6 +433,8 @@ CHECK_ALL_MATCHES:
 ; CHECK_MATCH
 ; ---------------------------------------------
 ; Check for a match that includes a given block
+; ---------------------------------------------
+; Precondition: block is not empty nor junk
 ; ---------------------------------------------
 ; Parameters:
 ;   a0 - pointer to block
@@ -447,9 +459,9 @@ CHECK_MATCH:
     MOVE.L  a0, a1
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
-    ; if piece is junk, it can't be matched, so return
-    TST.B   d0
-    BNE.W   @CHECK_MATCH_RET
+    ;; if piece is junk, it can't be matched, so return
+    ;TST.B   d0
+    ;BNE.W   @CHECK_MATCH_RET
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
     MOVE.W  d3, d1
