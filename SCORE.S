@@ -68,31 +68,32 @@ UPDATE_BCD_SCORE:
 @DDABBLE_LOOP:
     ; shift d1 left, shift the bit that got shifted out of d1 into d0
     ADD.L   d1, d1
-    ROXL.L  #1, d0
+    ADDX.L  d0, d0
     ; check d0 for digits >= 5
     MOVEQ   #$0F, d3    ; d3 will mask digits
     MOVEQ   #$05, d4    ; d4 will be used to compare with 5
-    MOVEQ   #$03, d5    ; d5 will be used to add 3
     MOVEQ   #6, d6      ; we will check the lowest 7 digits
 @CHECK5_LOOP:
-    MOVE.L  d0, d2
-    ; isolate current digit, check if >= 5
-    AND.L   d3, d2
-    CMP.L   d4, d2
+    ; isolate current digit, add 3 if >= 5
+    MOVE.W  d0, d2
+    AND.W   d3, d2
+    CMP.W   d4, d2
     BLT.B   @CHECK5_STEP
-    ADD.L   d5, d0
+    ADDQ.L  #3, d0
 
 @CHECK5_STEP:
-    LSL.L   #4, d3
-    LSL.L   #4, d4
-    LSL.L   #4, d5
+    ; move next digit to lowest position
+    ROR.L   #4, d0
     DBRA    d6, @CHECK5_LOOP
+
+    ; we only rotated 7/8 times in the loop
+    ROR.L   #4, d0
 
     DBRA    d7, @DDABBLE_LOOP
 
     ; last shift
     ADD.L   d1, d1
-    ROXL.L  #1, d0
+    ADDX.L  d0, d0
 
     ; save score
     MOVE.L  d0, (SCORE_BCD_OFF, a2)
