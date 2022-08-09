@@ -66,7 +66,7 @@ UPDATE_BCD_SCORE:
     LSL.L   #8, d1
     MOVEQ   #22, d7 ; shift 23 times, then a final time with no checks
 @DDABBLE_LOOP:
-    ; shift d1 left, shift the bit that got shifted out of d1 into d0
+    ; shift d0:d1 left
     ADD.L   d1, d1
     ADDX.L  d0, d0
     ; check d0 for digits >= 5
@@ -95,7 +95,25 @@ UPDATE_BCD_SCORE:
     ADD.L   d1, d1
     ADDX.L  d0, d0
 
-    ; save score
+    ; d0 is the final score - check if player has earned a bomb
+    MOVE.W  (SCORE_BCD_OFF+2, a2), d1 ; get lower 4 digits
+    ; award a bomb every 5000 points
+    ; if thousands digit is unchanged, don't award bomb
+    EOR.W   d0, d1
+    ANDI.W  #$F000, d1
+    BEQ.B   @UPDATE_BCD_SCORE_SAVE
+    ; if thousands digit is 0, award bomb
+    MOVE.W  d0, d1
+    ANDI.W  #$F000, d1
+    BEQ.B   @GIVE_SCORE_BOMB
+    ; if thousands is not 0 nor 5, don't award bomb
+    CMP.W   #$5000, d1
+    BNE.B   @UPDATE_BCD_SCORE_SAVE
+
+@GIVE_SCORE_BOMB:
+    ADDQ.W  #1, (BOMBS_OFF, a2)
+
+@UPDATE_BCD_SCORE_SAVE: 
     MOVE.L  d0, (SCORE_BCD_OFF, a2)
 
     POP     d0-d7
