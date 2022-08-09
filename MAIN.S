@@ -84,8 +84,13 @@ MAIN_INIT:
 ; ===============================================
 MAIN_LOOP:
     ; only execute once per frame
-    WAIT_VB
-    ADD.W   #1, (MAIN_TICK)
+    ; WAIT_VB
+    LEA.L   VBLANKON, a0
+@MAIN_VB_WAIT:
+    TST.W   (a0)
+    BEQ.B   @MAIN_VB_WAIT
+    CLR.W   (a0)
+    ADDQ.W  #1, (MAIN_TICK)
     JSR     READ_INPUT
     MOVE.L  (MAIN_VECTOR), a0
     JSR     (a0)
