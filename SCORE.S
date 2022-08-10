@@ -54,17 +54,23 @@ ADD_SHATTER_SCORE:
 ; Parameters:
 ;   a2 - player game state
 ; Thrashed:
-;   none
+;   d0-d7
 ; ========================================
 UPDATE_BCD_SCORE:
-    PUSH    d0-d7
-
     MOVEQ   #0, d0
     MOVE.L  (SCORE_BIN_OFF, a2), d1
     ; since the BCD score is seven digits, we need
     ; lower 24 bits of d1 moved to the upper bits
     LSL.L   #8, d1
-    MOVEQ   #22, d7 ; shift 23 times, then a final time with no checks
+    
+    ; we'll left shift d0:d1 24 times
+    ; no chance of a 5 in d0 for first two shifts
+    ADD.L   d1, d1
+    ADDX.L  d0, d0
+    ADD.L   d1, d1
+    ADDX.L  d0, d0
+
+    MOVEQ   #20, d7 ; shift with checks 21 times
 @DDABBLE_LOOP:
     ; shift d0:d1 left
     ADD.L   d1, d1
@@ -86,12 +92,12 @@ UPDATE_BCD_SCORE:
     ROR.L   #4, d0
     DBRA    d6, @CHECK5_LOOP
 
-    ; we only rotated 7/8 times in the loop
+    ; we only rotated 7/8 times in the inner loop
     ROR.L   #4, d0
 
     DBRA    d7, @DDABBLE_LOOP
 
-    ; last shift
+    ; last shift, 5's allowed in d0
     ADD.L   d1, d1
     ADDX.L  d0, d0
 
@@ -116,5 +122,4 @@ UPDATE_BCD_SCORE:
 @UPDATE_BCD_SCORE_SAVE: 
     MOVE.L  d0, (SCORE_BCD_OFF, a2)
 
-    POP     d0-d7
     RTS
