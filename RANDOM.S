@@ -11,7 +11,8 @@
 RAND_SEED:
     MOVE.L  #$9876FEDC, d0
     MOVE.L  #$ABCD1234, d1
-    MOVE.W  (VDP_HVCOUNT), d2
+    MOVE.W  (FRAME_TICK), d2
+    ROL.W   d2, d2
 @RSEED_LOOP:
     SWAP    d0
     ADD.L   d1, d0

@@ -10,15 +10,15 @@
 WAIT_DMA: MACRO
 @WAIT_DMA_LOOP\@:
     BTST    #1, VDP_CTRL+1   ; check if status register says "DMA BUSY"
-    BNE.S   @WAIT_DMA_LOOP\@ ; keep checking until done
+    BNE.B   @WAIT_DMA_LOOP\@ ; keep checking until done
     ENDM
     
 ; Reset VBLANKON, wait until it is set by our VB routine after the next VB
 WAIT_VB: MACRO
-    MOVE.W  #0, VBLANKON
+    CLR.W   (VBLANKON)
 @LOOP\@:
-    CMP.W   #0, VBLANKON
-    BEQ.S   @LOOP\@
+    TST.W   (VBLANKON)
+    BEQ.B   @LOOP\@
     ENDM
 
 ; Remove the Z80 from the bus and ensure it is off before continuing
@@ -26,7 +26,7 @@ REMOVE_Z80: MACRO
     MOVE.W  #$0100, Z80_BUSREQ  ; request bus from z80
 @LOOP\@:
     BTST    #0, Z80_BUSREQ      ; wait until it is off bus
-    BNE.S   @LOOP\@
+    BNE.B   @LOOP\@
     ENDM
     
 ; Replace the Z80 on the bus (for code readability)
