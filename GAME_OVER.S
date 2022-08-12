@@ -16,10 +16,14 @@
 ; Parameters:
 ;   a2 - player game state
 ;   a4 - screen buffer
+;   a5 - player cursor
 ; Thrashed:
 ;   a0, d0, d3-d4
 ; =====================================
 GAME_OVER_ANIM:
+    ; hide player's cursor
+    CLR.W   (a5)
+
     ADDQ.W  #1, (GAME_OVER_T_OFF, a2)
     MOVE.W  (GAME_OVER_T_OFF, a2), d0
     ; only update every X frames
