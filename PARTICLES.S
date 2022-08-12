@@ -449,8 +449,7 @@ ADD_PARTICLE:
 
     ; point new sprite's link data to same as previous sprite,
     ; point previous sprite's link data to new sprite
-    MOVE.L  a0, a1
-    MOVE.B  -13(a0), -5(a1)
+    MOVE.B  -13(a0), -5(a0)
     MOVE.B  d0, -13(a0)
 
 @ADD_PARTICLE_RET:
@@ -564,7 +563,7 @@ UPDATE_PARTICLES:
 ;   a1 - pointer to board
 ;   a2 - pointer to game state
 ; Thrashed:
-;   d0-d3
+;   d0-d7
 ; =====================================
 PROJ_CHECK:
     PUSH    a3-a4
@@ -578,6 +577,11 @@ PROJ_CHECK:
         ; player is correct if result is zero.
     ; register containing the desired color, same process as above
 
+    ; REGISTERS REPLACING IMMEDIATE VALUES
+    MOVE.L  #SPRITES_END, d5
+    MOVE.W  #BOARD_WIDTH*2, d6
+    MOVE.W  #SHATTER_FLAG_W, d7
+
     ; determine the player flag we need
     MOVEQ   #0, d0
     CMP.L   #BOARD_1, a1
@@ -587,7 +591,7 @@ PROJ_CHECK:
 
     ; begin iterating over particles
     LEA.L   PART_SPRITES, a3
-    LEA.L   PART_DATA+8, a4
+    LEA.L   PART_DATA+8, a4 ; a4 will point to extra data for each particle
 
     ; d1 will hold projectile data,
     ; each projectile will be compared to
@@ -628,14 +632,15 @@ PROJ_CHECK:
     ANDI.W  #$1F, d3
 
     MOVE.L  a1, a0
-    ADDA.W  d3, a0
+    ADD.W   d3, d3
     ADDA.W  d3, a0      ; a0 := first block of column
 
 @V_BLOCK_LOOP:
     MOVE.W  (a0), d3    ; d3 := current block data
     TST.B   d3
     BEQ.B   @V_BLOCK_STEP   ; if not junk, skip
-    BTST    #SHATTER_FLAG_W, d3
+    ; BTST    #SHATTER_FLAG_W, d3
+    BTST    d7, d3
     BNE.B   @V_BLOCK_STEP   ; if shattering, skip
     BTST    #JUNK_COLOR_FLAG, d3
     BEQ.B   @V_BLOCK_SHATTER ; if gray, shatter
@@ -649,7 +654,8 @@ PROJ_CHECK:
 
 @V_BLOCK_STEP:
     ; iterate column until we get to bottom of board
-    ADDA.W  #BOARD_WIDTH*2, a0
+    ; ADDA.W  #BOARD_WIDTH*2, a0
+    ADDA.W  d6, a0
     CMP.L   a2, a0
     BLT.B   @V_BLOCK_LOOP
 
@@ -661,8 +667,15 @@ PROJ_CHECK:
     ; get row number
     MOVE.W  d1, d3
     ANDI.W  #$1F, d3
-    ; TODO: try to replace this baloney
-    MULU.W  #BOARD_WIDTH*2, d3
+    ; multiply row by BOARD_WIDTH*2, which is 20
+    ; MULU.W  #BOARD_WIDTH*2, d3
+    ADD.W   d3, d3  ; d3 := row * 2
+    ADD.W   d3, d3  ; d3 := row * 4
+    MOVE.W  d3, d4  ; d4 := row * 4
+    ADD.W   d3, d3  ; d3 := row * 8
+    ADD.W   d3, d3  ; d3 := row * 16
+    ADD.W   d4, d3  ; d3 := row * 20
+
     MOVE.L  a1, a0
     ADDA.W  d3, a0      ; a0 := first block of row
 
@@ -671,7 +684,8 @@ PROJ_CHECK:
     MOVE.W  (a0)+, d3   ; d3 := current block data
     TST.B   d3
     BEQ.B   @H_BLOCK_STEP   ; if not junk, skip
-    BTST    #SHATTER_FLAG_W, d3
+    ; BTST    #SHATTER_FLAG_W, d3
+    BTST    d7, d3
     BNE.B   @H_BLOCK_STEP   ; if already shattering, skip
     BTST    #JUNK_COLOR_FLAG, d3
     BEQ.B   @H_BLOCK_SHATTER ; if gray, shatter
@@ -681,18 +695,19 @@ PROJ_CHECK:
     BNE.B   @H_BLOCK_STEP   ; if colors don't match, skip
 
 @H_BLOCK_SHATTER:
-    SUBA.W  #2, a0
+    SUBQ.W  #2, a0
     JSR     SHATTER_JUNK
-    ADDA.W  #2, a0
+    ADDQ.W  #2, a0
 
 @H_BLOCK_STEP:
     DBRA    d4, @H_BLOCK_LOOP
 
 @PROJ_STEP:
     ; iterate over particles until we find a non-deleted one
-    ADDA.W  #PART_SPRITE_SIZE, a3
+    ADDQ.W  #PART_SPRITE_SIZE, a3
     ADDA.W  #PART_DATA_SIZE, a4
-    CMP.L   #SPRITES_END, a3
+    ;CMP.L   #SPRITES_END, a3
+    CMP.L   d5, a3
     BGE.B   @PROJ_BREAK
     ; if particle is deleted, iterate again
     TST.W   (a3)

@@ -299,7 +299,7 @@ SHATTER_JUNK:
     ; don't go beyond game board
     CMP.L   a2, a0
     BGE.B   @BREAK_DOWN
-    ; loop loop until we leave the junk piece
+    ; loop until we leave the junk piece
     CMP.W   (a0), d0
     BEQ.B   @LOOP_DOWN
 @BREAK_DOWN:
@@ -333,7 +333,7 @@ SHATTER_JUNK:
 ; advance to next column, break if we go beyond board or junk piece
 @SHATTER_COLUMN_STEP:
     ADDQ.B  #SHATTER_INC, d1
-    ADDA.W  #2, a0
+    ADDQ.W  #2, a0
     CMP.L   a2, a0
     BGE.B   @SHATTER_COLUMN_BREAK
     CMP.W   (a0), d0
