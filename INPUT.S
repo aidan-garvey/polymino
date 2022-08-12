@@ -16,10 +16,15 @@ BUTTON_C = 5
 BUTTON_A = 6
 BUTTON_START = 7
 
+; Read input from both controllers
+; Thrashed: a5-a6/d0/d6-d7
 READ_INPUT:
+    MOVE.W  SR, d0
+    MOVE.W  #$2700, SR ; disable interrupts
     REMOVE_Z80
     BSR.B   @READ_BOTH
     REPLACE_Z80
+    MOVE.W  d0, SR  ; restore interrupts
     RTS
 
 @READ_BOTH:

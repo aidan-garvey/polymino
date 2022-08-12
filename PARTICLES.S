@@ -463,13 +463,19 @@ ADD_PARTICLE:
 ; remove any out-of-bounds particles
 ; --------------------------------------------
 ; Thrashed:
-;   a0-a2, d0-d3
+;   a0-a2, d0-d7
 ; ============================================
 UPDATE_PARTICLES:
     LEA.L   PART_SPRITES, a0
     LEA.L   PART_DATA, a1
     ; a2 points to the most recent non-deleted sprite
     LEA.L   PART_SPRITES-8, a2
+
+    ; REGISTERS REPLACING IMMEDIATE VALUES
+    MOVE.L  #SPRITES_END, d4
+    MOVEQ   #PART_DATA_SIZE, d5
+    MOVE.W  #BOUNDS_TOP<<4, d6
+    MOVE.W  #BOUNDS_BOTTOM<<4, d7
 
     ; for each particle:
     ; - add acceleration to velocity
@@ -478,8 +484,8 @@ UPDATE_PARTICLES:
 
     TST.W   (a0)
     BEQ.B   @UPDATE_PARTICLES_STEP
+    
 @UPDATE_PARTICLES_LOOP:
-
     ; update x and y vecocity
     MOVE.L  (a1), d1    ; d1 := x, y velocity
     ADD.W   6(a1), d1   ; y velocity += y acceleration
@@ -492,9 +498,9 @@ UPDATE_PARTICLES:
     MOVE.W  (a0), d2
     ROL.W   #4, d2      ; d2 := y pos w/ subpixels
     ADD.W   d1, d2      ; update y pos
-    CMPI.W  #BOUNDS_TOP<<4, d2 
+    CMP.W   d6, d2 
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #BOUNDS_BOTTOM<<4, d2
+    CMP.W   d7, d2
     BGT.B   @DELETE_PARTICLE
     ; not deleted: move subpixels back to upper bits and save y pos
     ROR.W   #4, d2
@@ -531,10 +537,12 @@ UPDATE_PARTICLES:
     BEQ.B   @UPDATE_PARTICLES_RET
 
 @UPDATE_PARTICLES_STEP:
-    ADDA.W  #PART_SPRITE_SIZE, a0
-    ADDA.W  #PART_DATA_SIZE, a1
+    ADDQ.W  #PART_SPRITE_SIZE, a0
+    ; ADDA.W  #PART_DATA_SIZE, a1
+    ADDA.W  d5, a1
     ; if we're out of bounds, stop iterating
-    CMPA.L  #SPRITES_END, a0
+    ; CMPA.L  #SPRITES_END, a0
+    CMP.L   d4, a0
     BGE.B   @UPDATE_PARTICLES_RET
     ; skip deleted sprites
     TST.W   (a0)
@@ -579,8 +587,8 @@ PROJ_CHECK:
 
     ; REGISTERS REPLACING IMMEDIATE VALUES
     MOVE.L  #SPRITES_END, d5
-    MOVE.W  #BOARD_WIDTH*2, d6
-    MOVE.W  #SHATTER_FLAG_W, d7
+    MOVEQ   #BOARD_WIDTH*2, d6
+    MOVEQ   #SHATTER_FLAG_W, d7
 
     ; determine the player flag we need
     MOVEQ   #0, d0
