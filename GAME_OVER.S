@@ -23,6 +23,8 @@
 GAME_OVER_ANIM:
     ; hide player's cursor
     CLR.W   (a5)
+    ; hide next junk outline
+    CLR.W   (P1_OUTLINE-P1_SPRITE, a5)
 
     ADDQ.W  #1, (GAME_OVER_T_OFF, a2)
     MOVE.W  (GAME_OVER_T_OFF, a2), d0
