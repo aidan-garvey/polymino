@@ -477,84 +477,79 @@ UPDATE_PARTICLES:
     ; - add velocity/16 to position
     ; - if position is out-of-bounds, delete the particle
 
-@UPDATE_PARTICLES_LOOP:
     TST.W   (a0)
     BEQ.B   @UPDATE_PARTICLES_STEP
+@UPDATE_PARTICLES_LOOP:
 
-    ; update x and y velocity
+    ; update x and y vecocity
     MOVE.L  (a1), d1    ; d1 := x, y velocity
-    MOVE.L  4(a1), d2   ; d2 := x, y accel
-    ADD.W   d2, d1
+    ADD.W   6(a1), d1   ; y velocity += y acceleration
     SWAP    d1
-    SWAP    d2
-    ADD.W   d2, d1
+    ADD.W   4(a1), d1   ; x velocity += x acceleration
     SWAP    d1
     MOVE.L  d1, (a1)    ; save new velocity
 
     ; update and check y position, delete if off screen
-    ; ASR.W   #4, d1
     MOVE.W  (a0), d2
-    ROL.W   #4, d2
-    ADD.W   d1, d2
-    ROR.W   #4, d2
-    MOVE.W  d2, d3
-    ANDI.W  #$0FFF, d3
-    CMPI.W  #BOUNDS_TOP, d3
+    ROL.W   #4, d2      ; d2 := y pos w/ subpixels
+    ADD.W   d1, d2      ; update y pos
+    CMPI.W  #BOUNDS_TOP<<4, d2 
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #BOUNDS_BOTTOM, d3
+    CMPI.W  #BOUNDS_BOTTOM<<4, d2
     BGT.B   @DELETE_PARTICLE
+    ; not deleted: move subpixels back to upper bits and save y pos
+    ROR.W   #4, d2
     MOVE.W  d2, (a0)
 
     ; update and check x position
-    SWAP    d1
-    ; ASR.W   #4, d1
+    SWAP    d1          ; d1 := y velocity, x velocity
     MOVE.W  6(a0), d2
-    ROL.W   #4, d2
-    ADD.W   d1, d2
-    ROR.W   #4, d2
-    MOVE.W  d2, d3
-    ANDI.W  #$0FFF, d3
+    ROL.W   #4, d2      ; d2 := x pos w/ subpixels
+    ADD.W   d1, d2      ; update x pos
     BTST.B  #PART_PLAYER_FLAG_B, 8(a1) ; check which player the particle belongs to
     BNE.B   @P2_X_CHECK
     ; player 1:
-    CMPI.W  #P1_LEFT_BOUND, d3
+    CMPI.W  #P1_LEFT_BOUND<<4, d2
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #P1_RIGHT_BOUND, d3
+    CMPI.W  #P1_RIGHT_BOUND<<4, d2
     BGT.B   @DELETE_PARTICLE
     BRA.B   @X_CHECK_DONE
 @P2_X_CHECK:
     ; player 2:
-    CMPI.W  #P2_LEFT_BOUND, d3
+    CMPI.W  #P2_LEFT_BOUND<<4, d2
     BLT.B   @DELETE_PARTICLE
-    CMPI.W  #P2_RIGHT_BOUND, d3
+    CMPI.W  #P2_RIGHT_BOUND<<4, d2
     BGT.B   @DELETE_PARTICLE
 @X_CHECK_DONE:
+    ; not deleted: move subpixels back to upper bits and save x pos
+    ROR.W   #4, d2
     MOVE.W  d2, 6(a0)
     
     ; if we didn't delete this sprite, a2 will track it
     MOVE.L  a0, a2
     ; if link data is zero, we're at the end of the list, return
     TST.B   3(a2)
-    BNE.B   @UPDATE_PARTICLES_STEP
-    BRA.B   @UPDATE_PARTICLES_RET
-    
-    ; BRA.B   @UPDATE_PARTICLES_STEP
-
-@DELETE_PARTICLE:
-    ; to delete a particle:
-    ; - set the first word of the sprite data to zero
-    ; - set the previous sprite's link data to the deleted sprite's link data
-    MOVE.W  #0, (a0)
-    MOVE.B  3(a0), 3(a2)
-    ; if the link data was zero, there are no more sprites, so return
     BEQ.B   @UPDATE_PARTICLES_RET
 
 @UPDATE_PARTICLES_STEP:
     ADDA.W  #PART_SPRITE_SIZE, a0
     ADDA.W  #PART_DATA_SIZE, a1
-    ; if we aren't out of bounds, iterate again
+    ; if we're out of bounds, stop iterating
     CMPA.L  #SPRITES_END, a0
-    BLT.W   @UPDATE_PARTICLES_LOOP
+    BGE.B   @UPDATE_PARTICLES_RET
+    ; skip deleted sprites
+    TST.W   (a0)
+    BEQ.B   @UPDATE_PARTICLES_STEP
+    BRA.B   @UPDATE_PARTICLES_LOOP
+
+@DELETE_PARTICLE:
+    ; to delete a particle:
+    ; - set the first word of the sprite data to zero
+    ; - set the previous sprite's link data to the deleted sprite's link data
+    CLR.W   (a0)
+    MOVE.B  3(a0), 3(a2)
+    ; if the link data was zero, there are no more sprites, so return
+    BNE.B   @UPDATE_PARTICLES_STEP
 
 @UPDATE_PARTICLES_RET:
     RTS
