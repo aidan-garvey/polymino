@@ -18,6 +18,8 @@ SCORE_BUFF_SIZE = $E0
 OUTLN_BUFF_SIZE = $200
 BOMBS_BUFF_SIZE = $40
 
+JUNK_T_UPDATES = 40 ; number of physics updates between junk drops
+
 HOLD_LENGTH = 6 ; held buttons are handled every HOLD_LENGTH frames
 SCROLL_DIV = 2  ; divisor for background scroll amount per frame
 

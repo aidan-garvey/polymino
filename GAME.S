@@ -29,12 +29,11 @@ GAME_INIT:
     ; first word is number of players, determined in main menu
     ; second word is frames b/w physics updates, determined by difficulty selection
     LEA.L   GLOBAL_STATE+4, a0
-    ; MOVE.W  #10, (a0)+  ; frames b/w physics updates
     MOVE.W  #0, (a0)+   ; counter for physics updates
-    MOVE.W  #40, (a0)+  ; physics updates b/w junk
+    MOVE.W  #JUNK_T_UPDATES, (a0)+  ; physics updates b/w junk
     MOVE.W  #0, (a0)+   ; game is not paused
 
-    ; p1:
+    ; player 1:
 
     ; clear board data
     LEA.L   BOARD_1, a0
@@ -45,24 +44,13 @@ GAME_INIT:
 
     ; game state
     LEA.L   GAME_STATE_1, a0
-    MOVE.W  #5, (a0)+       ; starting rows
-    MOVE.L  #0, (a0)+       ; bcd score
-    MOVE.W  #3, (a0)+       ; bcd bombs
-    MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
-    MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
-    MOVE.L  #0, (a0)+       ; cursor h&v timers
-    MOVE.W  #1, (a0)+       ; combo multiplier
-    MOVE.W  #0, (a0)+       ; no projectiles to check
-    MOVE.W  #0, (a0)+       ; game not over
-    MOVE.W  #0, (a0)+       ; game over timer
-    MOVE.L  #0, (a0)+       ; binary score
+    LEA.L   INITIAL_GAME_STATE, a1
+    MOVE.W  #GAME_STATE_SIZE/4, d0
+@WRITE_STATE_1:
+    MOVE.L  (a1)+, (a0)+
+    DBRA    d0, @WRITE_STATE_1
 
-    LEA.L   JUNK_TIMER_1, a0
-    MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
-    MOVE.W  #0, (a0)+       ; id of next junk, 0 means it needs to be initialized
-    MOVE.W  #0, (a0)+       ; index of next junk piece type
-
-    ; p2:
+    ; player 2:
 
     ; clear board data
     LEA.L   BOARD_2, a0
@@ -73,22 +61,11 @@ GAME_INIT:
 
     ; game state
     LEA.L   GAME_STATE_2, a0
-    MOVE.W  #5, (a0)+       ; starting rows
-    MOVE.L  #0, (a0)+       ; bcd score
-    MOVE.W  #3, (a0)+       ; bombs
-    MOVE.W  #BOARD_WIDTH/2-1, (a0)+ ; cursor x
-    MOVE.W  #BOARD_HEIGHT/2, (a0)+  ; cursor y
-    MOVE.L  #0, (a0)+       ; cursor h&v timers
-    MOVE.W  #1, (a0)+       ; combo multiplier
-    MOVE.W  #0, (a0)+       ; no projectiles to check
-    MOVE.W  #0, (a0)+       ; game not over
-    MOVE.W  #0, (a0)+       ; game over timer
-    MOVE.L  #0, (a0)+       ; binary score
-
-    LEA.L   JUNK_TIMER_2, a0
-    MOVE.W  (JUNK_MAX), (a0)+ ; junk timer
-    MOVE.W  #0, (a0)+       ; id of next junk
-    MOVE.W  #0, (a0)+       ; index of next junk piece type
+    LEA.L   INITIAL_GAME_STATE, a1
+    MOVE.W  #GAME_STATE_SIZE/4, d0
+@WRITE_STATE_2:
+    MOVE.L  (a1)+, (a0)+
+    DBRA    d0, @WRITE_STATE_2
 
     JSR     RAND_SEED       ; initialize pseudorandom number generator
 
