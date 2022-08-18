@@ -90,15 +90,15 @@
 ; ----------------
 
     DC.B    'SEGA GENESIS    '
-    DC.B    '(C)SEGA 1990.OCT'
+    DC.B    '(C)T-00 1990.OCT'
     DC.B    'BEAMS                                           '
     DC.B    'BEAMS                                           '
-    DC.B    'GM 42069420-01'
+    DC.B    'GM T-000000 01'
     DC.W    $0                  ; CHECKSUM
     DC.B    'J               '  ; CONTROLLER DATA
     DC.L    $000000, $3FFFFF    ; ROM START, END
     DC.L    $FF0000, $FFFFFF    ; RAM START, END
     DC.B    '            '      ; EXTERNAL RAM INFO
     DC.B    '            '      ; MODEM DATA
-    DC.B    'BY AIDAN GARVEY, 2022-07-04 - 2022-07-04'  ; MEMO
-    DC.B    'JUE             '  ; COUNTRIES WHERE GAME IS RELEASED
+    DC.B    '(C) AIDAN GARVEY 2022                   '  ; MEMO
+    DC.B    'U               '  ; COUNTRIES WHERE GAME IS RELEASED

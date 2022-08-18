@@ -52,7 +52,9 @@ PAUSE1_NBUTTONS = 2
 PAUSE1_PLAYER = 0
 PAUSE_CON_MASK = %01000000 ; A
 PAUSE_EX_MASK = %10010000 ; START, B
-PAUSE1_BUFF = BUFF_PLANE+(15*2)+(9*128)
+PAUSE_BUFF_START = BUFF_PLANE+(15*2)+(9*128)
+PAUSE1_BUFF_H = 7
+PAUSE_BUFF_W = 11
 
 ; set up player 1's pause menu
 INIT_PAUSED_P1:
@@ -69,16 +71,16 @@ INIT_PAUSED_P1:
     MOVE.B  #PAUSE_EX_MASK, (MENU_EX_MASK, a0)
 
     ; save the patterns that the pause menu will overwrite, then clear them
-    LEA.L   PAUSE1_BUFF, a0     ; top-left pattern of pause menu's destination
+    LEA.L   PAUSE_BUFF_START, a0 ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
-    MOVEQ   #6, d1  ; 7 rows
+    MOVEQ   #PAUSE1_BUFF_H-1, d1
 @SAVE_BUFF1_ROW:
-    MOVEQ   #4, d0  ; 5 long-words for 10 patterns
+    MOVEQ   #PAUSE_BUFF_W-1, d0
 @SAVE_BUFF1_TILE:
-    MOVE.L  (a0), (a1)+
-    CLR.L   (a0)+
+    MOVE.W  (a0), (a1)+
+    CLR.W   (a0)+
     DBRA    d0, @SAVE_BUFF1_TILE
-    ADDA.W  #BOARD_ROW_GAP, a0
+    ADDA.W  #BOARD_ROW_GAP-2, a0
     DBRA    d1, @SAVE_BUFF1_ROW
 
     ; draw menu
@@ -116,7 +118,7 @@ PAUSE2_TX = 17
 PAUSE2_XPOS = 15*8+$80
 PAUSE2_NBUTTONS = 1
 PAUSE2_PLAYER = 1
-PAUSE2_BUFF = BUFF_PLANE+(15*2)+(9*128)
+PAUSE2_BUFF_H = 5
 
 ; set up player 2's pause menu
 INIT_PAUSED_P2:
@@ -133,16 +135,16 @@ INIT_PAUSED_P2:
     MOVE.B  #PAUSE_EX_MASK, (MENU_EX_MASK, a0)
 
     ; save the patterns that the pause menu will overwrite
-    LEA.L   PAUSE2_BUFF, a0     ; top-left pattern of pause menu's destination
+    LEA.L   PAUSE_BUFF_START, a0 ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
-    MOVEQ   #4, d1  ; 5 rows
+    MOVEQ   #PAUSE2_BUFF_H-1, d1
 @SAVE_BUFF2_ROW:
-    MOVEQ   #4, d0  ; 5 long-words for 10 patterns
+    MOVEQ   #PAUSE_BUFF_W-1, d0
 @SAVE_BUFF2_TILE:
-    MOVE.L  (a0), (a1)+
-    CLR.L   (a0)+
+    MOVE.W  (a0), (a1)+
+    CLR.W   (a0)+
     DBRA    d0, @SAVE_BUFF2_TILE
-    ADDA.W  #BOARD_ROW_GAP, a0
+    ADDA.W  #BOARD_ROW_GAP-2, a0
     DBRA    d1, @SAVE_BUFF2_ROW
 
     ; draw menu
@@ -212,14 +214,14 @@ UNPAUSE_1:
 
     ; copy PAUSE_BUFF back to screen buffer
     LEA.L   PAUSE_BUFFER, a0
-    LEA.L   PAUSE1_BUFF, a1
-    MOVEQ   #6, d1  ; 7 rows
+    LEA.L   PAUSE_BUFF_START, a1
+    MOVEQ   #PAUSE1_BUFF_H-1, d1
 @LOAD_BUFF1_ROW:
-    MOVEQ   #4, d0  ; 5 long words for 10 patterns
+    MOVEQ   #PAUSE_BUFF_W-1, d0
 @LOAD_BUFF1_TILE:
-    MOVE.L  (a0)+, (a1)+
+    MOVE.W  (a0)+, (a1)+
     DBRA    d0, @LOAD_BUFF1_TILE
-    ADDA.W  #BOARD_ROW_GAP, a1
+    ADDA.W  #BOARD_ROW_GAP-2, a1
     DBRA    d1, @LOAD_BUFF1_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
@@ -236,14 +238,14 @@ UNPAUSE_2:
 
     ; copy PAUSE_BUFF back to screen buffer
     LEA.L   PAUSE_BUFFER, a0
-    LEA.L   PAUSE2_BUFF, a1
-    MOVEQ   #4, d1  ; 5 rows
+    LEA.L   PAUSE_BUFF_START, a1
+    MOVEQ   #PAUSE2_BUFF_H-1, d1
 @LOAD_BUFF2_ROW:
-    MOVEQ   #4, d0  ; 5 long words for 10 patterns
+    MOVEQ   #PAUSE_BUFF_W-1, d0
 @LOAD_BUFF2_TILE:
-    MOVE.L  (a0)+, (a1)+
+    MOVE.W  (a0)+, (a1)+
     DBRA    d0, @LOAD_BUFF2_TILE
-    ADDA.W  #BOARD_ROW_GAP, a1
+    ADDA.W  #BOARD_ROW_GAP-2, a1
     DBRA    d1, @LOAD_BUFF2_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
