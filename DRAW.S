@@ -355,22 +355,16 @@ DRAW_JUNK_OUTLINE:
     ; update the x position of the outline
     ; ************************************
 
+    ; destination column number within board
     MOVE.W  (NEXT_JUNK_X_OFF, a2), d0
-    LSL.W   #3, d0  ; multiply column # by 8
+    ; add column offset of player's board
+    ADD.W   (BOARD_TX_OFF, a2), d0
+    LSL.W   #3, d0  ; multiply tile X by pixels/tile
     ADDI.W  #$80, d0 ; add left edge offset
 
-    ; assume P1, change if P2
-    MOVEQ   #P1_BOARD_TX*8, d1  ; d1 := board position
-    LEA.L   P1_OUTLINE, a0      ; a0 := sprite buffer
-
-    CMP.L   #GAME_STATE_2, a2
-    BNE.B   @P1_POS
-    
-    MOVE.W  #P2_BOARD_TX*8, d1  ; d1 := board position
-    LEA.L   P2_OUTLINE, a0      ; a0 := sprite buffer
-
-@P1_POS:
-    ADD.W   d1, d0
+    ; make a0 point to player's outline sprite
+    LEA.L   BUFF_SPRITES, a0
+    ADDA.W  (OUTLINE_SP_OFF, a2), a0
     MOVE.W  d0, 6(a0)   ; write x position
 
     ; ***********************************

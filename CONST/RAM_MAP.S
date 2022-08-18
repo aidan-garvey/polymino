@@ -104,7 +104,8 @@ GAME_OVER_T_1 = $FF31F6 ; 2B: animation timer for game over
 SCORE_BIN_1 = $FF31F8   ; 4B: binary score, same value as SCORE_BCD_1
 BOARD_TX_1 = $FF31FC    ; 2B: cell column number for player 1's board
 PART_P_FLAG_1 = $FF31FE ; 2B: flag to identify player 1's particles
-; $FF3200
+OUTLINE_SP_1 = $FF3200  ; 2B: offset from SPRITE_BUFF for junk outline
+; $FF3202
 
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
@@ -134,7 +135,8 @@ GAME_OVER_T_2 = $FF41F6 ; 2B: animation timer for game over
 SCORE_BIN_2 = $FF41F8   ; 4B: binary score, same value as SCORE_BCD_2
 BOARD_TX_2 = $FF41FC    ; 2B: cell column number for player 2's board
 PART_P_FLAG_2 = $FF41FE ; 2B: flag to identify player 2's particles
-; $FF4200
+OUTLINE_SP_2 = $FF4200  ; 2B: offset from SPRITE_BUFF for junk outline
+; $FF4202
 
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score

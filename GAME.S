@@ -53,6 +53,7 @@ GAME_INIT:
     ; player-specific constants
     MOVE.W  #P1_BOARD_TX, (BOARD_TX_1)
     BCLR.B  #PART_PLAYER_FLAG_B, (PART_P_FLAG_1)
+    MOVE.W  #P1_OUTLINE-BUFF_SPRITES, (OUTLINE_SP_1)
 
     ; player 2:
 
@@ -74,6 +75,7 @@ GAME_INIT:
     ; player-specific constants
     MOVE.W  #P2_BOARD_TX, (BOARD_TX_2)
     BSET.B  #PART_PLAYER_FLAG_B, (PART_P_FLAG_2)
+    MOVE.W  #P2_OUTLINE-BUFF_SPRITES, (OUTLINE_SP_2)
 
     JSR     RAND_SEED       ; initialize pseudorandom number generator
 
