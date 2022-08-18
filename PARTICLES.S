@@ -124,7 +124,7 @@ SPAWN_V_PROJ:
     BCLR    #PROJ_DIR_FLAG_W, d7 ; set direction bit to 0, for vertical
     OR.W    (PART_P_FLAG_OFF, a2), d7 ; set player 2 flag if applicable
 
-    JSR     ADD_PARTICLE
+    BSR.W   ADD_PARTICLE
 
     ; **************************
     ; spawn downwards projectile
@@ -139,7 +139,7 @@ SPAWN_V_PROJ:
     ; d6 will use opposite y direction, x stays unchanged
     NEG.W   d6
     ; d7 does not change
-    JSR     ADD_PARTICLE
+    BSR.W   ADD_PARTICLE
 
     POP     a0/d1-d7
     RTS
@@ -221,7 +221,7 @@ SPAWN_H_PROJ:
     BSET    #PART_PROJ_FLAG_W, d7 ; MSB is always 1 for projectiles
     BSET    #PROJ_DIR_FLAG_W, d7 ; set direction bit to 1, for horizontal
     OR.W    (PART_P_FLAG_OFF, a2), d7 ; set player 2 flag if applicable
-    JSR     ADD_PARTICLE
+    BSR.W   ADD_PARTICLE
 
     ; *****************************
     ; spawn left-facing projectile
@@ -240,7 +240,7 @@ SPAWN_H_PROJ:
     SWAP    d6
     ; d7 does not change
 
-    JSR     ADD_PARTICLE
+    BSR.W   ADD_PARTICLE
 
     POP     a0/d1-d7
     RTS
@@ -318,7 +318,7 @@ SPAWN_DEBRIS:
 
     ; d7 := extra particle data - for debris, just player number
     MOVE.W  (PART_P_FLAG_OFF, a2), d7
-    JSR     ADD_PARTICLE
+    BSR.B   ADD_PARTICLE
 
     POP     a0/d1-d7
     RTS
