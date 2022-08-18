@@ -93,12 +93,7 @@ SPAWN_V_PROJ:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
-    ADDI.W  #P1_BOARD_TX, d3
-    ; if a2 points to player 2's game state, add additional distance
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_ADD_V
-    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
-@SKIP_P2_ADD_V:
+    ADD.W   (BOARD_TX_OFF, a2), d3
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
     ; add left screen bound
@@ -125,12 +120,9 @@ SPAWN_V_PROJ:
     ; we know that the block data is not junk, its lower byte is set to 0
     OR.W    d0, d7  ; color for blocks in same place as color for projectiles
     ANDI.W  #$071F, d7 ; isolate color and column number
-    BSET    #15, d7 ; MSB is always 1 for projectiles
-    BCLR    #14, d7 ; set direction bit to 0, for vertical
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_FLAG_V
-    BSET    #13, d7
-@SKIP_P2_FLAG_V:
+    BSET    #PART_PROJ_FLAG_W, d7 ; set projectile flag
+    BCLR    #PROJ_DIR_FLAG_W, d7 ; set direction bit to 0, for vertical
+    OR.W    (PART_P_FLAG_OFF, a2), d7 ; set player 2 flag if applicable
 
     JSR     ADD_PARTICLE
 
@@ -199,12 +191,7 @@ SPAWN_H_PROJ:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
-    ADDI.W  #P1_BOARD_TX, d3
-    ; if a2 points to player 2's game state, add additional distance
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_ADD_H
-    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
-@SKIP_P2_ADD_H:
+    ADD.W   (BOARD_TX_OFF, a2), d3
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
     ; add left screen bound
@@ -231,12 +218,9 @@ SPAWN_H_PROJ:
     ; we know that the block data is not junk, so its lower byte is set to 0
     OR.W    d0, d7  ; color for blocks in same place as color for projectiles
     ANDI.W  #$071F, d7 ; isolate color and row number
-    BSET    #15, d7 ; MSB is always 1 for projectiles
-    BSET    #14, d7 ; set direction bit to 1, for horizontal
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_FLAG_H
-    BSET    #PART_PLAYER_FLAG_W, d7 ; set player 2 flag
-@SKIP_P2_FLAG_H:
+    BSET    #PART_PROJ_FLAG_W, d7 ; MSB is always 1 for projectiles
+    BSET    #PROJ_DIR_FLAG_W, d7 ; set direction bit to 1, for horizontal
+    OR.W    (PART_P_FLAG_OFF, a2), d7 ; set player 2 flag if applicable
     JSR     ADD_PARTICLE
 
     ; *****************************
@@ -307,12 +291,7 @@ SPAWN_DEBRIS:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
-    ADDI.W  #P1_BOARD_TX, d3
-    ; if a2 points to player 2's game state, add additional distance
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_ADD_D
-    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
-@SKIP_P2_ADD_D:
+    ADD.W   (BOARD_TX_OFF, a2), d3
     ; multiply by 8 to get pixel position
     LSL.W   #3, d3
     ; add left screen bound
@@ -338,11 +317,7 @@ SPAWN_DEBRIS:
     MOVEQ   #GRAVITY, d6
 
     ; d7 := extra particle data - for debris, just player number
-    MOVEQ   #0, d7
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @SKIP_P2_FLAG_D
-    BSET    #PART_PLAYER_FLAG_W, d7
-@SKIP_P2_FLAG_D:
+    MOVE.W  (PART_P_FLAG_OFF, a2), d7
     JSR     ADD_PARTICLE
 
     POP     a0/d1-d7
@@ -368,18 +343,10 @@ SPAWN_COMBO_NUM:
     MOVE.W  #COMBO_GFX_CHAR-1, d2 ; character for "x1" is at offset 0
     ADD.W   (COMBO_OFF, a2), d2
 
-    ; d7 := extra particle data
-    MOVEQ   #0, d7
-
-    ; d3 := x coordinate / 4th sprite attribute word
-    ADDI.W  #P1_BOARD_TX, d3
-    ; if this particle is for player 2, it should be further right
-    CMPA.L  #GAME_STATE_2, a2
-    BNE.B   @COMBO_NUM_P1
-    ADDI.W  #(P2_BOARD_TX-P1_BOARD_TX), d3
-    BSET    #PART_PLAYER_FLAG_W, d7 ; set flag to indicate player 2
-@COMBO_NUM_P1:
-    ; multiply x by 8 to get pixel position
+    ; d3 := x position
+    ; add number of cells b/w left edge and P1 board
+    ADD.W   (BOARD_TX_OFF, a2), d3
+    ; multiply by 8 to get pixel position
     LSL.W   #3, d3
     ; add left screen bound
     ADDI.W  #$80, d3
@@ -395,6 +362,9 @@ SPAWN_COMBO_NUM:
     ; d6 := x and y acceleration
     MOVEQ   #0, d6
     MOVE.W  #COMBO_Y_ACCEL, d6
+
+    ; d7 := extra particle data
+    MOVE.W  (PART_P_FLAG_OFF, a2), d7
 
     BSR.B   ADD_PARTICLE
     POP     d1-d7
