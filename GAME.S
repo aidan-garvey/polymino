@@ -50,6 +50,10 @@ GAME_INIT:
     MOVE.L  (a1)+, (a0)+
     DBRA    d0, @WRITE_STATE_1
 
+    ; player-specific constants
+    MOVE.W  #P1_BOARD_TX, (BOARD_TX_1)
+    BCLR.B  #PART_PLAYER_FLAG_B, (PART_P_FLAG_1)
+
     ; player 2:
 
     ; clear board data
@@ -66,6 +70,10 @@ GAME_INIT:
 @WRITE_STATE_2:
     MOVE.L  (a1)+, (a0)+
     DBRA    d0, @WRITE_STATE_2
+    
+    ; player-specific constants
+    MOVE.W  #P2_BOARD_TX, (BOARD_TX_2)
+    BSET.B  #PART_PLAYER_FLAG_B, (PART_P_FLAG_2)
 
     JSR     RAND_SEED       ; initialize pseudorandom number generator
 

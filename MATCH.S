@@ -345,14 +345,14 @@ CHECK_MATCH:
 @CHECK_UP_STEP:
     DBNE    d1, @CHECK_UP_LOOP
     ; if we exitted due to NE, go back down a row
-    BEQ     @CHECK_UP_DONE
+    BEQ.B   @CHECK_UP_DONE
     ADDA.W  #BOARD_WIDTH*2, a1
 @CHECK_UP_DONE:
     ; save Y position of top block to d5
     MOVE.W  d1, d5
     ; if we exitted due to NE, top block is 1 down
     ; if we exitted due to d1 = -1, we want d5 to be 0
-    ADDQ    #1, d5
+    ADDQ.W  #1, d5
 
     ; move a3 down until (a3) != d0, but don't go below the board
     MOVE.W  #BOARD_HEIGHT, d1

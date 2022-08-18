@@ -22,7 +22,9 @@ INITIAL_GAME_STATE:
     DC.W    0   ; game over flag
     DC.W    0   ; game over timer
     DC.L    0   ; binary score
-    DS.B    52  ; unused
+    DC.W    0   ; cell column index of board - different per player
+    DC.W    0   ; particle player flag - different per player
+    DS.B    48  ; unused
     DS.B    $30 ; flags for clearing blocks from board
     DS.B    $E0 ; score graphics buffer
     DC.W    JUNK_T_UPDATES  ; junk timer

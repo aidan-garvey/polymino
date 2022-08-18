@@ -102,7 +102,9 @@ CHECK_PROJ_1 = $FF31F2  ; 2B: should projectiles be checked? T/F
 GAME_OVER_1 = $FF31F4   ; 2B: has the player lost the game? T/F
 GAME_OVER_T_1 = $FF31F6 ; 2B: animation timer for game over
 SCORE_BIN_1 = $FF31F8   ; 4B: binary score, same value as SCORE_BCD_1
-; $FF31FC
+BOARD_TX_1 = $FF31FC    ; 2B: cell column number for player 1's board
+PART_P_FLAG_1 = $FF31FE ; 2B: flag to identify player 1's particles
+; $FF3200
 
 TO_CLEAR_1 = $FF3230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_1 = $FF3260  ; $E0 Bytes: buffer for graphics that display player score
@@ -130,7 +132,9 @@ CHECK_PROJ_2 = $FF41F2  ; 2B: should projectiles be checked? T/F
 GAME_OVER_2 = $FF41F4   ; 2B: has the player lost the game? T/F
 GAME_OVER_T_2 = $FF41F6 ; 2B: animation timer for game over
 SCORE_BIN_2 = $FF41F8   ; 4B: binary score, same value as SCORE_BCD_2
-; $FF41FC
+BOARD_TX_2 = $FF41FC    ; 2B: cell column number for player 2's board
+PART_P_FLAG_2 = $FF41FE ; 2B: flag to identify player 2's particles
+; $FF4200
 
 TO_CLEAR_2 = $FF4230    ; $30 Bytes: flags for blocks being cleared from the board
 SCORE_BUFF_2 = $FF4260  ; $E0 Bytes: buffer for graphics that display player score
