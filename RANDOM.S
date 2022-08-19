@@ -13,11 +13,11 @@ RAND_SEED:
     MOVE.L  #$ABCD1234, d1
     MOVE.W  (FRAME_TICK), d2
     ROL.W   d2, d2
-@RSEED_LOOP:
+_RSEED_LOOP:
     SWAP    d0
     ADD.L   d1, d0
     ADD.L   d0, d1
-    DBRA    d2, @RSEED_LOOP
+    DBRA    d2, _RSEED_LOOP
     MOVEM.L d0-d1, (RAND_STATE)
     RTS
 

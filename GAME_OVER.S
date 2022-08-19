@@ -30,20 +30,20 @@ GAME_OVER_ANIM:
     MOVE.W  (GAME_OVER_T_OFF, a2), d0
     ; only update every X frames
     ANDI.W  #GAME_OVER_MASK, d0
-    BNE.B   @GAME_OVER_RET
+    BNE.B   _GAME_OVER_RET
 
     ; clear the bottom row of blocks
     MOVEA.L a2, a0
     MOVEQ   #BOARD_WIDTH-1, d3
     MOVEQ   #BOARD_HEIGHT-1, d4
 
-@CLEAR_ROW_LOOP:
+_CLEAR_ROW_LOOP:
     CLR.W   -(a0)
     JSR     ERASE_BLOCK
-    DBRA    d3, @CLEAR_ROW_LOOP
+    DBRA    d3, _CLEAR_ROW_LOOP
 
     ; update physics to move everything down
     JSR     UPDATE_PHYSICS
 
-@GAME_OVER_RET:
+_GAME_OVER_RET:
     RTS

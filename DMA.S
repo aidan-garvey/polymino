@@ -34,7 +34,7 @@ AddToDMAQueue:
     MOVE.L  a0, d3
     CMPI.L  #DMA_QUEUE_END, d3
     ; if our address is >= end of queue, no room
-    BGE.B   @AddToDMAQueue_RETURN
+    BGE.B   _AddToDMAQueue_RETURN
     
     ; Check if we're crossing a 128KB boundary ($010000, $020000, etc)
     ; If so, we need to split the DMA request at that boundary
@@ -49,17 +49,17 @@ AddToDMAQueue:
     ; if d3 > 0 but the carry bit isn't set, we aren't crossing a boundary
     ; if d3 > 0 and the carry bit is set, we are crossing a boundary 
     
-    BEQ.B @DMANoSplit  ; d3 = 0 (end of source could be $10000, $20000, etc)
-    BCS.B @DMASplit    ; d3 > 0 and carry set means we went from $0xxxx - $1xxxx, or $1xxxx - $2xxxx, etc
-    BRA.B @DMANoSplit  ; d3 > 0 and carry isn't set means we stayed in $0xxxx, or $1xxxx, etc
+    BEQ.B _DMANoSplit  ; d3 = 0 (end of source could be $10000, $20000, etc)
+    BCS.B _DMASplit    ; d3 > 0 and carry set means we went from $0xxxx - $1xxxx, or $1xxxx - $2xxxx, etc
+    BRA.B _DMANoSplit  ; d3 > 0 and carry isn't set means we stayed in $0xxxx, or $1xxxx, etc
     
-@DMASplit:
+_DMASplit:
     ; from previous calculations, d3 is already the
     ; space we have before hitting the boundary
     PUSH    d0-d3
     
     MOVE.W  d3, d1  ; use d3 for our size so we don't cross boundary
-    BSR     @SubmitDMAReq
+    BSR     _SubmitDMAReq
     
     POP     d0-d3
     
@@ -79,10 +79,10 @@ AddToDMAQueue:
     
     ; fall thru to NoSplit to submit 2nd part of data
     
-@DMANoSplit:
-    BSR     @SubmitDMAReq
+_DMANoSplit:
+    BSR     _SubmitDMAReq
     
-@AddToDMAQueue_RETURN:
+_AddToDMAQueue_RETURN:
     POP     d3
     RTS
 
@@ -92,7 +92,7 @@ AddToDMAQueue:
 ; d2.W = VDP dest address
 ; a0 = queue address
 ; after execution, a0 = next queue address
-@SubmitDMAReq:
+_SubmitDMAReq:
     ; copy source address
     MOVE.L  d0, (a0)+
     ; copy data size
@@ -117,11 +117,11 @@ FlushDMAQueue:
     LEA.L   DMA_QUEUE, a2
     ; put size of queue in d3 (minus 1)
     MOVE.W  #$49, d3
-@FLUSH_LOOP:
+_FLUSH_LOOP:
     ; get source address
     MOVE.L  (a2), d0
     ; if it's zero, return
-    BEQ     @END_OF_QUEUE
+    BEQ     _END_OF_QUEUE
     ; set to zero because we're consuming the item
     MOVE.L  #0, (a2)+
     ; get size
@@ -131,8 +131,8 @@ FlushDMAQueue:
     ; perform DMA
     BSR     DMADump
     ; go back to start of loop if we aren't at end of queue
-    DBRA    d3, @FLUSH_LOOP
-@END_OF_QUEUE:
+    DBRA    d3, _FLUSH_LOOP
+_END_OF_QUEUE:
     RTS
 
 ; --------------------------------

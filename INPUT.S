@@ -22,12 +22,12 @@ READ_INPUT:
     MOVE.W  SR, d0
     MOVE.W  #$2700, SR ; disable interrupts
     REMOVE_Z80
-    BSR.B   @READ_BOTH
+    BSR.B   _READ_BOTH
     REPLACE_Z80
     MOVE.W  d0, SR  ; restore interrupts
     RTS
 
-@READ_BOTH:
+_READ_BOTH:
     ; a5 will point to joypad storage in RAM 
     LEA.L   JOY1, a5
     ; copy data in JOY1&2 to JOY1&2_OLD
@@ -35,12 +35,12 @@ READ_INPUT:
     ; a6 will point to data port for P1
     LEA.L   JOY1_DATA, a6
     ; read for P1
-    BSR.B   @READ_JOY
+    BSR.B   _READ_JOY
     ; a6 will point to data port for P2
     ADDQ.W  #2, a6
     ; fall-thru to read for P2
 
-@READ_JOY:
+_READ_JOY:
     MOVE.B  #0, (a6)    ; we want values for START and A from data port
     NOP                 ; wait for port
     NOP

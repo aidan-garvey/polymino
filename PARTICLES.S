@@ -84,12 +84,12 @@ SPAWN_V_PROJ:
     LSR.W   #8, d2      ; d2 := color[1:0]
     ADDI.W  #PROJ_CHAR, d2
     BTST    #10, d0
-    BNE.B   @SVP_PAL2
+    BNE.B   _SVP_PAL2
     BSET    #13, d2     ; palette 1
-    BRA.B   @SVP_D2_DONE
-@SVP_PAL2:
+    BRA.B   _SVP_D2_DONE
+_SVP_PAL2:
     BSET    #14, d2     ; palette 2
-@SVP_D2_DONE:
+_SVP_D2_DONE:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
@@ -182,12 +182,12 @@ SPAWN_H_PROJ:
     LSR.W   #8, d2      ; d2 := color[1:0]
     ADDI.W  #PROJ_CHAR+4, d2
     BTST    #10, d0
-    BNE.B   @SHP_PAL2
+    BNE.B   _SHP_PAL2
     BSET    #13, d2     ; palette 1
-    BRA.B   @SHP_D2_DONE
-@SHP_PAL2:
+    BRA.B   _SHP_D2_DONE
+_SHP_PAL2:
     BSET    #14, d2     ; palette 2
-@SHP_D2_DONE:
+_SHP_D2_DONE:
 
     ; d3 := x position
     ; add number of cells b/w left edge and P1 board
@@ -279,12 +279,12 @@ SPAWN_DEBRIS:
     ANDI.W  #$1800, d1
     OR.W    d1, d2
     BTST    #10, d0
-    BNE.B   @SD_PAL2
+    BNE.B   _SD_PAL2
     BSET    #13, d2     ; palette 1
-    BRA.B   @SD_D2_DONE
-@SD_PAL2:
+    BRA.B   _SD_D2_DONE
+_SD_PAL2:
     BSET    #14, d2     ; palette 2
-@SD_D2_DONE:
+_SD_D2_DONE:
 
     ; d1 := 2nd sprite attribute word
     MOVE.W  #0, d1      ; 1x1 size
@@ -394,18 +394,18 @@ ADD_PARTICLE:
     ; d0 tracks the link data for the sprite we place
     MOVEQ   #(PART_SPRITES-BUFF_SPRITES)/8, d0
 
-@ADD_PARTICLE_LOOP:
+_ADD_PARTICLE_LOOP:
     TST.W   (a0)
-    BEQ.B   @PLACE_PARTICLE
+    BEQ.B   _PLACE_PARTICLE
     ; iterate until empty slot found
     ADDQ.W  #1, d0
     ADDA.W  #PART_SPRITE_SIZE, a0
     ADDA.W  #PART_DATA_SIZE, a1
     ; don't go past end of sprite table
     CMPA.L  #SPRITES_END, a0
-    BLT.B   @ADD_PARTICLE_LOOP
-    BRA.B   @ADD_PARTICLE_RET
-@PLACE_PARTICLE:
+    BLT.B   _ADD_PARTICLE_LOOP
+    BRA.B   _ADD_PARTICLE_RET
+_PLACE_PARTICLE:
     ; sprite attributes
     MOVE.W  d4, (a0)+
     MOVE.W  d1, (a0)+
@@ -422,7 +422,7 @@ ADD_PARTICLE:
     MOVE.B  -13(a0), -5(a0)
     MOVE.B  d0, -13(a0)
 
-@ADD_PARTICLE_RET:
+_ADD_PARTICLE_RET:
     POP     a0-a1/d0
     RTS
 
@@ -453,9 +453,9 @@ UPDATE_PARTICLES:
     ; - if position is out-of-bounds, delete the particle
 
     TST.W   (a0)
-    BEQ.B   @UPDATE_PARTICLES_STEP
+    BEQ.B   _UPDATE_PARTICLES_STEP
     
-@UPDATE_PARTICLES_LOOP:
+_UPDATE_PARTICLES_LOOP:
     ; update x and y vecocity
     MOVE.L  (a1), d1    ; d1 := x, y velocity
     ADD.W   6(a1), d1   ; y velocity += y acceleration
@@ -469,9 +469,9 @@ UPDATE_PARTICLES:
     ROL.W   #4, d2      ; d2 := y pos w/ subpixels
     ADD.W   d1, d2      ; update y pos
     CMP.W   d6, d2 
-    BLT.B   @DELETE_PARTICLE
+    BLT.B   _DELETE_PARTICLE
     CMP.W   d7, d2
-    BGT.B   @DELETE_PARTICLE
+    BGT.B   _DELETE_PARTICLE
     ; not deleted: move subpixels back to upper bits and save y pos
     ROR.W   #4, d2
     MOVE.W  d2, (a0)
@@ -482,20 +482,20 @@ UPDATE_PARTICLES:
     ROL.W   #4, d2      ; d2 := x pos w/ subpixels
     ADD.W   d1, d2      ; update x pos
     BTST.B  #PART_PLAYER_FLAG_B, 8(a1) ; check which player the particle belongs to
-    BNE.B   @P2_X_CHECK
+    BNE.B   _P2_X_CHECK
     ; player 1:
     CMPI.W  #P1_LEFT_BOUND<<4, d2
-    BLT.B   @DELETE_PARTICLE
+    BLT.B   _DELETE_PARTICLE
     CMPI.W  #P1_RIGHT_BOUND<<4, d2
-    BGT.B   @DELETE_PARTICLE
-    BRA.B   @X_CHECK_DONE
-@P2_X_CHECK:
+    BGT.B   _DELETE_PARTICLE
+    BRA.B   _X_CHECK_DONE
+_P2_X_CHECK:
     ; player 2:
     CMPI.W  #P2_LEFT_BOUND<<4, d2
-    BLT.B   @DELETE_PARTICLE
+    BLT.B   _DELETE_PARTICLE
     CMPI.W  #P2_RIGHT_BOUND<<4, d2
-    BGT.B   @DELETE_PARTICLE
-@X_CHECK_DONE:
+    BGT.B   _DELETE_PARTICLE
+_X_CHECK_DONE:
     ; not deleted: move subpixels back to upper bits and save x pos
     ROR.W   #4, d2
     MOVE.W  d2, 6(a0)
@@ -504,31 +504,31 @@ UPDATE_PARTICLES:
     MOVE.L  a0, a2
     ; if link data is zero, we're at the end of the list, return
     TST.B   3(a2)
-    BEQ.B   @UPDATE_PARTICLES_RET
+    BEQ.B   _UPDATE_PARTICLES_RET
 
-@UPDATE_PARTICLES_STEP:
+_UPDATE_PARTICLES_STEP:
     ADDQ.W  #PART_SPRITE_SIZE, a0
     ; ADDA.W  #PART_DATA_SIZE, a1
     ADDA.W  d5, a1
     ; if we're out of bounds, stop iterating
     ; CMPA.L  #SPRITES_END, a0
     CMP.L   d4, a0
-    BGE.B   @UPDATE_PARTICLES_RET
+    BGE.B   _UPDATE_PARTICLES_RET
     ; skip deleted sprites
     TST.W   (a0)
-    BEQ.B   @UPDATE_PARTICLES_STEP
-    BRA.B   @UPDATE_PARTICLES_LOOP
+    BEQ.B   _UPDATE_PARTICLES_STEP
+    BRA.B   _UPDATE_PARTICLES_LOOP
 
-@DELETE_PARTICLE:
+_DELETE_PARTICLE:
     ; to delete a particle:
     ; - set the first word of the sprite data to zero
     ; - set the previous sprite's link data to the deleted sprite's link data
     CLR.W   (a0)
     MOVE.B  3(a0), 3(a2)
     ; if the link data was zero, there are no more sprites, so return
-    BNE.B   @UPDATE_PARTICLES_STEP
+    BNE.B   _UPDATE_PARTICLES_STEP
 
-@UPDATE_PARTICLES_RET:
+_UPDATE_PARTICLES_RET:
     RTS
 
 ; =====================================
@@ -563,9 +563,9 @@ PROJ_CHECK:
     ; determine the player flag we need
     MOVEQ   #0, d0
     CMP.L   #BOARD_1, a1
-    BEQ.B   @P_FLAG_DONE
+    BEQ.B   _P_FLAG_DONE
     BSET    #PART_PLAYER_FLAG_W, d0
-@P_FLAG_DONE:
+_P_FLAG_DONE:
 
     ; begin iterating over particles
     LEA.L   PART_SPRITES, a3
@@ -579,22 +579,22 @@ PROJ_CHECK:
 
     ; if first particle is deleted, skip
     TST.W   (a3)
-    BEQ.W   @PROJ_STEP
+    BEQ.W   _PROJ_STEP
 
-@PROJ_LOOP:
+_PROJ_LOOP:
     ; if particle is not projectile, skip
     BTST.B  #PART_PROJ_FLAG_B, (a4)
-    BEQ.W   @PROJ_STEP
+    BEQ.W   _PROJ_STEP
     ; if projectile data is same as last one, skip
     CMP.W   (a4), d1
-    BEQ.W   @PROJ_STEP
+    BEQ.W   _PROJ_STEP
     ; d1 will hold onto projectile data
     MOVE.W  (a4), d1
     ; if particle is wrong player, skip
     MOVE.W  d1, d2
     EOR.W   d0, d2
     ANDI.W  #PART_PLAYER_MASK_W, d2
-    BNE.B   @PROJ_STEP
+    BNE.B   _PROJ_STEP
 
     ; projectile is valid:
     ; get color
@@ -602,7 +602,7 @@ PROJ_CHECK:
     ANDI.W  #$0700, d2
     ; determine direction
     BTST    #PROJ_DIR_FLAG_W, d1
-    BNE.B   @H_PROJ_CHECK
+    BNE.B   _H_PROJ_CHECK
 
     ; vertical:
     ; get column number
@@ -613,34 +613,34 @@ PROJ_CHECK:
     ADD.W   d3, d3
     ADDA.W  d3, a0      ; a0 := first block of column
 
-@V_BLOCK_LOOP:
+_V_BLOCK_LOOP:
     MOVE.W  (a0), d3    ; d3 := current block data
     TST.B   d3
-    BEQ.B   @V_BLOCK_STEP   ; if not junk, skip
+    BEQ.B   _V_BLOCK_STEP   ; if not junk, skip
     ; BTST    #SHATTER_FLAG_W, d3
     BTST    d7, d3
-    BNE.B   @V_BLOCK_STEP   ; if shattering, skip
+    BNE.B   _V_BLOCK_STEP   ; if shattering, skip
     BTST    #JUNK_COLOR_FLAG, d3
-    BEQ.B   @V_BLOCK_SHATTER ; if gray, shatter
+    BEQ.B   _V_BLOCK_SHATTER ; if gray, shatter
     ; otherwise, compare colors:
     EOR.W   d2, d3
     ANDI.W  #$0700, d3
-    BNE.B   @V_BLOCK_STEP   ; if colors don't match, skip
+    BNE.B   _V_BLOCK_STEP   ; if colors don't match, skip
 
-@V_BLOCK_SHATTER:
+_V_BLOCK_SHATTER:
     JSR     SHATTER_JUNK
 
-@V_BLOCK_STEP:
+_V_BLOCK_STEP:
     ; iterate column until we get to bottom of board
     ; ADDA.W  #BOARD_WIDTH*2, a0
     ADDA.W  d6, a0
     CMP.L   a2, a0
-    BLT.B   @V_BLOCK_LOOP
+    BLT.B   _V_BLOCK_LOOP
 
     ; after V_BLOCK_LOOP is broken, do next projectile
-    BRA.B   @PROJ_STEP
+    BRA.B   _PROJ_STEP
 
-@H_PROJ_CHECK:
+_H_PROJ_CHECK:
     ; horizontal:
     ; get row number
     MOVE.W  d1, d3
@@ -658,42 +658,42 @@ PROJ_CHECK:
     ADDA.W  d3, a0      ; a0 := first block of row
 
     MOVEQ   #BOARD_WIDTH-1, d4 ; loop counter
-@H_BLOCK_LOOP:
+_H_BLOCK_LOOP:
     MOVE.W  (a0)+, d3   ; d3 := current block data
     TST.B   d3
-    BEQ.B   @H_BLOCK_STEP   ; if not junk, skip
+    BEQ.B   _H_BLOCK_STEP   ; if not junk, skip
     ; BTST    #SHATTER_FLAG_W, d3
     BTST    d7, d3
-    BNE.B   @H_BLOCK_STEP   ; if already shattering, skip
+    BNE.B   _H_BLOCK_STEP   ; if already shattering, skip
     BTST    #JUNK_COLOR_FLAG, d3
-    BEQ.B   @H_BLOCK_SHATTER ; if gray, shatter
+    BEQ.B   _H_BLOCK_SHATTER ; if gray, shatter
     ; otherwise, compare colors:
     EOR.W   d2, d3
     ANDI.W  #$0700, d3
-    BNE.B   @H_BLOCK_STEP   ; if colors don't match, skip
+    BNE.B   _H_BLOCK_STEP   ; if colors don't match, skip
 
-@H_BLOCK_SHATTER:
+_H_BLOCK_SHATTER:
     SUBQ.W  #2, a0
     JSR     SHATTER_JUNK
     ADDQ.W  #2, a0
 
-@H_BLOCK_STEP:
-    DBRA    d4, @H_BLOCK_LOOP
+_H_BLOCK_STEP:
+    DBRA    d4, _H_BLOCK_LOOP
 
-@PROJ_STEP:
+_PROJ_STEP:
     ; iterate over particles until we find a non-deleted one
     ADDQ.W  #PART_SPRITE_SIZE, a3
     ADDA.W  #PART_DATA_SIZE, a4
     ;CMP.L   #SPRITES_END, a3
     CMP.L   d5, a3
-    BGE.B   @PROJ_BREAK
+    BGE.B   _PROJ_BREAK
     ; if particle is deleted, iterate again
     TST.W   (a3)
-    BEQ.B   @PROJ_STEP
+    BEQ.B   _PROJ_STEP
     ; otherwise, do the loop with this particle
-    BRA.W   @PROJ_LOOP
+    BRA.W   _PROJ_LOOP
 
-@PROJ_BREAK:
+_PROJ_BREAK:
     POP     a3-a4
     RTS
 

@@ -21,18 +21,18 @@ STARTUP_RUN:
     MOVE.W  #$2700, SR  ; disable interrupts
     MOVE.W  #1, (HOT_START)
     TST.L   ($A10008)
-    BNE.B   @HotStart
+    BNE.B   _HotStart
     TST.W   ($A1000C)
-    BNE.B   @HotStart
+    BNE.B   _HotStart
     CLR.W   (HOT_START)
     ; U.S. security
     MOVE.B  (HW_VERSION), d0
     ANDI.B  #$F, d0
-    BEQ.B   @SecuritySkip
+    BEQ.B   _SecuritySkip
     MOVE.L  #"SEGA", ($A14000)
-@SecuritySkip:
+_SecuritySkip:
 
-@HotStart:
+_HotStart:
     LEA.L   STACK_END, SP   ; initialize stack pointer
     ; when we write to VDP, we want addresses to increment by 2
     VDP_REG 15, %00000010
@@ -44,9 +44,9 @@ STARTUP_RUN:
     ; *******************
     LEA.L   RAM_BASE, a0        ; Begin clearing at start of work ram
     MOVE.W  #(RAM_SIZE/4)-1, d0 ; size of work ram in longwords minus 1
-@Clear68kRAMLoop:
+_Clear68kRAMLoop:
     CLR.L   (a0)+
-    DBRA    d0, @Clear68kRAMLoop
+    DBRA    d0, _Clear68kRAMLoop
 
     ; ********************
     ; ** Initialize Z80 **
@@ -58,9 +58,9 @@ STARTUP_RUN:
     MOVE.W  d0, (a0)    ; request bus
     MOVE.W  d0, (a1)    ; ensure it is not resetting
     
-@InitZ80Wait:
+_InitZ80Wait:
     BTST    #0, (a0)    ; check if z80 is off bus
-    BNE.S   @InitZ80Wait ; if not, wait until it is
+    BNE.S   _InitZ80Wait ; if not, wait until it is
     
     ; ** TODO: SEND CODE TO Z80 **
     
@@ -113,14 +113,14 @@ STARTUP_RUN:
     ; ** Prevent Reset Bug **
     ; ***********************
     TST.W   (HOT_START)
-    BEQ.B   @SkipPreventResetBug
+    BEQ.B   _SkipPreventResetBug
 
     MOVE.W  #49, d0
-@PreventResetBugLoop:
+_PreventResetBugLoop:
     WAIT_VB
-    DBRA    d0, @PreventResetBugLoop
+    DBRA    d0, _PreventResetBugLoop
 
-@SkipPreventResetBug:
+_SkipPreventResetBug:
 
     ; ************************
     ; ** Initialize Joypads **

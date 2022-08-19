@@ -16,9 +16,9 @@ CLEAR_CRAM:
     MOVEQ   #0, d1
     MOVE.W  #31, d0     ; 31 = 128 bytes / (4 bytes / long word) - 1
     LEA.L   VDP_DATA, a0
-@CL_CRAM_LOOP:
+_CL_CRAM_LOOP:
     MOVE.L  d1, (a0)
-    DBRA    d0, @CL_CRAM_LOOP
+    DBRA    d0, _CL_CRAM_LOOP
     
     RTS
     
@@ -31,9 +31,9 @@ CLEAR_VSRAM:
     MOVEQ   #0, d1
     MOVE.W  #19, d0     ; 19 = 80 bytes / (4 bytes / long word) - 1
     LEA.L   VDP_DATA, a0
-@CL_VSRAM_LOOP:
+_CL_VSRAM_LOOP:
     MOVE.L  d1, (a0)
-    DBRA    d0, @CL_VSRAM_LOOP
+    DBRA    d0, _CL_VSRAM_LOOP
     
     RTS
     
@@ -46,7 +46,7 @@ CLEAR_VRAM:
     MOVEQ.L #0, d1
     MOVE.L  #$800-1, d0     ; VRAM size in bytes * 1/4 / number of writes per loop
     LEA.L   VDP_DATA, a0    ;      = $1 0000 * 1/4 / 8 = $800
-@CL_VRAM_LOOP:
+_CL_VRAM_LOOP:
     MOVE.L  d1, (a0)
     MOVE.L  d1, (a0)
     MOVE.L  d1, (a0)
@@ -56,7 +56,7 @@ CLEAR_VRAM:
     MOVE.L  d1, (a0)
     MOVE.L  d1, (a0)
     
-    DBRA    d0, @CL_VRAM_LOOP
+    DBRA    d0, _CL_VRAM_LOOP
     
     RTS
 
@@ -69,12 +69,12 @@ CLEAR_BUFF_PLANE:
     PUSH    a0/d0
     MOVE.W  #VRAM_SCROLLA_SIZE/16-1, d0
     LEA.L   BUFF_PLANE, a0
-@CLEAR_BUFF_PLANE_LOOP:
+_CLEAR_BUFF_PLANE_LOOP:
     CLR.L   (a0)+
     CLR.L   (a0)+
     CLR.L   (a0)+
     CLR.L   (a0)+
-    DBRA    d0, @CLEAR_BUFF_PLANE_LOOP
+    DBRA    d0, _CLEAR_BUFF_PLANE_LOOP
     POP     a0/d0
     RTS
 
@@ -87,9 +87,9 @@ CLEAR_BUFF_SPRITES:
     PUSH    a0/d0
     MOVE.W  #VRAM_SPRITETBL_SIZE/4-1, d0
     LEA.L   BUFF_SPRITES, a0
-@CLEAR_BUFF_SPRITES_LOOP:
+_CLEAR_BUFF_SPRITES_LOOP:
     CLR.L   (a0)+
-    DBRA    d0, @CLEAR_BUFF_SPRITES_LOOP
+    DBRA    d0, _CLEAR_BUFF_SPRITES_LOOP
     POP     a0/d0
     RTS
 
@@ -113,9 +113,9 @@ LOAD_PALETTE:
     
     ; Move palette
     MOVE.L  #$F, d0
-@LOAD_PALETTE_LOOP:
+_LOAD_PALETTE_LOOP:
     MOVE.W  (a0)+, (a1)+
-    DBRA    d0, @LOAD_PALETTE_LOOP
+    DBRA    d0, _LOAD_PALETTE_LOOP
     
     RTS
 
@@ -132,9 +132,9 @@ DUMP_PALETTES:
     LEA.L   VDP_DATA, a1
     LEA.L   BUFF_PALETTES, a0
     MOVE.W  #63, d0
-@DUMP_PALETTES_LOOP:
+_DUMP_PALETTES_LOOP:
     MOVE.W  (a0)+, (a1)
-    DBRA    d0, @DUMP_PALETTES_LOOP
+    DBRA    d0, _DUMP_PALETTES_LOOP
     
     RTS
 
@@ -160,9 +160,9 @@ DUMP_PALETTES:
 ; ----------------------------------
 CopyCharVRAM:
     MOVEQ   #7, d0
-@CCVRAMLoop:
+_CCVRAMLoop:
     MOVE.L  (a0)+, (a1)
-    DBRA    d0, @CCVRAMLoop
+    DBRA    d0, _CCVRAMLoop
     RTS
 
 ; ---------------------------------
@@ -180,9 +180,9 @@ CopyCharVRAM:
 ; --------------------------------
 CopyCharRAM:
     MOVEQ   #7, d0
-@CCRAMLoop:
+_CCRAMLoop:
     MOVE.L  (a0)+, (a1)+
-    DBRA    d0, @CCRAMLoop
+    DBRA    d0, _CCRAMLoop
     RTS
 
 ; -------------------------------
@@ -198,8 +198,8 @@ CopyCharRAM:
 ; -------------------------------
 ClearCharRAM:
     MOVEQ   #7, d0
-@ClearCharLoop:
+_ClearCharLoop:
     CLR.L   (a1)+
-    DBRA    d0, @ClearCharLoop
+    DBRA    d0, _ClearCharLoop
     RTS
     

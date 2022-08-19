@@ -38,11 +38,11 @@ GENERATE_ROWS:
     MOVE.W  #0, (a2)    ; since we're generating the rows, clear NEW_ROWS
     MOVE.L  a2, a3      ; a3 points to the end of the board
     MOVE.W  #BOARD_HEIGHT, d4 ; d4 tracks y pos for PLACE_BLOCK subroutine
-    BRA.B   @GEN_ROW_STEP
+    BRA.B   _GEN_ROW_STEP
 ; generate a row of random blocks
-@GEN_ROW_LOOP:
+_GEN_ROW_LOOP:
     MOVE.W  #BOARD_WIDTH-1, d3
-@GEN_BLOCK_LOOP:
+_GEN_BLOCK_LOOP:
     ; use RNG to generate each block's colour
     JSR     RAND
 
@@ -55,30 +55,30 @@ GENERATE_ROWS:
 
     ; check blocks to the right if possible
     CMP.W   #BOARD_WIDTH-3, d3
-    BGT.B   @GEN_BLOCK_HSKIP
+    BGT.B   _GEN_BLOCK_HSKIP
     CMP.W   (a3), d0
-    BNE.B   @GEN_BLOCK_HSKIP
+    BNE.B   _GEN_BLOCK_HSKIP
     CMP.W   2(a3), d0
-    BEQ.B   @GEN_BLOCK_LOOP    
-@GEN_BLOCK_HSKIP:
+    BEQ.B   _GEN_BLOCK_LOOP    
+_GEN_BLOCK_HSKIP:
 
     ; check blocks below if possible
     CMP.W   #BOARD_HEIGHT-3, d4
-    BGT.B   @GEN_BLOCK_VSKIP
+    BGT.B   _GEN_BLOCK_VSKIP
     CMP.W   (BOARD_WIDTH*2-2, a3), d0
-    BNE.B   @GEN_BLOCK_VSKIP
+    BNE.B   _GEN_BLOCK_VSKIP
     CMP.W   (BOARD_WIDTH*4-2, a3), d0
-    BEQ.B   @GEN_BLOCK_LOOP
-@GEN_BLOCK_VSKIP:
+    BEQ.B   _GEN_BLOCK_LOOP
+_GEN_BLOCK_VSKIP:
 
     MOVE.W  d0, -(a3)
 
     JSR     PLACE_BLOCK
-@GEN_BLOCK_STEP:
-    DBRA    d3, @GEN_BLOCK_LOOP
-@GEN_ROW_STEP:
+_GEN_BLOCK_STEP:
+    DBRA    d3, _GEN_BLOCK_LOOP
+_GEN_ROW_STEP:
     SUBQ    #1, d4
-    DBRA    d2, @GEN_ROW_LOOP
+    DBRA    d2, _GEN_ROW_LOOP
 
     POP     a3
     RTS
@@ -108,74 +108,74 @@ PLAYER_ACTIONS:
 
     ; horizontal movement
     BTST    #BUTTON_RIGHT, d1  ; right pressed
-    BNE.B   @MOVE_RIGHT ; if pressed for the first frame, move
+    BNE.B   _MOVE_RIGHT ; if pressed for the first frame, move
     BTST    #BUTTON_RIGHT, d0  ; right held
-    BEQ.B   @SKIP_MOVE_RIGHT ; if not held either, skip moving
+    BEQ.B   _SKIP_MOVE_RIGHT ; if not held either, skip moving
     SUBQ.W  #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
-    BNE.B   @SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
-@MOVE_RIGHT:
+    BNE.B   _SKIP_MOVE_RIGHT ; if hold timer not at 0, don't move
+_MOVE_RIGHT:
     MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2) ; reset hold timer
     CMPI.W  #BOARD_WIDTH-1, (CURSOR_X_OFF, a2)
-    BEQ.B   @SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
+    BEQ.B   _SKIP_MOVE_RIGHT ; skip if moving right would go out of bounds
     ADDQ.W  #1, (CURSOR_X_OFF, a2)
-@SKIP_MOVE_RIGHT:
+_SKIP_MOVE_RIGHT:
 
 
     BTST    #BUTTON_LEFT, d1  ; left
-    BNE.B   @MOVE_LEFT ; if pressed for first frame, move
+    BNE.B   _MOVE_LEFT ; if pressed for first frame, move
     BTST    #BUTTON_LEFT, d0  ; left held
-    BEQ.B   @SKIP_MOVE_LEFT ; if not held either, skip moving
+    BEQ.B   _SKIP_MOVE_LEFT ; if not held either, skip moving
     SUBQ.W  #1, (JOY_H_TIMER_OFF, a2) ; JOY_H_TIMER countdown
-    BNE.B   @SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
-@MOVE_LEFT:
+    BNE.B   _SKIP_MOVE_LEFT ; if hold timer not at 0, don't move
+_MOVE_LEFT:
     MOVE.W  #HOLD_LENGTH, (JOY_H_TIMER_OFF, a2)
     TST.W   (CURSOR_X_OFF, a2)   ; CURSOR_X
-    BEQ.B   @SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
+    BEQ.B   _SKIP_MOVE_LEFT ; skip if moving left would go out of bounds
     SUBQ.W  #1, (CURSOR_X_OFF, a2)
-@SKIP_MOVE_LEFT:
+_SKIP_MOVE_LEFT:
 
     ; vertical movement
     BTST    #BUTTON_DOWN, d1  ; down
-    BNE.B   @MOVE_DOWN
+    BNE.B   _MOVE_DOWN
     BTST    #BUTTON_DOWN, d0  ; down held
-    BEQ.B   @SKIP_MOVE_DOWN
+    BEQ.B   _SKIP_MOVE_DOWN
     SUBQ.W  #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
-    BNE.B   @SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
-@MOVE_DOWN:
+    BNE.B   _SKIP_MOVE_DOWN ; if hold timer not at 0, don't move
+_MOVE_DOWN:
     MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
     CMPI.W  #BOARD_HEIGHT-1, (CURSOR_Y_OFF, a2) ; CURSOR_Y
-    BEQ.B   @SKIP_MOVE_DOWN
+    BEQ.B   _SKIP_MOVE_DOWN
     ADDQ.W  #1, (CURSOR_Y_OFF, a2)
-@SKIP_MOVE_DOWN:
+_SKIP_MOVE_DOWN:
 
 
     BTST    #BUTTON_UP, d1  ; up
-    BNE.B   @MOVE_UP
+    BNE.B   _MOVE_UP
     BTST    #BUTTON_UP, d0  ; up held
-    BEQ.B   @SKIP_MOVE_UP
+    BEQ.B   _SKIP_MOVE_UP
     SUBQ.W  #1, (JOY_V_TIMER_OFF, a2) ; JOY_V_TIMER countdown
-    BNE.B   @SKIP_MOVE_UP ; if hold timer not at 0, don't move
-@MOVE_UP:
+    BNE.B   _SKIP_MOVE_UP ; if hold timer not at 0, don't move
+_MOVE_UP:
     MOVE.W  #HOLD_LENGTH, (JOY_V_TIMER_OFF, a2)
     TST.W   (CURSOR_Y_OFF, a2)   ; CURSOR_Y
-    BEQ.B   @SKIP_MOVE_UP
+    BEQ.B   _SKIP_MOVE_UP
     SUBQ.W  #1, (CURSOR_Y_OFF, a2)
-@SKIP_MOVE_UP:
+_SKIP_MOVE_UP:
 
     ; d0 not needed for inputs from here on - only D-pad can be held
 
     ; if A pressed, swap horizontally
     BTST    #BUTTON_A, d1
-    BEQ.W   @SKIP_A_PRESS
+    BEQ.W   _SKIP_A_PRESS
 
     ; get cursor pos, convert to RAM offset
     MOVE.W  (CURSOR_X_OFF, a2), d0 ; horizontal position
     ; if cursor is all the way to the right, the
     ; horizontal component is shifted to the left
     CMPI.W  #BOARD_WIDTH-1, d0
-    BNE.B   @A_PRESS_NO_SUB
+    BNE.B   _A_PRESS_NO_SUB
     SUBQ.W  #1, d0
-@A_PRESS_NO_SUB:
+_A_PRESS_NO_SUB:
     ; save x pos
     MOVE.W  d0, d3
 
@@ -201,27 +201,27 @@ PLAYER_ACTIONS:
 
     ; don't do check for bottom row
     CMP.W   #BOARD_HEIGHT-1, d4
-    BEQ     @H_FALL_CHECK_2
+    BEQ     _H_FALL_CHECK_2
 
     TST.W   (a0)+
-    BNE.B   @H_FALL_CHECK_1 ; if block below is occupied, check passes
+    BNE.B   _H_FALL_CHECK_1 ; if block below is occupied, check passes
     TST.W   (a5)
-    BNE.B   @SKIP_A_PRESS ; if block below is empty and block above isn't, check fails
-@H_FALL_CHECK_1:
+    BNE.B   _SKIP_A_PRESS ; if block below is empty and block above isn't, check fails
+_H_FALL_CHECK_1:
     TST.W   (a0)+
-    BNE.B   @H_FALL_CHECK_2
+    BNE.B   _H_FALL_CHECK_2
     TST.W   2(a5)
-    BNE.B   @SKIP_A_PRESS
-@H_FALL_CHECK_2:
+    BNE.B   _SKIP_A_PRESS
+_H_FALL_CHECK_2:
     ; do not allow swap if either block is junk
     TST.B   1(a5)
-    BNE.B   @SKIP_A_PRESS
+    BNE.B   _SKIP_A_PRESS
     TST.B   3(a5)
-    BNE.B   @SKIP_A_PRESS
+    BNE.B   _SKIP_A_PRESS
 
     ; swap the blocks, unless they are both empty
     MOVE.L  (a5), d2
-    BEQ.B   @SKIP_A_PRESS
+    BEQ.B   _SKIP_A_PRESS
     SWAP    d2
     MOVE.L  d2, (a5)
     JSR     SWAP_BLOCKS_H
@@ -232,28 +232,28 @@ PLAYER_ACTIONS:
 
     ; check for matches at swapped blocks
     TST.W   (a5)
-    BEQ.B   @SKIP_CHECK_A_1
+    BEQ.B   _SKIP_CHECK_A_1
     MOVE.L  a5, a0
     JSR     CHECK_MATCH
-@SKIP_CHECK_A_1:
+_SKIP_CHECK_A_1:
     MOVE.L  a5, a0
     ADDA.W  #2, a0
     TST.W   (a0)
-    BEQ.B   @SKIP_CHECK_A_2
+    BEQ.B   _SKIP_CHECK_A_2
     ADDQ.W  #1, d3
     JSR     CHECK_MATCH
-@SKIP_CHECK_A_2:
+_SKIP_CHECK_A_2:
 
     ; if no score was gained after the move, reset combo
     CMP.L   (SCORE_BIN_OFF, a2), d6
-    BNE.B   @SKIP_A_PRESS
+    BNE.B   _SKIP_A_PRESS
     MOVE.W  #1, (COMBO_OFF, a2)
 
-@SKIP_A_PRESS:
+_SKIP_A_PRESS:
 
     ; if B pressed, swap veritcally
     BTST    #BUTTON_B, d1
-    BEQ.B   @SKIP_B_PRESS
+    BEQ.B   _SKIP_B_PRESS
 
     ; get cursor pos, convert to RAM offset
     MOVE.W  (CURSOR_X_OFF, a2), d0 ; horizontal position
@@ -261,9 +261,9 @@ PLAYER_ACTIONS:
     ; get vertical pos
     MOVE.W  (CURSOR_Y_OFF, a2), d2
     ; if cursor is at top, move it down by 1
-    BNE     @B_PRESS_NO_ADD
+    BNE     _B_PRESS_NO_ADD
     ADDQ    #1, d2
-@B_PRESS_NO_ADD:
+_B_PRESS_NO_ADD:
     ; save vertical pos
     MOVE.W  d2, d4
     
@@ -283,15 +283,15 @@ PLAYER_ACTIONS:
 
     ; don't allow a vertical swap involving a space
     TST.W   (a5)
-    BEQ.B   @SKIP_B_PRESS
+    BEQ.B   _SKIP_B_PRESS
     TST.W   (a6)
-    BEQ.B   @SKIP_B_PRESS
+    BEQ.B   _SKIP_B_PRESS
 
     ; don't allow swapping junk
     TST.B   1(a5)
-    BNE.B   @SKIP_B_PRESS
+    BNE.B   _SKIP_B_PRESS
     TST.B   1(a6)
-    BNE.B   @SKIP_B_PRESS
+    BNE.B   _SKIP_B_PRESS
 
     ; swap the blocks
     MOVE.W  (a5), d2
@@ -304,30 +304,30 @@ PLAYER_ACTIONS:
 
     ; check for matches at swapped blocks
     TST.W   (a5)
-    BEQ.B   @SKIP_CHECK_B_1
+    BEQ.B   _SKIP_CHECK_B_1
     MOVE.L  a5, a0
     JSR     CHECK_MATCH
-@SKIP_CHECK_B_1:
+_SKIP_CHECK_B_1:
     TST.W   (a6)
-    BEQ.B   @SKIP_CHECK_B_2
+    BEQ.B   _SKIP_CHECK_B_2
     MOVE.L  a6, a0
     SUBQ.W  #1, d4
     JSR     CHECK_MATCH
-@SKIP_CHECK_B_2:
+_SKIP_CHECK_B_2:
 
     ; if score is unchanged, reset combo
     CMP.L   (SCORE_BIN_OFF, a2), d6
-    BNE.B   @SKIP_B_PRESS
+    BNE.B   _SKIP_B_PRESS
     MOVE.W  #1, (COMBO_OFF, a2)
 
-@SKIP_B_PRESS:
+_SKIP_B_PRESS:
 
     ; if C button pressed, use a bomb
     BTST    #BUTTON_C, d1
-    BEQ.B   @SKIP_C_PRESS
+    BEQ.B   _SKIP_C_PRESS
     ; don't allow using a bomb when player has zero
     TST.W   (BOMBS_OFF, a2)
-    BEQ.B   @SKIP_C_PRESS
+    BEQ.B   _SKIP_C_PRESS
     JSR     DROP_BOMB
     ; SUBQ.W  #1, (BOMBS_OFF, a2)
     MOVE.B  (BOMBS_OFF+1, a2), d0
@@ -335,7 +335,7 @@ PLAYER_ACTIONS:
     MOVE.W  #0, CCR ; reset flags so no erroneous extend bit
     SBCD    d1, d0
     MOVE.B  d0, (BOMBS_OFF+1, a2)
-@SKIP_C_PRESS:
+_SKIP_C_PRESS:
 
     POP     a5-a6
     RTS
@@ -364,38 +364,38 @@ UPDATE_PHYSICS:
     MOVEQ   #BOARD_HEIGHT-1, d4
 
     ; we will iterate every row except the top
-@UPDATE_BLOCK_LOOP:
+_UPDATE_BLOCK_LOOP:
     SUBA.W  #2, a1
     SUBA.W  #2, a0
 
     ; if (a1) is junk, call subroutine to move it
     TST.B   1(a1)
-    BEQ.B   @UPDATE_NOT_JUNK
+    BEQ.B   _UPDATE_NOT_JUNK
     ; don't update junk during its shatter animation
     BTST.B  #SHATTER_FLAG_B, (a1)
-    BNE.B   @UPDATE_BLOCK_STEP
+    BNE.B   _UPDATE_BLOCK_STEP
     BSR     UPDATE_JUNK
-    BRA.B   @UPDATE_BLOCK_STEP
-@UPDATE_NOT_JUNK:
+    BRA.B   _UPDATE_BLOCK_STEP
+_UPDATE_NOT_JUNK:
     TST.W   (a0)
     ; if (a0) not empty, (a1) can't move down
-    BNE.B   @UPDATE_BLOCK_STEP
+    BNE.B   _UPDATE_BLOCK_STEP
 
     TST.W   (a1)
     ; if (a1) is empty, skip moving it down
-    BEQ.B   @UPDATE_BLOCK_STEP
+    BEQ.B   _UPDATE_BLOCK_STEP
 
     ; move (a1) downwards
     MOVE.W  (a1), (a0)
     CLR.W   (a1)
     JSR     SWAP_BLOCKS_V
 
-@UPDATE_BLOCK_STEP:
+_UPDATE_BLOCK_STEP:
     SUBQ.W  #1, d3
-    BGE.B   @UPDATE_BLOCK_LOOP
+    BGE.B   _UPDATE_BLOCK_LOOP
     MOVEQ   #BOARD_WIDTH-1, d3
     SUBQ.W  #1, d4
-    BGT.B   @UPDATE_BLOCK_LOOP
+    BGT.B   _UPDATE_BLOCK_LOOP
 
     POP     a1
     RTS
@@ -420,28 +420,28 @@ CLEAR_BLOCKS:
     MOVEQ   #BOARD_HEIGHT-1, d5
     MOVEQ   #0, d3
     MOVEQ   #0, d4
-@CLEAR_ROWS_LOOP:
+_CLEAR_ROWS_LOOP:
     ; get 2 rows
     MOVE.W  (a0), d1
     CLR.W   (a0)+
     ; start at x = 0
     MOVEQ   #0, d2
-@CLEAR_BLOCK_LOOP:
+_CLEAR_BLOCK_LOOP:
     BTST    d2, d1
-    BEQ     @CLEAR_BLOCK_STEP
+    BEQ     _CLEAR_BLOCK_STEP
     MOVE.W  (a1), d0
     MOVE.W  #0, (a1)
     JSR     ERASE_BLOCK
     JSR     SPAWN_DEBRIS
-@CLEAR_BLOCK_STEP:
+_CLEAR_BLOCK_STEP:
     ADDA.W  #2, a1
     ADDQ    #1, d2
     ADDQ    #1, d3
     CMPI.W  #BOARD_WIDTH, d2
-    BLT     @CLEAR_BLOCK_LOOP
+    BLT     _CLEAR_BLOCK_LOOP
     ADDQ    #1, d4
     MOVEQ   #0, d3
-    DBRA    d5, @CLEAR_ROWS_LOOP
+    DBRA    d5, _CLEAR_ROWS_LOOP
 
     POP     a0-a1/d0-d5
     RTS
@@ -467,23 +467,23 @@ SHATTER_ANIM:
     MOVEQ   #BOARD_WIDTH-1, d3
     MOVEQ   #BOARD_HEIGHT-1, d4
 
-@SHATTER_LOOP:
+_SHATTER_LOOP:
     MOVE.W  -(a3), d0
     ; if block is not junk, skip it
     TST.B   d0
-    BEQ.B   @SHATTER_STEP
+    BEQ.B   _SHATTER_STEP
     ; if block is not shattering, skip it
     BTST    #SHATTER_FLAG_W, d0
-    BEQ.B   @SHATTER_STEP
+    BEQ.B   _SHATTER_STEP
     ; if block is shattering, count down
     SUBQ.B  #1, d0
     ; if timer reaches zero, replace with block
-    BEQ.B   @SHATTER_REPLACE
+    BEQ.B   _SHATTER_REPLACE
     ; otherwise, store it and move on
     MOVE.W  d0, (a3)
-    BRA.B   @SHATTER_STEP
+    BRA.B   _SHATTER_STEP
 
-@SHATTER_REPLACE:
+_SHATTER_REPLACE:
     ; replace the junk block with a new block
     JSR     RAND
     BSET    #14, d0     ; set N
@@ -491,10 +491,10 @@ SHATTER_ANIM:
     MOVE.W  d0, (a3)    ; store in board data
     JSR     PLACE_BLOCK ; place block in screen buffer
 
-@SHATTER_STEP:
-    DBRA    d3, @SHATTER_LOOP
+_SHATTER_STEP:
+    DBRA    d3, _SHATTER_LOOP
     MOVEQ   #BOARD_WIDTH-1, d3
-    DBRA    d4, @SHATTER_LOOP
+    DBRA    d4, _SHATTER_LOOP
 
     POP     a3
     RTS
@@ -535,20 +535,20 @@ DROP_BOMB:
 
     ; clear 3 rows of 3
     MOVEQ   #2, d5
-@BOMB_ROW_LOOP:
+_BOMB_ROW_LOOP:
     MOVEQ   #2, d6
-@BOMB_BLOCK_LOOP:
-    BSR.B   @BOMB_BLOCK_EFFECT
+_BOMB_BLOCK_LOOP:
+    BSR.B   _BOMB_BLOCK_EFFECT
 
     ; advance to next block
     ADDQ.W  #2, a0
     ADDQ.W  #1, d3
-    DBRA    d6, @BOMB_BLOCK_LOOP
+    DBRA    d6, _BOMB_BLOCK_LOOP
     ; advance to the next row
     ADDA.W  #BOARD_WIDTH*2-6, a0
     SUBQ.W  #3, d3
     ADDQ.W  #1, d4
-    DBRA    d5, @BOMB_ROW_LOOP
+    DBRA    d5, _BOMB_ROW_LOOP
 
     ; now delete 2 blocks left, right, up and down
     ; currently, pointed 1 row below the 3x3, at the left
@@ -556,59 +556,59 @@ DROP_BOMB:
     ; destroy bottom
     ADDQ.W  #1, d3
     ADDQ.W  #2, a0
-    BSR.B   @BOMB_BLOCK_EFFECT
+    BSR.B   _BOMB_BLOCK_EFFECT
     ; right
     ADDQ.W  #2, d3
     SUBQ.W  #2, d4
     SUBA.W  #BOARD_WIDTH*4-4, a0
-    BSR.B   @BOMB_BLOCK_EFFECT
+    BSR.B   _BOMB_BLOCK_EFFECT
     ; left
     SUBQ.W  #4, d3
     SUBQ.W  #8, a0
-    BSR.B   @BOMB_BLOCK_EFFECT
+    BSR.B   _BOMB_BLOCK_EFFECT
     ; top
     ADDQ.W  #2, d3
     SUBQ.W  #2, d4
     SUBA.W  #BOARD_WIDTH*4-4, a0
-    BSR.B   @BOMB_BLOCK_EFFECT
+    BSR.B   _BOMB_BLOCK_EFFECT
 
     POP     a0/d0-d6
     RTS
 
 ; ========================================
-; @BOMB_BLOCK_EFFECT
+; _BOMB_BLOCK_EFFECT
 ; ----------------------------------------
 ; Helper for DROP_BOMB, which processes
 ; the effects of a bomb destroying a block
 ; ========================================
-@BOMB_BLOCK_EFFECT:
+_BOMB_BLOCK_EFFECT:
     ; ensure we are in bounds
     TST.W   d3
-    BLT.B   @BOMB_BLOCK_RET
+    BLT.B   _BOMB_BLOCK_RET
     TST.W   d4
-    BLT.B   @BOMB_BLOCK_RET
+    BLT.B   _BOMB_BLOCK_RET
     CMP.W   #BOARD_WIDTH, d3
-    BGE.B   @BOMB_BLOCK_RET
+    BGE.B   _BOMB_BLOCK_RET
     CMP.W   #BOARD_HEIGHT, d4
-    BGE.B   @BOMB_BLOCK_RET
+    BGE.B   _BOMB_BLOCK_RET
 
     MOVE.W  (a0), d0
     ; if it is empty, skip
-    BEQ.B   @BOMB_BLOCK_RET
+    BEQ.B   _BOMB_BLOCK_RET
     ; if it is non-shattering junk, shatter it before deleting
     BTST    #SHATTER_FLAG_W, d0
-    BNE.B   @BOMB_BLOCK_DELETE
+    BNE.B   _BOMB_BLOCK_DELETE
     TST.B   d0
-    BEQ.B   @BOMB_BLOCK_DELETE
+    BEQ.B   _BOMB_BLOCK_DELETE
     JSR     SHATTER_JUNK
-@BOMB_BLOCK_DELETE:
+_BOMB_BLOCK_DELETE:
     ; delete from board data
     CLR.W   (a0)
     ; erase from screen buffer
     JSR     ERASE_BLOCK
     ; for non-junk, non-empty blocks, spawn debris
     TST.B   d0
-    BNE.B   @BOMB_BLOCK_RET
+    BNE.B   _BOMB_BLOCK_RET
     JSR     SPAWN_DEBRIS
-@BOMB_BLOCK_RET:
+_BOMB_BLOCK_RET:
     RTS

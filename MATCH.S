@@ -25,28 +25,28 @@ CHECK_ALL_MATCHES:
     MOVE.L  a2, a4
     ADDA.W  #TO_CLEAR_OFF, a4 ; a4 -> TO_CLEAR flags
     MOVEQ   #0, d4  ; y = 0
-@CHECK_H_ROW:
+_CHECK_H_ROW:
         MOVEQ   #0, d3  ; x = 0
         MOVEQ   #0, d6  ; number of blocks in current match = 0
         MOVE.W  (a4), d5 ; d5 := this row's TO_CLEAR flags
         MOVEQ   #0, d0  ; d0 will hold current block
-@CHECK_H_BLOCK:
+_CHECK_H_BLOCK:
             CMP.W   (a0)+, d0
-            BNE.B   @RESET_H_MATCH
+            BNE.B   _RESET_H_MATCH
             ; block was equal to one stored in d0:
             ADDQ.W  #1, d6
-            BRA.B   @CHECK_H_B_STEP
-@RESET_H_MATCH:
+            BRA.B   _CHECK_H_B_STEP
+_RESET_H_MATCH:
             ; block was not equal to d0:
             ; don't match empty blocks
             TST.W   d0
-            BEQ.B   @SKIP_H_MATCH
+            BEQ.B   _SKIP_H_MATCH
             ; don't match junk blocks
             TST.B   d0
-            BNE.B   @SKIP_H_MATCH
+            BNE.B   _SKIP_H_MATCH
             ; don't allow matches smaller than 3 blocks
             CMP.W   #2, d6  ; (counting starts at 0)
-            BLT.B   @SKIP_H_MATCH
+            BLT.B   _SKIP_H_MATCH
             ; if it's a match:
             ; award points
             JSR     ADD_MATCH_SCORE
@@ -56,36 +56,36 @@ CHECK_ALL_MATCHES:
             JSR     SPAWN_COMBO_NUM
             ; set TO_CLEAR flags
             MOVE.W  d3, d7
-@H_TO_CLEAR:
+_H_TO_CLEAR:
                 SUBQ.W  #1, d7
                 BSET    d7, d5
-                DBRA    d6, @H_TO_CLEAR
+                DBRA    d6, _H_TO_CLEAR
 
             ; increase combo
             CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
-            BGE.B   @SKIP_H_MATCH
+            BGE.B   _SKIP_H_MATCH
             ADDQ.W  #1, (COMBO_OFF, a2)
 
-@SKIP_H_MATCH:
+_SKIP_H_MATCH:
             MOVEQ   #0, d6  ; number of blocks in current match = 0
             ; update block stored in d0
             MOVE.W  -(a0), d0
             ADDQ.W  #2, a0
 
-@CHECK_H_B_STEP:
+_CHECK_H_B_STEP:
             ADDQ.W  #1, d3  ; x += 1
             CMP.W   #BOARD_WIDTH, d3
-            BLT.B   @CHECK_H_BLOCK
+            BLT.B   _CHECK_H_BLOCK
 
         ; at end of row, check for match involving rightmost block
         CMP.W   #2, d6
-        BLT.B   @CHECK_H_R_STEP
+        BLT.B   _CHECK_H_R_STEP
         ; don't match empty blocks
         TST.W   d0
-        BEQ.B   @CHECK_H_R_STEP
+        BEQ.B   _CHECK_H_R_STEP
         ; don't match junk
         TST.B   d0
-        BNE.B   @CHECK_H_R_STEP
+        BNE.B   _CHECK_H_R_STEP
         ; if it's a match:
         ; award points
         JSR     ADD_MATCH_SCORE
@@ -95,27 +95,27 @@ CHECK_ALL_MATCHES:
         JSR     SPAWN_COMBO_NUM
         ; set TO_CLEAR flags
         MOVE.W  d3, d7
-@H_LAST_CLEAR:
+_H_LAST_CLEAR:
             SUBQ.W  #1, d7
             BSET    d7, d5
-            DBRA    d6, @H_LAST_CLEAR
+            DBRA    d6, _H_LAST_CLEAR
 
         ; increase combo
         CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
-        BGE.B   @CHECK_H_R_STEP
+        BGE.B   _CHECK_H_R_STEP
         ADDQ.W  #1, (COMBO_OFF, a2)
 
-@CHECK_H_R_STEP:
+_CHECK_H_R_STEP:
         MOVE.W  d5, (a4)+ ; save TO_CLEAR flags
         ADDQ.W  #1, d4  ; y += 1
         CMP.W   #BOARD_HEIGHT, d4
-        BLT.W   @CHECK_H_ROW
+        BLT.W   _CHECK_H_ROW
 
     ; **********************
     ; check vertical matches
     ; **********************
     MOVEQ   #0, d3  ; x = 0
-@CHECK_V_COL:
+_CHECK_V_COL:
         MOVE.L  a1, a0  ; a0 -> game board
         ADDA.W  d3, a0
         ADDA.W  d3, a0  ; a0 -> top of current column
@@ -124,23 +124,23 @@ CHECK_ALL_MATCHES:
         MOVEQ   #0, d4  ; y = 0
         MOVEQ   #0, d6  ; number of blocks in current match = 0
         MOVEQ   #0, d0  ; d0 will hold current block
-@CHECK_V_BLOCK:
+_CHECK_V_BLOCK:
             CMP.W   (a0), d0
-            BNE.B   @RESET_V_MATCH
+            BNE.B   _RESET_V_MATCH
             ; block was equal to one stored in d0:
             ADDQ.W  #1, d6
-            BRA.B   @CHECK_V_B_STEP
-@RESET_V_MATCH:
+            BRA.B   _CHECK_V_B_STEP
+_RESET_V_MATCH:
             ; block was not equal to d0:
             ; don't match empty blocks
             TST.W   d0
-            BEQ.B   @SKIP_V_MATCH
+            BEQ.B   _SKIP_V_MATCH
             ; don' match junk
             TST.B   d0
-            BNE.B   @SKIP_V_MATCH
+            BNE.B   _SKIP_V_MATCH
             ; don't allow matches smaller than 3 blocks
             CMP.W   #2, d6
-            BLT.B   @SKIP_V_MATCH
+            BLT.B   _SKIP_V_MATCH
             ; if it's a match:
             ; award points
             JSR     ADD_MATCH_SCORE
@@ -150,39 +150,39 @@ CHECK_ALL_MATCHES:
             JSR     SPAWN_COMBO_NUM
             ; set TO_CLEAR flags
             MOVE.L  a4, a5
-@V_TO_CLEAR:
+_V_TO_CLEAR:
                 MOVE.W  -(a5), d1
                 BSET    d3, d1
                 MOVE.W  d1, (a5)
-                DBRA    d6, @V_TO_CLEAR
+                DBRA    d6, _V_TO_CLEAR
             
             ; increase combo
             CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
-            BGE.B   @SKIP_V_MATCH
+            BGE.B   _SKIP_V_MATCH
             ADDQ.W  #1, (COMBO_OFF, a2)
 
-@SKIP_V_MATCH:
+_SKIP_V_MATCH:
             MOVEQ   #0, d6
             ; update block stored in d0
             MOVE.W  (a0), d0
 
-@CHECK_V_B_STEP:
+_CHECK_V_B_STEP:
             ; move down by one row:
             ADDQ.W  #1, d4  ; y position
             ADDA.W  #BOARD_WIDTH*2, a0  ; pointer to block
             ADDQ.W  #2, a4  ; TO_CLEAR flags
             CMP.W   #BOARD_HEIGHT, d4
-            BLT.B   @CHECK_V_BLOCK
+            BLT.B   _CHECK_V_BLOCK
         
         ; at the end of a column, check for match involving bottom block
         CMP.W   #2, d6
-        BLT.B   @CHECK_V_C_STEP
+        BLT.B   _CHECK_V_C_STEP
         ; don't match empty blocks
         TST.W   d0
-        BEQ.B   @CHECK_V_C_STEP
+        BEQ.B   _CHECK_V_C_STEP
         ; don't match junk
         TST.B   d0
-        BNE.B   @CHECK_V_C_STEP
+        BNE.B   _CHECK_V_C_STEP
         ; if it's a match:
         ; award points
         JSR     ADD_MATCH_SCORE
@@ -192,21 +192,21 @@ CHECK_ALL_MATCHES:
         JSR     SPAWN_COMBO_NUM
         ; set TO_CLEAR flags
         MOVE.L  a4, a5
-@V_LAST_CLEAR:
+_V_LAST_CLEAR:
             MOVE.W  -(a5), d1
             BSET    d3, d1
             MOVE.W  d1, (a5)
-            DBRA    d6, @V_LAST_CLEAR
+            DBRA    d6, _V_LAST_CLEAR
         
         ; increase combo
         CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
-        BGE.B   @CHECK_V_C_STEP
+        BGE.B   _CHECK_V_C_STEP
         ADDQ.W  #1, (COMBO_OFF, a2)
 
-@CHECK_V_C_STEP:
+_CHECK_V_C_STEP:
         ADDQ.W  #1, d3  ; x += 1
         CMP.W   #BOARD_WIDTH, d3
-        BLT.W   @CHECK_V_COL
+        BLT.W   _CHECK_V_COL
 
     POP     a4-a5
     RTS
@@ -243,44 +243,44 @@ CHECK_MATCH:
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
     ;; if piece is junk, it can't be matched, so return
     ;TST.B   d0
-    ;BNE.W   @CHECK_MATCH_RET
+    ;BNE.W   _CHECK_MATCH_RET
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
     MOVE.W  d3, d1
     MOVEQ   #0, d2      ; so we don't break the loop instantly
-    BRA.B   @CHECK_LEFT_STEP
-@CHECK_LEFT_LOOP:
+    BRA.B   _CHECK_LEFT_STEP
+_CHECK_LEFT_LOOP:
     CMP.W   -(a1), d0
-@CHECK_LEFT_STEP:
-    DBNE    d1, @CHECK_LEFT_LOOP
+_CHECK_LEFT_STEP:
+    DBNE    d1, _CHECK_LEFT_LOOP
     ; if we exitted the loop due to the count, (a1) matches d0.
     ; if we exitted due to the NE condition, (a1 + 2) matches d0, but (a1) doesn't.
-    BEQ.B   @CHECK_LEFT_DONE
+    BEQ.B   _CHECK_LEFT_DONE
     ADDA.W  #2, a1
-@CHECK_LEFT_DONE:
+_CHECK_LEFT_DONE:
     
     ; move a3 to the right until (a3) != d0, don't go further right than the board
     MOVE.W  #BOARD_WIDTH, d1
     SUB.W   d3, d1
     SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
     MOVEQ   #0, d2  ; so we don't break the loop instantly
-    BRA.B   @CHECK_RIGHT_STEP
-@CHECK_RIGHT_LOOP:
+    BRA.B   _CHECK_RIGHT_STEP
+_CHECK_RIGHT_LOOP:
     CMP.W   (a3)+, d0
-@CHECK_RIGHT_STEP:
-    DBNE    d1, @CHECK_RIGHT_LOOP
+_CHECK_RIGHT_STEP:
+    DBNE    d1, _CHECK_RIGHT_LOOP
     ; if we exitted the loop due to the count, (a3 - 2) matches d0.
     ; if we exitted due to the NE condition, (a3 - 4) matches d0, but (a3 - 2) doesn't.
-    BEQ.B   @CHECK_RIGHT_DONE
+    BEQ.B   _CHECK_RIGHT_DONE
     SUBA.W  #2, a3
-@CHECK_RIGHT_DONE:
+_CHECK_RIGHT_DONE:
     SUBA.W  #2, a3
 
     ; if a3 - a1 >= 4, we have a match
     MOVE.W  a3, d1
     SUB.W   a1, d1
     CMPI.W  #4, d1
-    BLT     @NO_H_MATCH
+    BLT     _NO_H_MATCH
     
     ; clear the blocks
     ; >= 4 words is >= 2 blocks of space, >= 2+1 blocks to clear
@@ -301,21 +301,21 @@ CHECK_MATCH:
     ; unmatched block is included in the match
     MOVEQ   #0, d6
 
-@H_CLEAR_LOOP:
+_H_CLEAR_LOOP:
     BSET    d2, d5
     ; if bit was previously unset, set d6 to TRUE
-    BNE.B   @NOT_NEW_H_BLOCK
+    BNE.B   _NOT_NEW_H_BLOCK
     MOVEQ   #-1, d6
-@NOT_NEW_H_BLOCK:
+_NOT_NEW_H_BLOCK:
     ADDQ    #1, d2
-    DBRA    d1, @H_CLEAR_LOOP
+    DBRA    d1, _H_CLEAR_LOOP
 
     ; store updated TO_CLEAR flags
     MOVE.W  d5, (a4)
     ; if match contained any previously-unmatched
     ; blocks, increase player's combo and award points
     TST.W   d6
-    BEQ.B   @NO_H_MATCH
+    BEQ.B   _NO_H_MATCH
     ; award points
     JSR     ADD_MATCH_SCORE
     ; spawn projectile
@@ -325,10 +325,10 @@ CHECK_MATCH:
     JSR     SPAWN_COMBO_NUM
     ; if combo isn't maxed, increase it
     CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
-    BGE.B   @NO_H_MATCH
+    BGE.B   _NO_H_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
 
-@NO_H_MATCH:
+_NO_H_MATCH:
 
     ; same as above, but vertical
     MOVE.L  a0, a1
@@ -338,16 +338,16 @@ CHECK_MATCH:
     ; move a1 up until (a1) != d0, but don't go above the top of the board
     MOVE.W  d4, d1
     MOVE.W  #0, d2
-    BRA     @CHECK_UP_STEP
-@CHECK_UP_LOOP:
+    BRA     _CHECK_UP_STEP
+_CHECK_UP_LOOP:
     SUBA.W  #BOARD_WIDTH*2, a1
     CMP.W   (a1), d0
-@CHECK_UP_STEP:
-    DBNE    d1, @CHECK_UP_LOOP
+_CHECK_UP_STEP:
+    DBNE    d1, _CHECK_UP_LOOP
     ; if we exitted due to NE, go back down a row
-    BEQ.B   @CHECK_UP_DONE
+    BEQ.B   _CHECK_UP_DONE
     ADDA.W  #BOARD_WIDTH*2, a1
-@CHECK_UP_DONE:
+_CHECK_UP_DONE:
     ; save Y position of top block to d5
     MOVE.W  d1, d5
     ; if we exitted due to NE, top block is 1 down
@@ -359,22 +359,22 @@ CHECK_MATCH:
     SUB.W   d4, d1
     SUBQ    #1, d1
     MOVE.W  #0, d2
-    BRA     @CHECK_DOWN_STEP
-@CHECK_DOWN_LOOP:
+    BRA     _CHECK_DOWN_STEP
+_CHECK_DOWN_LOOP:
     ADDA.W  #BOARD_WIDTH*2, a3
     CMP.W   (a3), d0
-@CHECK_DOWN_STEP:
-    DBNE    d1, @CHECK_DOWN_LOOP
+_CHECK_DOWN_STEP:
+    DBNE    d1, _CHECK_DOWN_LOOP
     ; if we exitted due to NE, go up a row
-    BEQ     @CHECK_DOWN_DONE
+    BEQ     _CHECK_DOWN_DONE
     SUBA.W  #BOARD_WIDTH*2, a3
-@CHECK_DOWN_DONE:
+_CHECK_DOWN_DONE:
 
     ; if a3 - a1 >= BOARD_WIDTH*4, we have a match
     MOVE.W  a3, d1
     SUB.W   a1, d1
     CMPI.W  #BOARD_WIDTH*4, d1
-    BLT     @NO_V_MATCH
+    BLT     _NO_V_MATCH
 
     ; clear the blocks
     MOVE.L  a2, a4
@@ -388,21 +388,21 @@ CHECK_MATCH:
     ; unmatched block is included in the match
     MOVEQ   #0, d6
 
-@V_CLEAR_LOOP:
+_V_CLEAR_LOOP:
     MOVE.W  (a4), d5    ; d5 := current row in TO_CLEAR
     BSET    d3, d5      ; set bit representing x position of match
     ; if bit was previously unset, set d6 to TRUE
-    BNE.B   @NOT_NEW_V_BLOCK
+    BNE.B   _NOT_NEW_V_BLOCK
     MOVEQ   #-1, d6
-@NOT_NEW_V_BLOCK:
+_NOT_NEW_V_BLOCK:
     MOVE.W  d5, (a4)+   ; store updated flags
     SUB.W   #BOARD_WIDTH, d1
-    BGT.B   @V_CLEAR_LOOP
+    BGT.B   _V_CLEAR_LOOP
 
     ; if match contained any previously-unmatched
     ; blocks, increase player's combo and award points
     TST.W   d6
-    BEQ.B   @NO_V_MATCH
+    BEQ.B   _NO_V_MATCH
     ; award points
     JSR     ADD_MATCH_SCORE
     ; spawn projectile
@@ -412,10 +412,10 @@ CHECK_MATCH:
     JSR     SPAWN_COMBO_NUM
     ; if combo isn't maxed, increase it
     CMPI.W  #MAX_COMBO, (COMBO_OFF, a2)
-    BGE.B   @NO_V_MATCH
+    BGE.B   _NO_V_MATCH
     ADDQ.W  #1, (COMBO_OFF, a2)
 
-@NO_V_MATCH:
-@CHECK_MATCH_RET:
+_NO_V_MATCH:
+_CHECK_MATCH_RET:
     POP     a1/a3-a4/d0-d6
     RTS

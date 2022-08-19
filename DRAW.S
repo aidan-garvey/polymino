@@ -27,11 +27,11 @@ DRAW_CURSOR:
     
     ; get vertical position
     MOVE.W  (CURSOR_Y_OFF, a2), d0
-    BEQ     @CURSOR_NO_V_SUB
+    BEQ     _CURSOR_NO_V_SUB
     ; if cursor not at top, don't vflip, decrease sprite's y
     SUBQ    #1, d0
     ANDI.W  #$EFFF, d1  ; vflip = 0
-@CURSOR_NO_V_SUB:
+_CURSOR_NO_V_SUB:
     ; multiply by 8 since each cell is 8 pixels high
     ASL.W   #3, d0
     ; add offset to move into display area
@@ -44,10 +44,10 @@ DRAW_CURSOR:
     ; horizontal position
     MOVE.W  (CURSOR_X_OFF, a2), d0
     CMPI.W  #BOARD_WIDTH-1, d0
-    BNE     @CURSOR_NO_H_SUB
+    BNE     _CURSOR_NO_H_SUB
     SUBQ    #1, d0
     ORI.W   #$0800, d1  ; hflip = 1
-@CURSOR_NO_H_SUB:
+_CURSOR_NO_H_SUB:
     ; we now have enough info for 3rd write
     MOVE.W  d1, (a0)+
     ; multiply by 8
@@ -56,9 +56,9 @@ DRAW_CURSOR:
     ADD.W   #$C8, d0
     ; little cheat: if a5 pointing to P2_SPRITE, add additional h offset
     CMPA.L  #P2_SPRITE, a5
-    BNE     @WRITE_H_POS
+    BNE     _WRITE_H_POS
     ADD.W   #$60, d0
-@WRITE_H_POS:
+_WRITE_H_POS:
     MOVE.W  d0, (a0)
 
     RTS
@@ -93,7 +93,7 @@ DRAW_SCORE:
     JSR     CopyCharRAM
 
     MOVEQ   #2, d3
-@DRAW_SCORE_LOOP:
+_DRAW_SCORE_LOOP:
     MOVE.B  (a3)+, d1
     LSL.W   #5, d1
     MOVE.W  d1, d2
@@ -108,7 +108,7 @@ DRAW_SCORE:
     ADDA.W  d1, a0
     JSR     CopyCharRAM
 
-    DBRA    d3, @DRAW_SCORE_LOOP
+    DBRA    d3, _DRAW_SCORE_LOOP
 
     POP     a1/a3
     RTS
@@ -321,9 +321,9 @@ CLEAR_UI_NEXT:
 
     LEA.L   P_NEXT_POS_1, a0
     CMP.L   #GAME_STATE_1, a2
-    BEQ.B   @CLEAR_UI_P1
+    BEQ.B   _CLEAR_UI_P1
     LEA.L   P_NEXT_POS_2, a0
-@CLEAR_UI_P1:
+_CLEAR_UI_P1:
     CLR.L   (a0)+
     CLR.L   (a0)+
     ADDA.W  #120, a0
@@ -393,58 +393,58 @@ DRAW_JUNK_OUTLINE:
         ; write (4 - width) blank chars
         ; increment a3, check if we've looped d1 times
 
-@OUTLN_COL_LOOP:
+_OUTLN_COL_LOOP:
     MOVEA.L a3, a4
     MOVE.W  d4, d2  ; d2 will be a loop counter
     SUBQ.W  #1, d2
 
-@OUTLN_BLOCK_LOOP:
+_OUTLN_BLOCK_LOOP:
     MOVE.B  (a4), d0
-    BLT.B   @EMPTY_BLOCK    ; -1 == space
+    BLT.B   _EMPTY_BLOCK    ; -1 == space
     CMPI.B  #8, d0
-    BGE.B   @EMPTY_BLOCK    ; middle blocks and inner corners don't appear in outlines
+    BGE.B   _EMPTY_BLOCK    ; middle blocks and inner corners don't appear in outlines
     LEA.L   OUTLINE_CHARS, a0
     EXT.W   d0
     LSL.W   #5, d0  ; multiply by 32 to get character offset
     ADDA.W  d0, a0  ; a0 -> junk outline character
     ; copy the outline character to the buffer
     JSR     CopyCharRAM
-    BRA.B   @OUTLN_BLOCK_STEP
+    BRA.B   _OUTLN_BLOCK_STEP
 
-@EMPTY_BLOCK:
+_EMPTY_BLOCK:
     JSR     ClearCharRAM
 
-@OUTLN_BLOCK_STEP:
+_OUTLN_BLOCK_STEP:
     ADDA.W  d3, a4  ; move a4 1 row down
-    DBRA    d2, @OUTLN_BLOCK_LOOP
+    DBRA    d2, _OUTLN_BLOCK_LOOP
 
     ; after copying the column, we need to fill the
     ; remainder of the 4 chars per column with spaces
     MOVEQ   #4, d2
     SUB.W   d4, d2
-    BRA.B   @OUTLN_SPACE_STEP
+    BRA.B   _OUTLN_SPACE_STEP
 
-@OUTLN_SPACE_LOOP:
+_OUTLN_SPACE_LOOP:
     JSR     ClearCharRAM
 
-@OUTLN_SPACE_STEP:
-    DBRA    d2, @OUTLN_SPACE_LOOP
+_OUTLN_SPACE_STEP:
+    DBRA    d2, _OUTLN_SPACE_LOOP
 
-@OUTLN_COL_STEP:
+_OUTLN_COL_STEP:
     ADDQ.W  #1, a3
-    DBRA    d1, @OUTLN_COL_LOOP
+    DBRA    d1, _OUTLN_COL_LOOP
 
     ; if the width was less than 4, we need to copy blank columns
     MOVEQ   #4, d1
     SUB.W   d3, d1
-    BRA.B   @EMPTY_COL_STEP
-@EMPTY_COL_LOOP:
+    BRA.B   _EMPTY_COL_STEP
+_EMPTY_COL_LOOP:
     JSR     ClearCharRAM
     JSR     ClearCharRAM
     JSR     ClearCharRAM
     JSR     ClearCharRAM
-@EMPTY_COL_STEP:
-    DBRA    d1, @EMPTY_COL_LOOP
+_EMPTY_COL_STEP:
+    DBRA    d1, _EMPTY_COL_LOOP
 
     POP     a1/a3-a4
     RTS

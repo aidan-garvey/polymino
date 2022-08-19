@@ -25,13 +25,13 @@ DRAW_STRING:
     ADD.W   d3, d4
     ADDA.W  d4, a1
 
-@DRAW_STRING_LOOP:
+_DRAW_STRING_LOOP:
     MOVE.B  (a0)+, d0
-    BEQ.B   @DRAW_STRING_RET
+    BEQ.B   _DRAW_STRING_RET
     CMP.B   #' ', d0
-    BEQ.B   @DRAW_STRING_SPACE
+    BEQ.B   _DRAW_STRING_SPACE
     CMP.B   #'9', d0
-    BLE.B   @DRAW_STRING_DIGIT
+    BLE.B   _DRAW_STRING_DIGIT
     ; if it is a letter:
     SUB.B   #'A', d0
     EXT.W   d0
@@ -40,19 +40,19 @@ DRAW_STRING:
     LEA.L   LETTER_PATTERNS, a2
     ADDA.W  d0, a2
     MOVE.W  (a2), (a1)+
-    BRA.B   @DRAW_STRING_LOOP
-@DRAW_STRING_SPACE:
+    BRA.B   _DRAW_STRING_LOOP
+_DRAW_STRING_SPACE:
     CLR.W   (a1)+
-    BRA.B   @DRAW_STRING_LOOP
-@DRAW_STRING_DIGIT:
+    BRA.B   _DRAW_STRING_LOOP
+_DRAW_STRING_DIGIT:
     SUB.B   #'0', d0
     EXT.W   d0
     ADD.W   d0, d0
     LEA.L   DIGIT_PATTERNS, a2
     ADDA.W  d0, a2
     MOVE.W  (a2), (a1)+
-    BRA.B   @DRAW_STRING_LOOP
+    BRA.B   _DRAW_STRING_LOOP
 
-@DRAW_STRING_RET:
+_DRAW_STRING_RET:
     POP     a0-a2/d0/d3-d4
     RTS

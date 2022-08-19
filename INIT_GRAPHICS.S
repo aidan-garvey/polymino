@@ -8,9 +8,9 @@
 
 SCROLLA_FILLER:
     MOVEQ   #11, d4
-@SCROLLA_FILL_LOOP:
+_SCROLLA_FILL_LOOP:
     MOVE.L  d0, (a0)+
-    DBRA    d4, @SCROLLA_FILL_LOOP
+    DBRA    d4, _SCROLLA_FILL_LOOP
     RTS
 
 ; =================================
@@ -59,9 +59,9 @@ INIT_SCROLLA:
 
     ; row 1: 64 filler
     MOVEQ   #31, d4
-@TOP_FILLER_LOOP:
+_TOP_FILLER_LOOP:
     MOVE.L  d0, (a0)+
-    DBRA    d4, @TOP_FILLER_LOOP
+    DBRA    d4, _TOP_FILLER_LOOP
     
     ; row 2: corner, 7 edge, 3way, 10 edge, 2 corner, 10 edge,
     ;   3way, 7 edge, corner, 24 filler
@@ -78,16 +78,16 @@ INIT_SCROLLA:
     MOVE.W  d3, (a0)+
     ; 10 edge
     MOVEQ   #4, d4
-@TOP_EDGE_LOOP_1:
+_TOP_EDGE_LOOP_1:
     MOVE.L  d1, (a0)+
-    DBRA    d4, @TOP_EDGE_LOOP_1
+    DBRA    d4, _TOP_EDGE_LOOP_1
     ; tr, tl corner
     MOVE.L  d2, (a0)+
     ; 10 edge
     MOVEQ   #4, d4
-@TOP_EDGE_LOOP_2:
+_TOP_EDGE_LOOP_2:
     MOVE.L  d1, (a0)+
-    DBRA    d4, @TOP_EDGE_LOOP_2
+    DBRA    d4, _TOP_EDGE_LOOP_2
     ; 3way
     MOVE.W  d3, (a0)+
     ; 7 edge
@@ -112,7 +112,7 @@ INIT_SCROLLA:
     
     ; copy 24 rows of the horizontal layout pattern
     MOVEQ   #23, d5
-@H_LAYOUT_LOOP:
+_H_LAYOUT_LOOP:
     ; 1 left edge
     SWAP    d2
     MOVE.W  d2, (a0)+
@@ -125,16 +125,16 @@ INIT_SCROLLA:
     MOVE.W  d1, (a0)+
     ; 10 P1 board
     MOVEQ   #4, d4
-@H_LAYOUT_BOARD_1:
+_H_LAYOUT_BOARD_1:
     CLR.L   (a0)+
-    DBRA    d4, @H_LAYOUT_BOARD_1
+    DBRA    d4, _H_LAYOUT_BOARD_1
     ; 2 border
     MOVE.L  d2, (a0)+
     ; 10 P2 board
     MOVEQ   #4, d4
-@H_LAYOUT_BOARD_2:
+_H_LAYOUT_BOARD_2:
     CLR.L   (a0)+
-    DBRA    d4, @H_LAYOUT_BOARD_2
+    DBRA    d4, _H_LAYOUT_BOARD_2
     ; 1 separator
     MOVE.W  d1, (a0)+
     ; 7 P2 info
@@ -147,7 +147,7 @@ INIT_SCROLLA:
     MOVE.W  d2, (a0)+
     ; 24 filler
     BSR     SCROLLA_FILLER
-    DBRA    d5, @H_LAYOUT_LOOP
+    DBRA    d5, _H_LAYOUT_LOOP
 
     ; *****************
     ; END H_LAYOUT_LOOP
@@ -182,16 +182,16 @@ INIT_SCROLLA:
     MOVE.W  d3, (a0)+
     ; 10 edge
     MOVEQ   #4, d4
-@BOT_EDGE_LOOP_1:
+_BOT_EDGE_LOOP_1:
     MOVE.L  d1, (a0)+
-    DBRA    d4, @BOT_EDGE_LOOP_1
+    DBRA    d4, _BOT_EDGE_LOOP_1
     ; 2 corner
     MOVE.L  d2, (a0)+
     ; 10 edge
     MOVEQ   #4, d4
-@BOT_EDGE_LOOP_2:
+_BOT_EDGE_LOOP_2:
     MOVE.L  d1, (a0)+
-    DBRA    d4, @BOT_EDGE_LOOP_2
+    DBRA    d4, _BOT_EDGE_LOOP_2
     ; 3way
     MOVE.W  d3, (a0)+
     ; 7 edge
@@ -208,13 +208,13 @@ INIT_SCROLLA:
     ; copy 5 rows of filler - 64 x 5 cells
     ; 32 x 5 LONGs
     MOVEQ   #31, d4
-@BOT_FILLER_LOOP:
+_BOT_FILLER_LOOP:
     MOVE.L  d0, (a0)+
     MOVE.L  d0, (a0)+
     MOVE.L  d0, (a0)+
     MOVE.L  d0, (a0)+
     MOVE.L  d0, (a0)+
-    DBRA    d4, @BOT_FILLER_LOOP
+    DBRA    d4, _BOT_FILLER_LOOP
 
     ; transfer plane to VRAM
     MOVE.L  #BUFF_PLANE, d0
@@ -238,9 +238,9 @@ LOAD_SPRITES:
     JSR     CopyCharRAM
     ; copy a blank char
     MOVEQ   #7, d0
-@BLANK_LOOP_1:
+_BLANK_LOOP_1:
     MOVE.L  #0, (a1)+
-    DBRA    d0, @BLANK_LOOP_1
+    DBRA    d0, _BLANK_LOOP_1
     ; copy right char
     JSR     CopyCharRAM
 
@@ -250,9 +250,9 @@ LOAD_SPRITES:
     ; copy the chars for "NEXT," "SCORE," and "BOMBS" from GFX_TEXT.S
     MOVEQ   #11, d1
     LEA.L   TEXT_NEXT, a0
-@TEXT_LOOP_1:
+_TEXT_LOOP_1:
     JSR     CopyCharRAM
-    DBRA    d1, @TEXT_LOOP_1
+    DBRA    d1, _TEXT_LOOP_1
 
     MOVE.L  #BUFF_PLANE, d0
     MOVE.W  #16*17, d1 ; 12 chars in GFX_TEXT + 5 for cursors, 16 words per char
@@ -427,7 +427,7 @@ INIT_HUD:
     ; initialize HUD text for P2
 
     CMP.W   #1, (NUM_PLAYERS)
-    BEQ.B   @INIT_HUD_1P
+    BEQ.B   _INIT_HUD_1P
 
     ; "NEXT"
     LEA.L   P2_T_NEXT, a0
@@ -469,7 +469,7 @@ INIT_HUD:
     ADDQ.W  #4, a0
     MOVE.W  #BOMBS_DGTS_HPOS_2, (a0)+
 
-@INIT_HUD_1P:
+_INIT_HUD_1P:
     LEA.L   CURSOR_SPRITE, a0
     ; menu cursor
     MOVE.W  #1, (a0)+
@@ -503,42 +503,42 @@ INIT_JUNK:
     ; blue
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$00, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; red
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$33, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; green
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$66, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; yellow
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$99, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; orange
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$00, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; pink
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$33, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; violet
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$66, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; teal
     LEA.L   JUNK_CHARS, a0
     MOVE.W  #$99, d0
-    BSR     @INIT_JUNK_SR
+    BSR     _INIT_JUNK_SR
 
     ; dma characters to VRAM
     MOVE.L  #BUFF_PLANE, d0
@@ -552,7 +552,7 @@ INIT_JUNK:
 ; a0 points to source characters
 ; a1 points to destination
 ; d0 contains amount to add to each color byte
-@INIT_JUNK_SR:
+_INIT_JUNK_SR:
     ; nasty hack for first byte:
     ; first pixel is the empty corner pixel
     MOVE.B  (a0)+, d1
@@ -566,10 +566,10 @@ INIT_JUNK:
 
     ; for 5 chars * (32 - 1) bytes
     MOVE.W  #32*5-2, d7
-@IJ_CHAR_LOOP:
+_IJ_CHAR_LOOP:
     MOVE.B  (a0)+, d1
     SUBI.B  #$55, d1
     ADD.B   d0, d1
     MOVE.B  d1, (a1)+
-    DBRA    d7, @IJ_CHAR_LOOP
+    DBRA    d7, _IJ_CHAR_LOOP
     RTS

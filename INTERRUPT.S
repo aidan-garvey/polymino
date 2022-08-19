@@ -69,7 +69,7 @@ VBMAIN:
 
     ; scroll background if game is not paused
     TST.W   (GAME_PAUSED)
-    BNE.B   @SKIP_B_SCROLL
+    BNE.B   _SKIP_B_SCROLL
 
     LEA.L   BUFF_VSCROLLB, a0
     SUBQ.W  #1, (a0)
@@ -78,7 +78,7 @@ VBMAIN:
     VDP_ACCESS VDP_W_VSRAM, 2
     MOVE.W  d0, (VDP_DATA)
 
-@SKIP_B_SCROLL:
+_SKIP_B_SCROLL:
     ADD.W   #1, (FRAME_TICK)
     MOVE.W  #1, (VBLANKON)
 

@@ -51,9 +51,9 @@ INTRO_INIT:
 INTRO_ANIM:
     ADDQ.W  #1, (MAIN_TICK)
     CMP.W   #INTRO_LENGTH, (MAIN_TICK)
-    BNE.B   @INTRO_ANIM_RET
+    BNE.B   _INTRO_ANIM_RET
     MOVE.L  #STARTSCRN_INIT, (MAIN_VECTOR)
-@INTRO_ANIM_RET:
+_INTRO_ANIM_RET:
     RTS
 
 STARTSCRN_INIT:
@@ -95,7 +95,7 @@ STARTSCRN_LOOP:
     EOR.W   d1, d2
     AND.W   d2, d1  ; d0 := p2 input this frame, not held
     OR.W    d1, d0  ; d0 := either player input this frame, not held
-    BEQ.B   @STARTSCRN_LOOP_RET
+    BEQ.B   _STARTSCRN_LOOP_RET
     MOVE.L  #MAIN_MENU_INIT, (MAIN_VECTOR)
-@STARTSCRN_LOOP_RET:
+_STARTSCRN_LOOP_RET:
     RTS

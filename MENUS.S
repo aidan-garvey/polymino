@@ -30,10 +30,10 @@ MENU_CURSOR:
     ; get button inputs that are not held
     LEA.L   JOY1, a1
     TST.B   (MENU_PLAYER, a0)
-    BEQ.B   @MENU_CURSOR_P1
+    BEQ.B   _MENU_CURSOR_P1
     ; if player 2, point to JOY2 instead
     ADDQ.W  #2, a1
-@MENU_CURSOR_P1:
+_MENU_CURSOR_P1:
     MOVE.W  (a1), d0    ; d0 := current inputs
     MOVE.W  4(a1), d1   ; d1 := previous inputs
     
@@ -46,31 +46,31 @@ MENU_CURSOR:
 
     ; move the cursor
     BTST    #BUTTON_UP, d0
-    BEQ.B   @SKIP_UP
+    BEQ.B   _SKIP_UP
     ; don't allow pressing up and down
     BTST    #BUTTON_DOWN, d0
-    BNE.B   @SKIP_MOVE
+    BNE.B   _SKIP_MOVE
     ; make cursor wrap around if it is at the top
     TST.B   (MENU_BTNINDEX, a0)
-    BNE.B   @MOVE_UP_SUB
+    BNE.B   _MOVE_UP_SUB
     MOVE.B  (MENU_NBUTTONS, a0), (MENU_BTNINDEX, a0)
-@MOVE_UP_SUB:
+_MOVE_UP_SUB:
     ; move up
     SUBQ.B  #1, (MENU_BTNINDEX, a0)
-    BRA.B   @SKIP_MOVE
-@SKIP_UP:
+    BRA.B   _SKIP_MOVE
+_SKIP_UP:
     BTST    #BUTTON_DOWN, d0
-    BEQ.B   @SKIP_MOVE
+    BEQ.B   _SKIP_MOVE
     ; move down
     MOVE.B  (MENU_BTNINDEX, a0), d1
     ADDQ.B  #1, d1
     CMP.B   (MENU_NBUTTONS, a0), d1
-    BLT.B   @MOVE_DOWN_WRITE
+    BLT.B   _MOVE_DOWN_WRITE
     ; if cursor is below bottom, wrap around to top
     MOVEQ   #0, d1
-@MOVE_DOWN_WRITE:
+_MOVE_DOWN_WRITE:
     MOVE.B  d1, (MENU_BTNINDEX, a0)
-@SKIP_MOVE:
+_SKIP_MOVE:
 
     ; calculate y position of cursor sprite
     MOVE.B  (MENU_BTNINDEX, a0), d1
@@ -86,15 +86,15 @@ MENU_CURSOR:
     ; BTST    #BUTTON_A, d0
     AND.B   d0, d1
     ; if selection made, set MENU_SELECTED to +1
-    BEQ.B   @MENU_EXIT_CHECK
+    BEQ.B   _MENU_EXIT_CHECK
     MOVE.B  #1, (MENU_SELECTED, a0)
-    BRA.B   @MENU_CURSOR_RET
-@MENU_EXIT_CHECK:
+    BRA.B   _MENU_CURSOR_RET
+_MENU_EXIT_CHECK:
     ; check for exit
     MOVE.B  (MENU_EX_MASK, a0), d1
     AND.B   d0, d1
     SNE.B   (MENU_SELECTED, a0)
-@MENU_CURSOR_RET:
+_MENU_CURSOR_RET:
     POP     a0/a1/d0/d1
     RTS
 
@@ -154,29 +154,29 @@ MAIN_MENU_LOOP:
     LEA.L   CURR_MENU, a0
 
     TST.B   (MENU_SELECTED, a0)
-    BEQ.B   @MAIN_MENU_LOOP_RET ; if no button is selected, take no action
+    BEQ.B   _MAIN_MENU_LOOP_RET ; if no button is selected, take no action
     ; if a button was selected:
     TST.B   (MENU_BTNINDEX, a0)
-    BEQ.B   @PLAYER_1_START ; button 0 is "1 PLAYER"
+    BEQ.B   _PLAYER_1_START ; button 0 is "1 PLAYER"
     CMP.B   #1, (MENU_BTNINDEX, a0)
-    BEQ.B   @PLAYER_2_START ; button 1 is "2 PLAYERS"
+    BEQ.B   _PLAYER_2_START ; button 1 is "2 PLAYERS"
     ; if options is pressed, do nothing for now
     LEA.L   STR_MISSING, a0
     MOVE.W  #MAIN_MENU_TX+9, d3
     MOVE.W  #MAIN_MENU_TY+4, d4
     JSR     DRAW_STRING
     CLR.B   (MENU_SELECTED, a0)
-    BRA.B   @MAIN_MENU_LOOP_RET
-@PLAYER_1_START:
+    BRA.B   _MAIN_MENU_LOOP_RET
+_PLAYER_1_START:
     MOVE.W  #1, (NUM_PLAYERS)
     ; MOVE.L  #GAME_INIT, (MAIN_VECTOR)
     MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
-    BRA.B   @MAIN_MENU_LOOP_RET
-@PLAYER_2_START:
+    BRA.B   _MAIN_MENU_LOOP_RET
+_PLAYER_2_START:
     MOVE.W  #2, (NUM_PLAYERS)
     ; MOVE.L  #GAME_INIT, (MAIN_VECTOR)
     MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
-@MAIN_MENU_LOOP_RET:
+_MAIN_MENU_LOOP_RET:
     RTS
 
 DIFF_MENU_TX = 19
@@ -204,10 +204,10 @@ DIFF_MENU_INIT:
     LEA.L   DIGIT_PATTERNS+2, a0 ; pattern for '1'
     LEA.L   DIFF_MENU_PLANE, a1
     MOVEQ   #4, d0
-@DIFF_MENU_OPTS:
+_DIFF_MENU_OPTS:
     MOVE.W  (a0)+, (a1)
     ADDA.W  #256, a1
-    DBRA    d0, @DIFF_MENU_OPTS
+    DBRA    d0, _DIFF_MENU_OPTS
 
     LEA.L   CURR_MENU, a0
     MOVE.W  #DIFF_MENU_PX, (MENU_XPOS, a0)
@@ -230,8 +230,8 @@ DIFF_MENU_LOOP:
     LEA.L   CURR_MENU, a0
     
     TST.B   (MENU_SELECTED, a0)
-    BLT.B   @DIFF_MENU_EXIT
-    BEQ.B   @DIFF_MENU_RET
+    BLT.B   _DIFF_MENU_EXIT
+    BEQ.B   _DIFF_MENU_RET
     ; if difficulty was selected, calculate speed and start game
     MOVE.B  (MENU_BTNINDEX, a0), d0
     EXT.W   d0
@@ -242,10 +242,10 @@ DIFF_MENU_LOOP:
     SUB.W   d0, d1
     MOVE.W  d1, (UPDATE_MAX)
     MOVE.L  #GAME_INIT, (MAIN_VECTOR)
-    BRA.B   @DIFF_MENU_RET
+    BRA.B   _DIFF_MENU_RET
     ; if exitted, return to main menu
-@DIFF_MENU_EXIT:
+_DIFF_MENU_EXIT:
     MOVE.L  #MAIN_MENU_INIT, (MAIN_VECTOR)
-@DIFF_MENU_RET:
+_DIFF_MENU_RET:
     RTS
 

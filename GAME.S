@@ -38,17 +38,17 @@ GAME_INIT:
     ; clear board data
     LEA.L   BOARD_1, a0
     MOVE.W  #(BOARD_WIDTH*BOARD_HEIGHT/2)-1, d0
-@CLEAR_BOARD_1:
+_CLEAR_BOARD_1:
     CLR.L   (a0)+
-    DBRA    d0, @CLEAR_BOARD_1
+    DBRA    d0, _CLEAR_BOARD_1
 
     ; game state
     LEA.L   GAME_STATE_1, a0
     LEA.L   INITIAL_GAME_STATE, a1
     MOVE.W  #GAME_STATE_SIZE/4, d0
-@WRITE_STATE_1:
+_WRITE_STATE_1:
     MOVE.L  (a1)+, (a0)+
-    DBRA    d0, @WRITE_STATE_1
+    DBRA    d0, _WRITE_STATE_1
 
     ; player-specific constants
     MOVE.W  #P1_BOARD_TX, (BOARD_TX_1)
@@ -60,17 +60,17 @@ GAME_INIT:
     ; clear board data
     LEA.L   BOARD_2, a0
     MOVE.W  #(BOARD_WIDTH*BOARD_HEIGHT/2)-1, d0
-@CLEAR_BOARD_2:
+_CLEAR_BOARD_2:
     CLR.L   (a0)+
-    DBRA    d0, @CLEAR_BOARD_2
+    DBRA    d0, _CLEAR_BOARD_2
 
     ; game state
     LEA.L   GAME_STATE_2, a0
     LEA.L   INITIAL_GAME_STATE, a1
     MOVE.W  #GAME_STATE_SIZE/4, d0
-@WRITE_STATE_2:
+_WRITE_STATE_2:
     MOVE.L  (a1)+, (a0)+
-    DBRA    d0, @WRITE_STATE_2
+    DBRA    d0, _WRITE_STATE_2
     
     ; player-specific constants
     MOVE.W  #P2_BOARD_TX, (BOARD_TX_2)
@@ -95,12 +95,12 @@ GAME_INIT:
     JSR     GENERATE_ROWS
 
     CMP.W   #1, (NUM_PLAYERS)
-    BEQ.B   @GAME_INIT_END
+    BEQ.B   _GAME_INIT_END
     LEA.L   GAME_STATE_2, a2
     LEA.L   BUFF_PLANE+BOARD2_OFFSET, a4
     JSR     GENERATE_ROWS
 
-@GAME_INIT_END:
+_GAME_INIT_END:
     MOVE.L  #0, (MAIN_TICK) ; init main and frame tick, each is 2B
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
@@ -125,10 +125,10 @@ GAME_LOOP:
     ; compare update timer to timer limit
     MOVE.W  (a0), d0
     CMP.W   -(a0), d0
-    BLT.B   @SKIP_UPDATE_RESET
+    BLT.B   _SKIP_UPDATE_RESET
     CLR.W   2(a0)    ; if we're at the limit, reset timer
     
-@SKIP_UPDATE_RESET:
+_SKIP_UPDATE_RESET:
 
     ; needed addresses:
     LEA.L   PLAYER_1_DATA, a1   ; start of board for P1
@@ -138,8 +138,8 @@ GAME_LOOP:
     LEA.L   P1_SPRITE, a5
 
     CMPI.W  #1, (NUM_PLAYERS)
-    BEQ.B   @LOOP_START ; if 1 player, run main loop once, for P1
-    BSR     @LOOP_START ; if 2 players, run main loop for P1, then P2
+    BEQ.B   _LOOP_START ; if 1 player, run main loop once, for P1
+    BSR     _LOOP_START ; if 2 players, run main loop for P1, then P2
 
     ; re-configure pointers for P2 data
     LEA.L   PLAYER_2_DATA, a1
@@ -148,48 +148,48 @@ GAME_LOOP:
     LEA.L   BUFF_PLANE+BOARD2_OFFSET, a4
     LEA.L   P2_SPRITE, a5
 
-@LOOP_START:
+_LOOP_START:
     ; if game is over, play game over animation then return from subroutine
     TST.W   (GAME_OVER_OFF, a2)
-    BEQ.B   @NOT_GAME_OVER
+    BEQ.B   _NOT_GAME_OVER
 
     JSR     GAME_OVER_ANIM
-    BRA.W   @GAME_LOOP_END
+    BRA.W   _GAME_LOOP_END
 
-@NOT_GAME_OVER:
+_NOT_GAME_OVER:
     ; handle inputs from player
     JSR     PLAYER_ACTIONS
     ; if update timer is at zero, update game physics
     TST.W   (UPDATE_TIMER)
-    BNE.B   @SKIP_UPDATE_PHYSICS
+    BNE.B   _SKIP_UPDATE_PHYSICS
     JSR     UPDATE_PHYSICS
     ; when we update physics, increment junk timer
     ADDQ.W  #1, (JUNK_TIMER_OFF, a2)
     MOVE.W  (JUNK_TIMER_OFF, a2), d0
     CMP.W   (JUNK_MAX), d0
-    BLT.B   @SKIP_MATCH_ALL
+    BLT.B   _SKIP_MATCH_ALL
     CLR.W   (JUNK_TIMER_OFF, a2)
 
-    BRA.B   @SKIP_MATCH_ALL
-@SKIP_UPDATE_PHYSICS:
+    BRA.B   _SKIP_MATCH_ALL
+_SKIP_UPDATE_PHYSICS:
     ; to spread the load, update matches the frame before physics
     MOVE.W  (UPDATE_MAX), d0
     SUBQ    #1, d0
     CMP.W   (UPDATE_TIMER), d0
-    BNE.B   @SKIP_MATCH_ALL
+    BNE.B   _SKIP_MATCH_ALL
     JSR     CHECK_ALL_MATCHES
-@SKIP_MATCH_ALL:
+_SKIP_MATCH_ALL:
 
     ; if junk timer is at zero, place junk
     TST.W   (JUNK_TIMER_OFF, a2)
-    BNE.B   @SKIP_PLACE_JUNK
+    BNE.B   _SKIP_PLACE_JUNK
     JSR     PLACE_NEW_JUNK  ; should set an indicator for game over if applicable
     MOVE.W  #1, (JUNK_TIMER_OFF, a2)
     ; since new junk spawned, we'll need to check if it can be shattered
     MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
     ; we also need to update the cursor for the next junk piece
     JSR     DRAW_JUNK_OUTLINE
-@SKIP_PLACE_JUNK:
+_SKIP_PLACE_JUNK:
 
     ; remove any matched blocks from the board
     JSR     CLEAR_BLOCKS
@@ -198,10 +198,10 @@ GAME_LOOP:
     ; only run once a new projectile or junk piece is spawned, or junk
     ; moves during a physics update
     TST.W   (CHECK_PROJ_OFF, a2)
-    BEQ.B   @SKIP_PROJ_CHECK
+    BEQ.B   _SKIP_PROJ_CHECK
     JSR     PROJ_CHECK
     CLR.W   (CHECK_PROJ_OFF, a2)
-@SKIP_PROJ_CHECK:
+_SKIP_PROJ_CHECK:
 
     ; for any junk being shattered by projectiles,
     ; advance its animation or replace it with a block
@@ -219,5 +219,5 @@ GAME_LOOP:
     ; same as DRAW_SCORE, but for bomb count
     JSR     DRAW_BOMBS
 
-@GAME_LOOP_END:
+_GAME_LOOP_END:
     RTS

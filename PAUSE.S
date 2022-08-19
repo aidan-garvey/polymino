@@ -24,11 +24,11 @@ UPDATE_PAUSED:
 
     ; if start pressed by P1, pause
     BTST    #BUTTON_START, d1
-    BEQ.B   @UPDATE_PAUSED_P2
+    BEQ.B   _UPDATE_PAUSED_P2
     MOVE.L  #INIT_PAUSED_P1, (MAIN_VECTOR)
-    BRA.B   @UPDATE_PAUSED_RET
+    BRA.B   _UPDATE_PAUSED_RET
 
-@UPDATE_PAUSED_P2:
+_UPDATE_PAUSED_P2:
     MOVE.W  (JOY2), d0
     MOVE.W  (JOY2+4), d1
     EOR.W   d0, d1
@@ -36,10 +36,10 @@ UPDATE_PAUSED:
 
     ; if start pressed by P2, pause
     BTST    #BUTTON_START, d1
-    BEQ.B   @UPDATE_PAUSED_RET
+    BEQ.B   _UPDATE_PAUSED_RET
     MOVE.L  #INIT_PAUSED_P2, (MAIN_VECTOR)
 
-@UPDATE_PAUSED_RET:
+_UPDATE_PAUSED_RET:
     RTS
 
 ; constants for P1's pause menu, or shared by P1 and P2
@@ -74,14 +74,14 @@ INIT_PAUSED_P1:
     LEA.L   PAUSE_BUFF_START, a0 ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
     MOVEQ   #PAUSE1_BUFF_H-1, d1
-@SAVE_BUFF1_ROW:
+_SAVE_BUFF1_ROW:
     MOVEQ   #PAUSE_BUFF_W-1, d0
-@SAVE_BUFF1_TILE:
+_SAVE_BUFF1_TILE:
     MOVE.W  (a0), (a1)+
     CLR.W   (a0)+
-    DBRA    d0, @SAVE_BUFF1_TILE
+    DBRA    d0, _SAVE_BUFF1_TILE
     ADDA.W  #BOARD_ROW_GAP-2, a0
-    DBRA    d1, @SAVE_BUFF1_ROW
+    DBRA    d1, _SAVE_BUFF1_ROW
 
     ; draw menu
     LEA.L   STR_PAUSE1, a0
@@ -138,14 +138,14 @@ INIT_PAUSED_P2:
     LEA.L   PAUSE_BUFF_START, a0 ; top-left pattern of pause menu's destination
     LEA.L   PAUSE_BUFFER, a1    ; area to save patterns from PAUSE1_BUFF
     MOVEQ   #PAUSE2_BUFF_H-1, d1
-@SAVE_BUFF2_ROW:
+_SAVE_BUFF2_ROW:
     MOVEQ   #PAUSE_BUFF_W-1, d0
-@SAVE_BUFF2_TILE:
+_SAVE_BUFF2_TILE:
     MOVE.W  (a0), (a1)+
     CLR.W   (a0)+
-    DBRA    d0, @SAVE_BUFF2_TILE
+    DBRA    d0, _SAVE_BUFF2_TILE
     ADDA.W  #BOARD_ROW_GAP-2, a0
-    DBRA    d1, @SAVE_BUFF2_ROW
+    DBRA    d1, _SAVE_BUFF2_ROW
 
     ; draw menu
     LEA.L   STR_PAUSE2, a0
@@ -179,16 +179,16 @@ PAUSE1_LOOP:
     LEA.L   CURR_MENU, a0
 
     TST.B   (MENU_SELECTED, a0)
-    BEQ.B   @PAUSE1_RET     ; if no option chosen, do nothing
-    BLT.B   @PAUSE1_EXIT    ; if menu exitted, unpause
+    BEQ.B   _PAUSE1_RET     ; if no option chosen, do nothing
+    BLT.B   _PAUSE1_EXIT    ; if menu exitted, unpause
     TST.B   (MENU_BTNINDEX, a0)
-    BEQ.B   @PAUSE1_EXIT    ; if "CONTINUE" was chosen, unpause
+    BEQ.B   _PAUSE1_EXIT    ; if "CONTINUE" was chosen, unpause
     ; if "QUIT" was chosen, return to the start menu
     MOVE.L  #PAUSE_EXIT_INIT, (MAIN_VECTOR)
-    BRA.B   @PAUSE1_RET
-@PAUSE1_EXIT:
+    BRA.B   _PAUSE1_RET
+_PAUSE1_EXIT:
     MOVE.L  #UNPAUSE_1, (MAIN_VECTOR)
-@PAUSE1_RET:
+_PAUSE1_RET:
     RTS
 
 ; main game loop subroutine when P2 has paused the game.
@@ -198,10 +198,10 @@ PAUSE2_LOOP:
     LEA.L   CURR_MENU, a0
 
     TST.B   (MENU_SELECTED, a0)
-    BEQ.B   @PAUSE2_RET
+    BEQ.B   _PAUSE2_RET
     ; the only option for P2 is continue, so if any action was taken, unpause
     MOVE.L  #UNPAUSE_2, (MAIN_VECTOR)
-@PAUSE2_RET:
+_PAUSE2_RET:
     RTS
 
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
@@ -216,13 +216,13 @@ UNPAUSE_1:
     LEA.L   PAUSE_BUFFER, a0
     LEA.L   PAUSE_BUFF_START, a1
     MOVEQ   #PAUSE1_BUFF_H-1, d1
-@LOAD_BUFF1_ROW:
+_LOAD_BUFF1_ROW:
     MOVEQ   #PAUSE_BUFF_W-1, d0
-@LOAD_BUFF1_TILE:
+_LOAD_BUFF1_TILE:
     MOVE.W  (a0)+, (a1)+
-    DBRA    d0, @LOAD_BUFF1_TILE
+    DBRA    d0, _LOAD_BUFF1_TILE
     ADDA.W  #BOARD_ROW_GAP-2, a1
-    DBRA    d1, @LOAD_BUFF1_ROW
+    DBRA    d1, _LOAD_BUFF1_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
     CLR.W   (GAME_PAUSED)
@@ -240,13 +240,13 @@ UNPAUSE_2:
     LEA.L   PAUSE_BUFFER, a0
     LEA.L   PAUSE_BUFF_START, a1
     MOVEQ   #PAUSE2_BUFF_H-1, d1
-@LOAD_BUFF2_ROW:
+_LOAD_BUFF2_ROW:
     MOVEQ   #PAUSE_BUFF_W-1, d0
-@LOAD_BUFF2_TILE:
+_LOAD_BUFF2_TILE:
     MOVE.W  (a0)+, (a1)+
-    DBRA    d0, @LOAD_BUFF2_TILE
+    DBRA    d0, _LOAD_BUFF2_TILE
     ADDA.W  #BOARD_ROW_GAP-2, a1
-    DBRA    d1, @LOAD_BUFF2_ROW
+    DBRA    d1, _LOAD_BUFF2_ROW
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
     CLR.W   (GAME_PAUSED)

@@ -21,7 +21,7 @@ INIT_CIRC_CHARS:
     LEA.L   CIRC_COMP_CHARS, a2 ; each char is an index into CIRC_COMP_ROWS
 
     MOVE.W  #(NUM_CIRC_CHARS*8)-1, d1
-@CIRC_CHAR_LOOP:
+_CIRC_CHAR_LOOP:
     ;MOVEA.L a0, a3
     ; convert row index into memory offset
     MOVE.B  (a2)+, d0
@@ -30,7 +30,7 @@ INIT_CIRC_CHARS:
     
     MOVE.L  (a0, d0.w), (a1)+
     
-    DBRA    d1, @CIRC_CHAR_LOOP
+    DBRA    d1, _CIRC_CHAR_LOOP
 
     ; transfer to VRAM
     MOVE.L  #BUFF_PLANE, d0
@@ -57,22 +57,22 @@ INIT_CIRC_PLANE:
 
     ; copy 32 rows
     MOVEQ   #31, d7
-@CIRC_PLANE_LOOP:
+_CIRC_PLANE_LOOP:
     ; copy 40 patterns (20 long words) and 24 blanks (12 longs) per row
     MOVEQ   #19, d6
-@CIRC_PLANE_LOOP_1:
+_CIRC_PLANE_LOOP_1:
     ; MOVE.L  (a0)+, (a1)+
     MOVE.L  (a0)+, d0
     OR.L    d1, d0
     MOVE.L  d0, (a1)+
-    DBRA    d6, @CIRC_PLANE_LOOP_1
+    DBRA    d6, _CIRC_PLANE_LOOP_1
     
     MOVEQ   #11, d6
-@CIRC_PLANE_LOOP_2:
+_CIRC_PLANE_LOOP_2:
     CLR.L   (a1)+
-    DBRA    d6, @CIRC_PLANE_LOOP_2
+    DBRA    d6, _CIRC_PLANE_LOOP_2
 
-    DBRA    d7, @CIRC_PLANE_LOOP
+    DBRA    d7, _CIRC_PLANE_LOOP
 
     MOVE.L  #BUFF_PLANE, d0
     MOVE.W  #VRAM_SCROLLB_SIZE/2, d1

@@ -8,25 +8,25 @@
 
 ; Wait for VDP to finish queued DMA tasks
 WAIT_DMA: MACRO
-@WAIT_DMA_LOOP\@:
+_WAIT_DMA_LOOP\@:
     BTST    #1, VDP_CTRL+1   ; check if status register says "DMA BUSY"
-    BNE.B   @WAIT_DMA_LOOP\@ ; keep checking until done
+    BNE.B   _WAIT_DMA_LOOP\@ ; keep checking until done
     ENDM
     
 ; Reset VBLANKON, wait until it is set by our VB routine after the next VB
 WAIT_VB: MACRO
     CLR.W   (VBLANKON)
-@LOOP\@:
+_LOOP\@:
     TST.W   (VBLANKON)
-    BEQ.B   @LOOP\@
+    BEQ.B   _LOOP\@
     ENDM
 
 ; Remove the Z80 from the bus and ensure it is off before continuing
 REMOVE_Z80: MACRO
     MOVE.W  #$0100, Z80_BUSREQ  ; request bus from z80
-@LOOP\@:
+_LOOP\@:
     BTST    #0, Z80_BUSREQ      ; wait until it is off bus
-    BNE.B   @LOOP\@
+    BNE.B   _LOOP\@
     ENDM
     
 ; Replace the Z80 on the bus (for code readability)
@@ -91,9 +91,9 @@ POP: MACRO
 ; \2: dest register
 MIN: MACRO
     CMP.\0  \1, \2
-    BLE.B   @END\@
+    BLE.B   _END\@
     MOVE.\0 \1, \2
-@END\@:
+_END\@:
     ENDM
 
 ; Move source to dest if source is larger
@@ -101,8 +101,8 @@ MIN: MACRO
 ; \2: dest register
 MAX: MACRO
     CMP.\0  \1, \2
-    BGE.B   @END\@
+    BGE.B   _END\@
     MOVE.\0 \1, \2
-@END\@:
+_END\@:
     ENDM
 

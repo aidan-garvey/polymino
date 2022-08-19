@@ -42,6 +42,11 @@
     INCLUDE RANDOM.S 
     INCLUDE DRAW_STRING.S
 
+; *****************
+; Echo sound engine
+; *****************
+    INCLUDE ECHO/ECHO-68K.S
+
 ; =============================
 ; MAIN_INIT
 ; -----------------------------
@@ -86,9 +91,9 @@ MAIN_LOOP:
     ; only execute once per frame
     ; WAIT_VB
     LEA.L   VBLANKON, a0
-@MAIN_VB_WAIT:
+_MAIN_VB_WAIT:
     TST.W   (a0)
-    BEQ.B   @MAIN_VB_WAIT
+    BEQ.B   _MAIN_VB_WAIT
     CLR.W   (a0)
     ADDQ.W  #1, (MAIN_TICK)
     JSR     READ_INPUT
