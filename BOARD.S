@@ -411,15 +411,16 @@ _UPDATE_BLOCK_STEP:
 ;   a2 - game state
 ;   a4 - points to screen buffer
 ; Thrashed:
-;   none
+;   d0-d6
 ; ==================================
 CLEAR_BLOCKS:
-    PUSH    a0-a1/d0-d5
+    PUSH    a0-a1
     MOVE.L  a2, a0
     ADD.W   #TO_CLEAR_OFF, a0
-    MOVEQ   #BOARD_HEIGHT-1, d5
-    MOVEQ   #0, d3
-    MOVEQ   #0, d4
+    MOVEQ   #BOARD_HEIGHT-1, d5 ; vertical loop counter
+    MOVEQ   #0, d3 ; x pos
+    MOVEQ   #0, d4 ; y pos
+    MOVEQ   #0, d6 ; after loop, will be non-zero if any blocks were removed
 _CLEAR_ROWS_LOOP:
     ; get 2 rows
     MOVE.W  (a0), d1
@@ -433,6 +434,7 @@ _CLEAR_BLOCK_LOOP:
     MOVE.W  #0, (a1)
     JSR     ERASE_BLOCK
     JSR     SPAWN_DEBRIS
+    ADDQ.W  #1, d6 ; record block being removed
 _CLEAR_BLOCK_STEP:
     ADDA.W  #2, a1
     ADDQ    #1, d2
@@ -443,7 +445,14 @@ _CLEAR_BLOCK_STEP:
     MOVEQ   #0, d3
     DBRA    d5, _CLEAR_ROWS_LOOP
 
-    POP     a0-a1/d0-d5
+    TST.W   d6
+    BEQ.B   _NO_SFX
+    ; play sound effect if any blocks broken
+    LEA.L   ESF_CRUNCH, a0
+    JSR     Echo_PlaySFX
+_NO_SFX:
+
+    POP     a0-a1
     RTS
 
 ; ===========================================

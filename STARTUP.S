@@ -48,26 +48,13 @@ _Clear68kRAMLoop:
     CLR.L   (a0)+
     DBRA    d0, _Clear68kRAMLoop
 
-    ; ********************
-    ; ** Initialize Z80 **
-    ; ********************
-    MOVE.W  #$100, d0       ; value for controlling Z80
-    LEA.L   Z80_BUSREQ, a0  ; location to remove z80 from bus
-    LEA.L   Z80_RESET, a1   ; location to reset z80
-    
-    MOVE.W  d0, (a0)    ; request bus
-    MOVE.W  d0, (a1)    ; ensure it is not resetting
-    
-_InitZ80Wait:
-    BTST    #0, (a0)    ; check if z80 is off bus
-    BNE.S   _InitZ80Wait ; if not, wait until it is
-    
-    ; ** TODO: SEND CODE TO Z80 **
-    
-    CLR.W   (a1)        ; reset Z80
-    CLR.W   (a0)        ; cancel bus request
-    MOVE.W  d0, (a1)    ; cancel reset request
-    
+    ; **********************
+    ; ** Initialize Audio **
+    ; **********************
+
+    LEA.L   INSTRUMENT_LIST, a0
+    JSR     Echo_Init
+
     ; ***************
     ; ** Flush DMA **
     ; ***************

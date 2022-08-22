@@ -3,7 +3,7 @@
 ; Modified copy of ECHO.68K from https://github.com/sikthehedgehog/Echo
 ; Modified to include ECHO-Z80.BIN, which is also from the above repo,
 ; and replace the '@' symbol with '_' for local labels.
-; See ECHO/LICENSE for the license of the original software.
+; See AUDIO/ECHO_LICENSE for the license of the original Echo software.
 ; *********************************************************************
 
 ;****************************************************************************
@@ -569,10 +569,10 @@ Echo_ClearFlags:
 ; Defines an entry in a pointer list
 ;****************************************************************************
 
-Echo_ListEntry macro addr
-    dc.b    $80|((addr)>>8&$7F)                 ; High byte of address
-    dc.b    (addr)&$FF                          ; Low byte of address
-    dc.b    ((addr)>>15&$7F)|((addr)>>16&$80)   ; Bank number
+Echo_ListEntry macro
+    dc.b    $80|((\1)>>8&$7F)                 ; High byte of address
+    dc.b    (\1)&$FF                          ; Low byte of address
+    dc.b    ((\1)>>15&$7F)|((\1)>>16&$80)   ; Bank number
     endm
 
 ;****************************************************************************
@@ -655,6 +655,6 @@ _LoadLoop:                          ; Go through all the program
 ; Echo Z80 program
 ;****************************************************************************
 
-_Z80Program: incbin "ECHO/ECHO-Z80.BIN"
+_Z80Program: incbin "AUDIO/ECHO-Z80.BIN"
 _Z80ProgSize equ *-_Z80Program
     even
