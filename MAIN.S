@@ -137,4 +137,10 @@ _MAIN_VB_WAIT:
     INCLUDE AUDIO/ESF/SFX_ESF.S
     INCLUDE DATA/JUNK_PIECES.S
     INCLUDE DATA/STRING.S
-    
+
+    ; ensure BGM data is aligned to 2^15 byte boundary so it fits in one Z80 RAM bank
+_BGM_PC_1 EQU (*)%($8000) ; PC mod $8000
+    IF _BGM_PC_1
+        DS.B    $8000-_BGM_PC_1 ; fill space with zeroes until we get to next boundary
+    ENDIF
+    INCLUDE AUDIO/ESF/BGM_1_ESF.S

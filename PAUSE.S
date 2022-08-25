@@ -58,6 +58,9 @@ PAUSE_BUFF_W = 11
 
 ; set up player 1's pause menu
 INIT_PAUSED_P1:
+    ; pause music
+    JSR     Echo_PauseBGM
+
     ; initialize menu
     LEA.L   CURR_MENU, a0
     MOVE.W  #PAUSE1_XPOS, (MENU_XPOS, a0)
@@ -122,6 +125,9 @@ PAUSE2_BUFF_H = 5
 
 ; set up player 2's pause menu
 INIT_PAUSED_P2:
+    ; pause music
+    JSR     Echo_PauseBGM
+
     ; initialize menu
     LEA.L   CURR_MENU, a0
     MOVE.W  #PAUSE2_XPOS, (MENU_XPOS, a0)
@@ -207,6 +213,9 @@ _PAUSE2_RET:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_1:
+    ; resume music
+    JSR     Echo_ResumeBGM
+
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
     MOVE.W  #0, (a0)
@@ -231,6 +240,9 @@ _LOAD_BUFF1_TILE:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_2:
+    ; resume music
+    JSR     Echo_ResumeBGM
+
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
     MOVE.W  #0, (a0)
