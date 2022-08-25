@@ -555,7 +555,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 8
     _PSG4   _P_C5
-    DC.L    _SHH
+    DC.L    _LHH
     DC.W    $2010   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
     DC.B    _DEL1, $1B
@@ -568,7 +568,7 @@ _PSG4: MACRO
     ; F-11
     DC.W    _CUT
     _PSG4   _P_G4
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $00, _C3, $04, _C1
     DC.B    _DEL1, $1B
     _DELAY  2
@@ -586,7 +586,7 @@ _PSG4: MACRO
     ; 17
     DC.B    $1B, _DEL1
     ; 18
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $04, _C1, _DEL1
     ; 19
     DC.W    _CUT
@@ -621,7 +621,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 28
     DC.W    $2010   ; ch.1 vol down
-    DC.L    _SHH
+    DC.L    _LHH
     _PSG4   _P_B4
     DC.B    $00, _C3, $04, _C1, _DEL1
     ; 29
@@ -634,7 +634,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 30
     _PSG4   _P_G4
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $00, _C3, $04, _C1, _DEL1
     ; 31
     DC.B    $1B
@@ -652,7 +652,7 @@ _PSG4: MACRO
     ; 37
     DC.B    $1B, _DEL1
     ; 38
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $04, _C1, _DEL1
     ; 39
     DC.W    _CUT
@@ -841,7 +841,7 @@ _PSG4: MACRO
     ; 7
     DC.W    _CUT
     ; 8
-    DC.L    _SHH
+    DC.L    _LHH
     DC.W    $2010   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
     _DELAY  4
@@ -853,7 +853,7 @@ _PSG4: MACRO
     ; F-11
     DC.W    _CUT
     _PSG4   _P_G4
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $00, _C3, $04, _C1
     DC.B    _DEL1, $1B
     _DELAY  2
@@ -871,7 +871,7 @@ _PSG4: MACRO
     ; 17
     DC.B    $1B, _DEL1
     ; 18
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $04, _C1, _DEL1
     ; 19
     DC.W    _CUT
@@ -907,7 +907,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 28
     DC.W    $2010   ; ch.1 vol down
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $00, _C3, $04, _C1
     _DELAY  4
     ; 2C
@@ -917,7 +917,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 30
     _PSG4   _P_G4
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $00, _C3, $04, _C1, _DEL1
     ; 31
     DC.B    $1B
@@ -935,7 +935,7 @@ _PSG4: MACRO
     ; 37
     DC.B    $1B, _DEL1
     ; 38
-    DC.L    _SHH
+    DC.L    _LHH
     DC.B    $04, _C1, _DEL1
     ; 39
     DC.W    _CUT
