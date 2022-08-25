@@ -27,7 +27,7 @@ Download [beams.bin](beams.bin) and run it in a Sega Genesis emulator to play!
 ## Building
 
 ### With ASM68K or VASMM68K_MOT
-Two batch files are included to build the game with different assemblers. They output pure binary files which can be run with any Sega Genesis emulator.
+Two batch files are included to build the game with these assemblers. They output pure binary files which can be run with any Sega Genesis emulator.
 If you use one of the assemblers which a batch file is included for, but don't use the batch file itself, please refer to the batch files for the flags needed to correctly assemble the game.
 If you have a choice between either one, VASM seems to optimize better than ASM68k.
 
