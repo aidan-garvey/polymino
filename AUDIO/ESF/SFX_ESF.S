@@ -13,11 +13,11 @@ ESF_CRUNCH:
     DC.W    $FE30   ; delay 30 frames - sample is half a second
     DC.B    $FF     ; end stream, unlocks PCM channel
 
-ESF_TEST:
-    DC.B    $EB     ; lock noise channel
-    DC.B    $1B     ; note off
-    DC.W    $4B08   ; select instrument (EEF_FADE)
-    DC.W    $2B00   ; pump up da volume
-    DC.W    $0B04   ; note on, white noise high pitch
-    DC.W    $FE20   ; play for 20 ticks (1/3 second)
-    DC.B    $FF     ; end playback
+;ESF_TEST:
+;    DC.B    $EB     ; lock noise channel
+;    DC.B    $1B     ; note off
+;    DC.W    $4B08   ; select instrument (EEF_FADE)
+;    DC.W    $2B00   ; pump up da volume
+;    DC.W    $0B04   ; note on, white noise high pitch
+;    DC.W    $FE20   ; play for 20 ticks (1/3 second)
+;    DC.B    $FF     ; end playback

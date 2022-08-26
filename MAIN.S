@@ -144,3 +144,9 @@ _BGM_PC_1 EQU (*)%($8000) ; PC mod $8000
         DS.B    $8000-_BGM_PC_1 ; fill space with zeroes until we get to next boundary
     ENDIF
     INCLUDE AUDIO/ESF/BGM_1_ESF.S
+
+_BGM_PC_2 EQU (*)%($8000) ; PC mod $8000
+    IF _BGM_PC_2
+        DS.B    $8000-_BGM_PC_2 ; fill space with zeroes until we get to next boundary
+    ENDIF
+    INCLUDE AUDIO/ESF/BGM_2_ESF.S

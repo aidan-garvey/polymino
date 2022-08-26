@@ -106,7 +106,7 @@ _GAME_INIT_END:
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
 
     ; play background music
-    LEA.L   ESF_BGM_1, a0
+    LEA.L   ESF_BGM_2, a0
     JSR     Echo_PlayBGM
 
     END_LOAD_STATE
