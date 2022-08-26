@@ -28,7 +28,7 @@
 ;       index
 ; --------------------------------
 AddToDMAQueue:
-    PUSH    d3
+    MOVE.L  d3, -(SP)
     
     ; Check if room in queue
     MOVE.L  a0, d3
@@ -56,12 +56,12 @@ AddToDMAQueue:
 _DMASplit:
     ; from previous calculations, d3 is already the
     ; space we have before hitting the boundary
-    PUSH    d0-d3
+    MOVE.W  d1, -(SP)
     
     MOVE.W  d3, d1  ; use d3 for our size so we don't cross boundary
     BSR     _SubmitDMAReq
-    
-    POP     d0-d3
+
+    MOVE.W  (SP)+, d1
     
     ; calculate new src, length, VDP dest
     ; a0 was incremented in SubmitDMAReq,
@@ -83,7 +83,7 @@ _DMANoSplit:
     BSR     _SubmitDMAReq
     
 _AddToDMAQueue_RETURN:
-    POP     d3
+    MOVE.L  (SP)+, d3
     RTS
 
 ; Put a DMA command in the queue

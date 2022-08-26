@@ -32,7 +32,7 @@
 ;   d0-d4
 ; ===============================================
 GENERATE_ROWS:
-    PUSH    a3
+    MOVE.L  a3, -(SP)
 
     MOVE.W  (a2), d2    ; d2 counts number of rows to generate
     MOVE.W  #0, (a2)    ; since we're generating the rows, clear NEW_ROWS
@@ -80,7 +80,7 @@ _GEN_ROW_STEP:
     SUBQ    #1, d4
     DBRA    d2, _GEN_ROW_LOOP
 
-    POP     a3
+    MOVE.L  (SP)+, a3
     RTS
 
 ; =========================================
@@ -97,7 +97,7 @@ _GEN_ROW_STEP:
 ;   a0, d0-d6
 ; =========================================
 PLAYER_ACTIONS:
-    PUSH    a5-a6
+    PUSH.L  a5-a6
 
     MOVE.W  (a3), d0    ; current joypad inputs
     MOVE.W  4(a3), d1   ; previous frame's inputs
@@ -337,7 +337,7 @@ _SKIP_B_PRESS:
     MOVE.B  d0, (BOMBS_OFF+1, a2)
 _SKIP_C_PRESS:
 
-    POP     a5-a6
+    POP.L   a5-a6
     RTS
 
 ; =====================================
@@ -354,7 +354,7 @@ _SKIP_C_PRESS:
 ;   a0, d0-d1/d3-d4
 ; =====================================
 UPDATE_PHYSICS:
-    PUSH    a1
+    MOVE.L  a1, -(SP)
 
     ; a1 will point 1 row above a0
     MOVE.L  a2, a0
@@ -397,7 +397,7 @@ _UPDATE_BLOCK_STEP:
     SUBQ.W  #1, d4
     BGT.B   _UPDATE_BLOCK_LOOP
 
-    POP     a1
+    MOVE.L  (SP)+, a1
     RTS
 
 ; ==================================
@@ -414,7 +414,7 @@ _UPDATE_BLOCK_STEP:
 ;   d0-d6
 ; ==================================
 CLEAR_BLOCKS:
-    PUSH    a0-a1
+    PUSH.L  a0-a1
     MOVE.L  a2, a0
     ADD.W   #TO_CLEAR_OFF, a0
     MOVEQ   #BOARD_HEIGHT-1, d5 ; vertical loop counter
@@ -452,7 +452,7 @@ _CLEAR_BLOCK_STEP:
     JSR     Echo_PlaySFX
 _NO_SFX:
 
-    POP     a0-a1
+    POP.L     a0-a1
     RTS
 
 ; ===========================================
@@ -470,7 +470,7 @@ _NO_SFX:
 ;   d0-d4
 ; ===========================================
 SHATTER_ANIM:
-    PUSH    a3
+    MOVE.L  a3, -(SP)
     ; game state is right after board, we'll use a2 to access the board
     MOVE.L  a2, a3
     MOVEQ   #BOARD_WIDTH-1, d3
@@ -505,7 +505,7 @@ _SHATTER_STEP:
     MOVEQ   #BOARD_WIDTH-1, d3
     DBRA    d4, _SHATTER_LOOP
 
-    POP     a3
+    MOVE.L  (SP)+, a3
     RTS
 
 ; ==============================================
@@ -519,10 +519,11 @@ _SHATTER_STEP:
 ;   a2 - game state
 ;   a4 - screen buffer
 ; Thrashed:
-;   none
+;   upper words of d5-d6
 ; ==============================================
 DROP_BOMB:
-    PUSH    a0/d0-d6
+    MOVE.L  a0, -(SP)
+    PUSH.W  d0-d6
     MOVE.W  (CURSOR_X_OFF, a2), d3
     MOVE.W  (CURSOR_Y_OFF, a2), d4
     ; we will start by clearing 3x3 area around cursor
@@ -581,7 +582,8 @@ _BOMB_BLOCK_LOOP:
     SUBA.W  #BOARD_WIDTH*4-4, a0
     BSR.B   _BOMB_BLOCK_EFFECT
 
-    POP     a0/d0-d6
+    POP.W   d0-d6
+    MOVE.L  (SP)+, a0
     RTS
 
 ; ========================================

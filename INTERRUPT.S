@@ -20,7 +20,7 @@ VBLANK:
 ; to VRAM and flushes the DMA queue.
 ; ------------------------------------------
 VBMAIN:
-    PUSH    a0-a2/d0-d3
+    PUSH.L  a0-a2/d0-d3
 
     ; Dump sprite buffer to VRAM
     MOVE.L  #BUFF_SPRITES, d0           ; source address
@@ -82,7 +82,7 @@ _SKIP_B_SCROLL:
     ADD.W   #1, (FRAME_TICK)
     MOVE.W  #1, (VBLANKON)
 
-    POP     a0-a2/d0-d3
+    POP.L   a0-a2/d0-d3
     RTE
 
 ; -----------------

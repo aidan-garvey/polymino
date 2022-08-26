@@ -20,7 +20,7 @@
 ;   a0, d0-d7
 ; ====================================
 PLACE_NEW_JUNK:
-    PUSH    a3/a5
+    PUSH.L  a3/a5
 
     TST.W   (NEXT_JUNKID_OFF, a2)
     BEQ.W   _SKIP_JUNK_SPAWN
@@ -247,7 +247,7 @@ _NEXT_ROW_STEP:
     ADDA.W  #126, a0 ; go down 1 row
     DBRA    d7, _NEXT_PIECE_LOOP
 
-    POP     a3/a5
+    POP.L   a3/a5
     RTS
 
 ; ============================================
@@ -265,7 +265,8 @@ _NEXT_ROW_STEP:
 ;   none
 ; ============================================
 SHATTER_JUNK:
-    PUSH    a0/a3/d0-d2
+    PUSH.L  a0/a3
+    PUSH.W  d0-d2
 
     ; ******************
     ; free the junk's ID
@@ -340,7 +341,8 @@ _SHATTER_COLUMN_STEP:
     BEQ.B   _SHATTER_COLUMN_LOOP
 
 _SHATTER_COLUMN_BREAK:
-    POP     a0/a3/d0-d2
+    POP.W   d0-d2
+    POP.L   a0/a3
     RTS
 
 ; =======================================
@@ -363,7 +365,7 @@ _SHATTER_COLUMN_BREAK:
 ;   none
 ; =======================================
 UPDATE_JUNK:
-    PUSH    d0-d2/d5
+    PUSH.L  d0-d2/d5
 
     MOVEQ   #0, d1      ; d1 will track the number of junk blocks
     MOVE.W  (a1), d2    ; d2 holds the first junk block
@@ -404,22 +406,22 @@ _UPDATE_JUNK_BREAK:
     BEQ.B   _UPDATE_JUNK_RET
 
     ; move the row down
-    PUSH    a0-a1/d3
+    PUSH.L  a0-a1/d3
 
 _JUNK_FALL_LOOP:
     MOVE.W  (a0), d0
     MOVE.W  (a1), (a0)+
     MOVE.W  d0, (a1)+
     JSR     SWAP_BLOCKS_V
-    ADDQ    #1, d3
+    ADDQ.W  #1, d3
     ; d1 counted the number of junk blocks minus 1
     DBRA    d1, _JUNK_FALL_LOOP
 
-    POP     a0-a1/d3
+    POP.L   a0-a1/d3
 
     ; since junk moved, set flag that tells us to check projectile-junk collisions
     MOVE.W  #-1, (CHECK_PROJ_OFF, a2)
 
 _UPDATE_JUNK_RET:
-    POP     d0-d2/d5
+    POP.L   d0-d2/d5
     RTS

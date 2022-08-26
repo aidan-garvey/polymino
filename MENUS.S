@@ -24,7 +24,7 @@ MENU_EX_MASK = 11   ; 1B - mask for buttons that exit the menu
 ; and set the SELECTED flag if A is pressed
 ; ========================================================
 MENU_CURSOR:
-    PUSH    a0/a1/d0/d1
+    PUSH.L  a0/a1/d0/d1
 
     LEA.L   CURR_MENU, a0
     ; get button inputs that are not held
@@ -95,7 +95,7 @@ _MENU_EXIT_CHECK:
     AND.B   d0, d1
     SNE.B   (MENU_SELECTED, a0)
 _MENU_CURSOR_RET:
-    POP     a0/a1/d0/d1
+    POP.L   a0/a1/d0/d1
     RTS
 
 

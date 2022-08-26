@@ -77,13 +77,13 @@ END_LOAD_STATE: MACRO
 ; Push registers onto stack
 ; \1: register list (ex: d0/d1/d2/a3/a4 or d0-d2/a3-a4)
 PUSH: MACRO
-    MOVEM.L \1, -(SP)
+    MOVEM.\0 \1, -(SP)
     ENDM
 
 ; Pop registers from stack
 ; \1: register list
 POP: MACRO
-    MOVEM.L (SP)+, \1
+    MOVEM.\0 (SP)+, \1
     ENDM
 
 ; Move source to dest if source is smaller

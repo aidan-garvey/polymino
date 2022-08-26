@@ -17,13 +17,13 @@
 ;   none
 ; =============================================
 ADD_MATCH_SCORE:
-    PUSH    d0
+    MOVE.L  d0, -(SP)
 
     MOVEQ   #MATCH_POINTS, d0
     MULU.W  (COMBO_OFF, a2), d0
     ADD.L   d0, (SCORE_BIN_OFF, a2)
 
-    POP     d0
+    MOVE.L  (SP)+, d0
     RTS
 
 ; ==============================================
@@ -37,13 +37,13 @@ ADD_MATCH_SCORE:
 ;   none
 ; ==============================================
 ADD_SHATTER_SCORE:
-    PUSH    d0
+    MOVE.L  d0, -(SP)
     
     MOVEQ   #SHATTER_POINTS, d0
     MULU.W  (COMBO_OFF, a2), d0
     ADD.L   d0, (SCORE_BIN_OFF, a2)
 
-    POP     d0
+    MOVE.L  (SP)+, d0
     RTS
 
 ; ========================================

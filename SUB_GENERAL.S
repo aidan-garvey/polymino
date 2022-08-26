@@ -66,7 +66,8 @@ _CL_VRAM_LOOP:
 ; Thrashed: none
 ; --------------------------------
 CLEAR_BUFF_PLANE:
-    PUSH    a0/d0
+    MOVE.L  a0, -(SP)
+    MOVE.W  d0, -(SP)
     MOVE.W  #VRAM_SCROLLA_SIZE/16-1, d0
     LEA.L   BUFF_PLANE, a0
 _CLEAR_BUFF_PLANE_LOOP:
@@ -75,7 +76,8 @@ _CLEAR_BUFF_PLANE_LOOP:
     CLR.L   (a0)+
     CLR.L   (a0)+
     DBRA    d0, _CLEAR_BUFF_PLANE_LOOP
-    POP     a0/d0
+    MOVE.W  (SP)+, d0
+    MOVE.L  (SP)+, a0
     RTS
 
 ; ----------------------------------
@@ -84,13 +86,15 @@ _CLEAR_BUFF_PLANE_LOOP:
 ; Thrashed: none
 ; ----------------------------------
 CLEAR_BUFF_SPRITES:
-    PUSH    a0/d0
+    MOVE.L  a0, -(SP)
+    MOVE.W  d0, -(SP)
     MOVE.W  #VRAM_SPRITETBL_SIZE/4-1, d0
     LEA.L   BUFF_SPRITES, a0
 _CLEAR_BUFF_SPRITES_LOOP:
     CLR.L   (a0)+
     DBRA    d0, _CLEAR_BUFF_SPRITES_LOOP
-    POP     a0/d0
+    MOVE.W  (SP)+, d0
+    MOVE.L  (SP)+, a0
     RTS
 
 ; -------------------------------------
