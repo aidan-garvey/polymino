@@ -45,10 +45,18 @@ _B4 EQU _B3+32
 _C1 EQU _C2-32
 
 ; PSG note constants
-_P_G4 EQU 12*4+7+128
-_P_A4 EQU 12*4+9+128
-_P_B4 EQU 12*4+11+128
-_P_C5 EQU 12*5+0+128
+;_P_G4 EQU 12*4+7+128
+;_P_A4 EQU 12*4+9+128
+;_P_B4 EQU 12*4+11+128
+;_P_C5 EQU 12*5+0+128
+_P_G4 EQU _G4+1*32
+_P_A4 EQU _A4+1*32
+_P_B4 EQU _B4+1*32
+_P_C5 EQU _C4+2*32
+_P_G5 EQU _P_G4+32
+_P_A5 EQU _P_A4+32
+_P_B5 EQU _P_B4+32
+_P_C6 EQU _P_C5+32
 
 ; other frequent values:
 ; (note the word "frame" in this file refers to a beat of the song,
@@ -89,10 +97,11 @@ _TICKS\@ EQU (\1)*_TICKS_PER_FRAME
 ; play a white noise note on PSG #4 with PSG #3's frequency
 ; parameter \1: _P_xx PSG note constant
 _PSG4: MACRO
-    ; set channel 3 frequency
-    DC.B    $3A, \1
-    ; play white noise
-    DC.W    $0B07
+    ;; set channel 3 frequency
+    ;DC.B    $3A, \1
+    ;; play white noise
+    ;DC.W    $0B07
+    DC.B    $05, \1
     ENDM
 
 
@@ -104,12 +113,14 @@ _PSG4: MACRO
     DC.W    $4001   ; channel 1
     DC.W    $4202   ; channel 3
     DC.W    $4405   ; channel 4
-    DC.W    $4B07   ; PSG 4
+    DC.W    $4505   ; channel 5
+    ;DC.W    $4B07   ; PSG 4
     ; consistent volumes
     DC.W    $2100   ; channel 2 maxed
     DC.W    $2200   ; channel 3 maxed
     DC.W    $2400   ; channel 4 maxed
-    DC.W    $2B01   ; PSG 4 almost maxed
+    DC.W    $2500   ; channel 5 maxed
+    ;DC.W    $2B01   ; PSG 4 almost maxed
 
     ; *********
     ; PATTERN 2
@@ -686,7 +697,7 @@ _PSG4: MACRO
     ; frame 0
     DC.W    $2000   ; ch. 1 vol up
     DC.L    _SHH
-    _PSG4   _P_C5
+    _PSG4   _P_C6
     DC.B    $00, _C3, $02, _D3, $04, _C1
     DC.B    _DEL1, $1B
     _DELAY  3
@@ -698,7 +709,7 @@ _PSG4: MACRO
     ; 7
     DC.W    _CUT
     ; 8
-    _PSG4   _P_C5
+    _PSG4   _P_C6
     DC.L    _SHH
     DC.W    $2010   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
@@ -711,7 +722,7 @@ _PSG4: MACRO
 
     ; F-11
     DC.W    _CUT
-    _PSG4   _P_G4
+    _PSG4   _P_G5
     DC.L    _SHH
     DC.B    $00, _C3, $04, _C1
     DC.B    _DEL1, $1B
@@ -725,7 +736,7 @@ _PSG4: MACRO
     ; 15
     DC.W    _CUT
     ; 16
-    _PSG4   _P_G4
+    _PSG4   _P_G5
     DC.B    $00, _A3, _DEL1
     ; 17
     DC.B    $1B, _DEL1
@@ -740,7 +751,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 1C
     DC.L    _LHH
-    _PSG4   _P_A4
+    _PSG4   _P_A5
     DC.B    $00, _F3, _DEL1
     ; 1D
     DC.B    $1B
@@ -751,7 +762,7 @@ _PSG4: MACRO
     DC.B    $12
     DC.W    _CUT
     ; 20
-    _PSG4   _P_B4 
+    _PSG4   _P_B5 
     DC.L    _SHH
     DC.W    $2000   ; ch.1 vol up
     DC.B    $00, _C3, $02, _D3, $04, _C1, _DEL1
@@ -766,7 +777,7 @@ _PSG4: MACRO
     ; 28
     DC.W    $2010   ; ch.1 vol down
     DC.L    _SHH
-    _PSG4   _P_B4
+    _PSG4   _P_B5
     DC.B    $00, _C3, $04, _C1, _DEL1
     ; 29
     DC.B    $1B
@@ -777,7 +788,7 @@ _PSG4: MACRO
     ; 2F
     DC.W    _CUT
     ; 30
-    _PSG4   _P_G4
+    _PSG4   _P_G5
     DC.L    _SHH
     DC.B    $00, _C3, $04, _C1, _DEL1
     ; 31
@@ -791,7 +802,7 @@ _PSG4: MACRO
     ; 35
     DC.W    _CUT
     ; 36
-    _PSG4   _P_G4
+    _PSG4   _P_G5
     DC.B    $00, _A3, _DEL1
     ; 37
     DC.B    $1B, _DEL1
@@ -805,7 +816,7 @@ _PSG4: MACRO
     ; 3B
     DC.W    _CUT
     ; 3C
-    _PSG4   _P_G4
+    _PSG4   _P_G5
     DC.L    _LHH
     DC.B    $00, _F3, _DEL1
     ; 3D

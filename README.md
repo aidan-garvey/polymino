@@ -55,7 +55,7 @@ The mechanics described in How to Play are implemented and the game may be playe
 * \[ \] Playtest the game, use feedback to balance the difficulty and tweak the rules
 * \[ \] Add polish to the game's graphics and menus
 * \[ \] Music and sound effects
-    * \[ \] At least two pieces of music that play during gameplay
+    * \[X\] At least two pieces of music that play during gameplay
     * \[ \] A title theme
     * \[ \] Sound effects for swapping and destroying blocks, for gliders, for destroying junk pieces, for bombs, for game over, for earning extra bombs, for selecting menu options, for pausing and unpausing
 * \[X\] A menu system for all menus in the game, which could be reused for other games 
