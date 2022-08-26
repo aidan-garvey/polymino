@@ -1,11 +1,8 @@
 # Beams
 
-Puzzle game for the Sega Genesis (name pending)  
-Play with 1 or 2 players!
-
 ## How to Play
 
-Beams is a puzzle game along the lines of Tetris, Columns, Dr. Mario, etc.
+Beams is a fast-paced puzzle game that can be played solo or head-to-head.
 Use the cursor to swap blocks horizontally or vertically. Match 3 blocks of the same color to remove them from the board, and shoot a glider in the direction of the match!
 Large junk pieces periodically fall from the top of the board. Hit them with a glider to shatter them into more blocks that you can match up!
 Gliders are the same color as the blocks that you matched. Some junk has a color, and you must hit it with a glider of the same color to shatter it.
