@@ -213,8 +213,11 @@ _PAUSE2_RET:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_1:
-    ; resume music
+    ; resume music if enabled
+    TST.W   (MUSIC_ON)
+    BEQ.B   _SKIP_MUSIC
     JSR     Echo_ResumeBGM
+_SKIP_MUSIC:
 
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0
@@ -240,8 +243,11 @@ _LOAD_BUFF1_TILE:
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
 ; move cursor off screen
 UNPAUSE_2:
-    ; resume music
+    ; resume music if enabled
+    TST.W   (MUSIC_ON)
+    BEQ.B   _SKIP_MUSIC
     JSR     Echo_ResumeBGM
+_SKIP_MUSIC:
 
     ; set menu cursor's x and y to 0
     LEA.L   CURSOR_SPRITE, a0

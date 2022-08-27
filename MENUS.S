@@ -160,21 +160,15 @@ MAIN_MENU_LOOP:
     BEQ.B   _PLAYER_1_START ; button 0 is "1 PLAYER"
     CMP.B   #1, (MENU_BTNINDEX, a0)
     BEQ.B   _PLAYER_2_START ; button 1 is "2 PLAYERS"
-    ; if options is pressed, do nothing for now
-    LEA.L   STR_MISSING, a0
-    MOVE.W  #MAIN_MENU_TX+9, d3
-    MOVE.W  #MAIN_MENU_TY+4, d4
-    JSR     DRAW_STRING
-    CLR.B   (MENU_SELECTED, a0)
+    ; if options is pressed, switch to options menu
+    MOVE.L  #OPT_MENU_INIT, (MAIN_VECTOR)
     BRA.B   _MAIN_MENU_LOOP_RET
 _PLAYER_1_START:
     MOVE.W  #1, (NUM_PLAYERS)
-    ; MOVE.L  #GAME_INIT, (MAIN_VECTOR)
     MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
     BRA.B   _MAIN_MENU_LOOP_RET
 _PLAYER_2_START:
     MOVE.W  #2, (NUM_PLAYERS)
-    ; MOVE.L  #GAME_INIT, (MAIN_VECTOR)
     MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
 _MAIN_MENU_LOOP_RET:
     RTS
@@ -249,3 +243,107 @@ _DIFF_MENU_EXIT:
 _DIFF_MENU_RET:
     RTS
 
+OPT_MENU_TX = 14
+OPT_MENU_TX2 = OPT_MENU_TX+8
+OPT_MENU_TY = 12
+OPT_MENU_PX = $80+(OPT_MENU_TX-2)*8
+OPT_MENU_PY = $80+OPT_MENU_TY*8
+OPT_MENU_VSPACE = $10
+OPT_MENU_NBUTTONS = 2
+OPT_MENU_PLAYER = 0
+OPT_MENU_CON_MASK = %01000000
+OPT_MENU_EX_MASK = %10010000
+OPT_MENU_PLANE = BUFF_PLANE+(OPT_MENU_TX*2)+(OPT_MENU_TY*128)
+
+OPT_MENU_INIT:
+    LOAD_STATE
+
+    JSR     CLEAR_BUFF_PLANE
+
+    LEA.L   STR_OPTIONS, a0
+    MOVEQ   #OPT_MENU_TX+2, d3
+    MOVEQ   #OPT_MENU_TY-2, d4
+    JSR     DRAW_STRING
+
+    LEA.L   STR_MUSIC, a0
+    MOVEQ   #OPT_MENU_TX, d3
+    MOVEQ   #OPT_MENU_TY, d4
+    JSR     DRAW_STRING
+
+    LEA.L   STR_ON, a0
+    TST.W   (MUSIC_ON)
+    BNE.B   _DRAW_ON_OFF
+    LEA.L   STR_OFF, a0
+_DRAW_ON_OFF:
+    MOVEQ   #OPT_MENU_TX2, d3
+    MOVEQ   #OPT_MENU_TY, d4
+    JSR     DRAW_STRING
+
+    LEA.L   STR_CREDITS, a0
+    MOVEQ   #OPT_MENU_TX, d3
+    MOVEQ   #OPT_MENU_TY+2, d4
+    JSR     DRAW_STRING
+
+    LEA.L   CURR_MENU, a0
+    MOVE.W  #OPT_MENU_PX, (MENU_XPOS, a0)
+    MOVE.W  #OPT_MENU_PY, (MENU_YPOS, a0)
+    MOVE.W  #OPT_MENU_VSPACE, (MENU_YSPACING, a0)
+    MOVE.B  #OPT_MENU_NBUTTONS, (MENU_NBUTTONS, a0)
+    CLR.B   (MENU_BTNINDEX, a0)
+    CLR.B   (MENU_SELECTED, a0)
+    MOVE.B  #OPT_MENU_PLAYER, (MENU_PLAYER, a0)
+    MOVE.B  #OPT_MENU_CON_MASK, (MENU_CON_MASK, a0)
+    MOVE.B  #OPT_MENU_EX_MASK, (MENU_EX_MASK, a0)
+
+    MOVE.L  #OPT_MENU_LOOP, (MAIN_VECTOR)
+    END_LOAD_STATE
+    RTS
+
+OPT_MENU_LOOP:
+    JSR     MENU_CURSOR
+    LEA.L   CURR_MENU, a0
+
+    TST.B   (MENU_SELECTED, a0)
+    BLT.B   _EXIT
+    BEQ.B   _RET
+    
+    ; an option was selected:
+    MOVE.B  (MENU_BTNINDEX, a0), d0
+    TST.B   d0
+    BEQ.B   _MUSIC
+    ; music toggle wasn't selected. Currently, this means credits must be selected
+    LEA.L   STR_MISSING, a0
+    MOVEQ   #OPT_MENU_TX2, d3
+    MOVEQ   #OPT_MENU_TY+2, d4
+    JSR     DRAW_STRING
+    BRA.B   _RET
+
+_MUSIC:
+    ; music toggled:
+    TST.W   (MUSIC_ON)
+    BNE.B   _MUSIC_OFF
+    ; turn music on:
+    MOVE.W  #-1, (MUSIC_ON)
+    LEA.L   STR_ON, a0
+    MOVEQ   #OPT_MENU_TX2, d3
+    MOVEQ   #OPT_MENU_TY, d4
+    JSR     DRAW_STRING
+    ; append a space to hide the last 'F' in 'OFF'
+    LEA.L   SCRATCH, a0
+    MOVE.W  #' '<<8, (a0)
+    ADDQ.W  #2, d3
+    JSR     DRAW_STRING
+    BRA.B   _RET
+_MUSIC_OFF:
+    ; turn music off:
+    CLR.W   (MUSIC_ON)
+    LEA.L   STR_OFF, a0
+    MOVEQ   #OPT_MENU_TX2, d3
+    MOVEQ   #OPT_MENU_TY, d4
+    JSR     DRAW_STRING
+    BRA.B   _RET
+
+_EXIT:
+    MOVE.L  #MAIN_MENU_INIT, (MAIN_VECTOR)
+_RET:
+    RTS

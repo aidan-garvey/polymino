@@ -105,7 +105,9 @@ _GAME_INIT_END:
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
 
-    ; play background music
+    ; play background music if enabled
+    TST.W   (MUSIC_ON)
+    BEQ.B   _RET
     LEA.L   ESF_BGM_1, a0
     JSR     RAND
     BTST    #0, d0
@@ -114,6 +116,7 @@ _GAME_INIT_END:
 _PLAY_BGM:
     JSR     Echo_PlayBGM
 
+_RET:
     END_LOAD_STATE
     RTS
 

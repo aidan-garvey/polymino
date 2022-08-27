@@ -42,6 +42,9 @@ INTRO_INIT:
     MOVE.L  #INTRO_ANIM, (MAIN_VECTOR)
     MOVE.W  #0, (MAIN_TICK)
 
+    ; by default, music is on
+    MOVE.W  #-1, (MUSIC_ON)
+
     ; re-enable display and interrupts
     END_LOAD_STATE
 
@@ -63,21 +66,12 @@ STARTSCRN_INIT:
     VDP_REG 7, $00
 
     JSR     CLEAR_BUFF_PLANE
-    ; use cleared plane to clear SCROLL B
-    ;MOVE.L  #BUFF_PLANE, d0
-    ;MOVE.W  #VRAM_SCROLLB_SIZE/2, d1
-    ;MOVE.W  #VRAM_SCROLLB, d2
-    ;JSR     DMADump
+    
     ; now use it for the menu in SCROLL A
     MOVE.W  #START_MSG_X, d3
     MOVE.W  #START_MSG_Y, d4
     LEA.L   STR_START, a0
     JSR     DRAW_STRING
-
-    ; hide any sprites by copying a null sprite to the first entry
-    ;LEA.L   BUFF_SPRITES, a0
-    ;CLR.L   (a0)+
-    ;CLR.L   (a0)+
 
     MOVE.L  #STARTSCRN_LOOP, (MAIN_VECTOR)
     END_LOAD_STATE
