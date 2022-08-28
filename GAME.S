@@ -12,7 +12,27 @@
 ; Do all necessary preparation for GAME_LOOP to be run
 ; ====================================================
 GAME_INIT:
-    LOAD_STATE
+    LOAD_STATE_HARD
+
+    ; load palettes
+    
+    ; palette 1: first blocks palette
+    LEA.L   BLOCK_PALETTE_1, a0
+    MOVEQ   #1, d0
+    JSR     LOAD_PALETTE
+
+    ; palettes 2: second blocks palette
+    LEA.L   BLOCK_PALETTE_2, a0
+    MOVEQ   #2, d0
+    JSR     LOAD_PALETTE
+
+    ; palette 3: background
+    LEA.L   CIRCUIT_PAL, a0
+    MOVEQ   #3, d0
+    JSR     LOAD_PALETTE
+
+    ; JSR     DUMP_PALETTES
+    MOVE.W  #-1, (PAL_UPDATE)
 
     ; set background color
     VDP_REG 7, $30
@@ -23,7 +43,8 @@ GAME_INIT:
     MOVE.W  #VRAM_BLOCK_GFX, d2 ; start at tile 1 (address $20)
     JSR     DMADump
 
-    ; temporary hard-coded game setup
+    ; enable vertical scrolling of SCROLL B
+    MOVE.W  #-1, (VSCROLL_ON)
     
     ; global:
     ; first word is number of players, determined in main menu
@@ -117,7 +138,7 @@ _PLAY_BGM:
     JSR     Echo_PlayBGM
 
 _RET:
-    END_LOAD_STATE
+    END_LOAD_STATE_HARD
     RTS
 
 ; ==========================================================

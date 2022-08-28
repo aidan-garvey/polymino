@@ -59,20 +59,7 @@ MAIN_INIT:
     MOVEQ   #0, d0
     JSR     LOAD_PALETTE
 
-    ; palette 1: first blocks palette
-    LEA.L   BLOCK_PALETTE_1, a0
-    MOVEQ   #1, d0
-    JSR     LOAD_PALETTE
-
-    ; palettes 2: second blocks palette
-    LEA.L   BLOCK_PALETTE_2, a0
-    MOVEQ   #2, d0
-    JSR     LOAD_PALETTE
-
-    ; palette 3: background
-    LEA.L   CIRCUIT_PAL, a0
-    MOVEQ   #3, d0
-    JSR     LOAD_PALETTE
+    ; palettes 1-3: initialized when needed
 
     JSR     DUMP_PALETTES
 
@@ -89,7 +76,6 @@ MAIN_INIT:
 ; ===============================================
 MAIN_LOOP:
     ; only execute once per frame
-    ; WAIT_VB
     LEA.L   VBLANKON, a0
 _MAIN_VB_WAIT:
     TST.W   (a0)
@@ -133,6 +119,29 @@ _MAIN_VB_WAIT:
     INCLUDE DATA/GFX_OUTLINE.S
     INCLUDE DATA/GFX_LETTERS.S
     INCLUDE DATA/GFX_COMBO.S
+
+    ; binary data for title screen
+TITLE_MAP_1:
+    INCBIN  TITLE/map_1.bin
+TITLE_PAL_1:
+    INCBIN  TITLE/pal_1.bin
+TITLE_TILES_1:
+    INCBIN  TITLE/tiles_1.bin
+TITLE_MAP_2:
+    INCBIN  TITLE/map_2.bin
+TITLE_PAL_2:
+    INCBIN  TITLE/pal_2.bin
+TITLE_TILES_2:
+    INCBIN  TITLE/tiles_2.bin
+TITLE_MAP_3:
+    INCBIN  TITLE/map_3.bin
+TITLE_PAL_3:
+    INCBIN  TITLE/pal_3.bin
+TITLE_TILES_3:
+    INCBIN  TITLE/tiles_3.bin
+TITLE_DATA_END:
+
+    ; stuff that doesn't need to be word-aligned
     INCLUDE AUDIO/INSTRMNT.S
     INCLUDE AUDIO/ESF/SFX_ESF.S
     INCLUDE DATA/JUNK_PIECES.S

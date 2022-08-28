@@ -14,8 +14,7 @@ START_MSG_Y = 26
 INTRO_LENGTH = 150
 
 INTRO_INIT:
-    ; disable display & interrupts
-    LOAD_STATE
+    LOAD_STATE_HARD
 
     ; set background color
     VDP_REG 7, $00
@@ -46,7 +45,7 @@ INTRO_INIT:
     MOVE.W  #-1, (MUSIC_ON)
 
     ; re-enable display and interrupts
-    END_LOAD_STATE
+    END_LOAD_STATE_HARD
 
     RTS
 
@@ -60,21 +59,24 @@ _INTRO_ANIM_RET:
     RTS
 
 STARTSCRN_INIT:
-    LOAD_STATE
+    LOAD_STATE_HARD
 
     ; set background color
     VDP_REG 7, $00
 
+    JSR     DRAW_TITLE
+
+    ; BUFF_PLANE was used by DRAW_TITLE, so clear it to use it for SCROLL A
     JSR     CLEAR_BUFF_PLANE
-    
-    ; now use it for the menu in SCROLL A
     MOVE.W  #START_MSG_X, d3
     MOVE.W  #START_MSG_Y, d4
     LEA.L   STR_START, a0
     JSR     DRAW_STRING
 
+    CLR.W   (VSCROLL_ON)
+
     MOVE.L  #STARTSCRN_LOOP, (MAIN_VECTOR)
-    END_LOAD_STATE
+    END_LOAD_STATE_HARD
 
     RTS
 

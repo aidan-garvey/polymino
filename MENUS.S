@@ -111,7 +111,7 @@ MAIN_MENU_EX_MASK = %00000000
 
 ; configure and draw the main menu
 MAIN_MENU_INIT:
-    LOAD_STATE ; disable display & interrupts
+    LOAD_STATE_SOFT
 
     ; initialize UI sprites for both players
     JSR     LOAD_SPRITES
@@ -186,7 +186,7 @@ DIFF_MENU_PLANE = BUFF_PLANE+(DIFF_MENU_TX*2)+(DIFF_MENU_TY*128)
 
 ; configure and draw the menu for selecting a difficulty
 DIFF_MENU_INIT:
-    LOAD_STATE
+    LOAD_STATE_SOFT
 
     JSR     CLEAR_BUFF_PLANE
 
@@ -256,7 +256,7 @@ OPT_MENU_EX_MASK = %10010000
 OPT_MENU_PLANE = BUFF_PLANE+(OPT_MENU_TX*2)+(OPT_MENU_TY*128)
 
 OPT_MENU_INIT:
-    LOAD_STATE
+    LOAD_STATE_SOFT
 
     JSR     CLEAR_BUFF_PLANE
 

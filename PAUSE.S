@@ -113,6 +113,7 @@ _SAVE_BUFF1_TILE:
 
     MOVE.L  #PAUSE1_LOOP, (MAIN_VECTOR)
     MOVE.W  #-1, (GAME_PAUSED)
+    CLR.W   (VSCROLL_ON)
 
     RTS
 
@@ -175,6 +176,7 @@ _SAVE_BUFF2_TILE:
 
     MOVE.L  #PAUSE2_LOOP, (MAIN_VECTOR)
     MOVE.W  #-1, (GAME_PAUSED)
+    CLR.W   (VSCROLL_ON)
 
     RTS
 
@@ -238,6 +240,7 @@ _LOAD_BUFF1_TILE:
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
     CLR.W   (GAME_PAUSED)
+    MOVE.W  #-1, (VSCROLL_ON)
     RTS
 
 ; to unpause, copy PAUSE_BUFFER back to screen buffer,
@@ -268,11 +271,12 @@ _LOAD_BUFF2_TILE:
 
     MOVE.L  #GAME_LOOP, (MAIN_VECTOR)
     CLR.W   (GAME_PAUSED)
+    MOVE.W  #-1, (VSCROLL_ON)
     RTS
 
 ; un-load parts of the game before going back to the start screen
 PAUSE_EXIT_INIT:
-    LOAD_STATE
+    LOAD_STATE_SOFT
 
     JSR     CLEAR_BUFF_PLANE
     ; use cleared screen buffer to clear SCROLL B
@@ -284,6 +288,9 @@ PAUSE_EXIT_INIT:
     JSR     CLEAR_BUFF_SPRITES
 
     CLR.W   (GAME_PAUSED)
+    CLR.W   (VSCROLL_ON)
+    VDP_ACCESS VDP_W_VSRAM, 2
+    CLR.W   (VDP_DATA)
 
     MOVE.L  #STARTSCRN_INIT, (MAIN_VECTOR)
     END_LOAD_STATE

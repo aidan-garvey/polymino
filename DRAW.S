@@ -454,3 +454,148 @@ _EMPTY_COL_STEP:
 
     POP.L   a1/a3-a4
     RTS
+
+; ==================================================
+; DRAW_TITLE
+; --------------------------------------------------
+; Put the game logo in SCROLL B for the title screen
+; ==================================================
+DRAW_TITLE:
+
+; size in bytes of each file w/ tiles
+_SIZE1 = 3264
+_SIZE2 = 2784
+_SIZE3 = 1600
+
+; dimensions of each section
+_WIDTH1a = 14
+_WIDTH1b = 6
+_WIDTH2 = 12
+_WIDTH3 = 11
+_HEIGHT1a = 8
+_HEIGHT1b = 8
+_HEIGHT2 = 15
+_HEIGHT3 = 6
+
+; properties of whole image
+_WIDTH = 26
+_TX = (40-_WIDTH)/2
+_TY = 2
+
+; x and y offsets of each section
+_X1a = _TX
+_Y1a = _TY
+_X1b = _TX+12
+_Y1b = _TY+7
+_X2 = _TX+14
+_Y2 = _TY+1
+_X3 = _TX+1
+_Y3 = _TY+8
+
+    ; palettes
+    MOVEQ   #1, d0
+    LEA.L   TITLE_PAL_1, a0
+    JSR     LOAD_PALETTE
+    MOVEQ   #2, d0
+    LEA.L   TITLE_PAL_2, a0
+    JSR     LOAD_PALETTE
+    MOVEQ   #3, d0
+    LEA.L   TITLE_PAL_3, a0
+    JSR     LOAD_PALETTE
+
+    JSR     DUMP_PALETTES
+
+    ; characters
+    MOVE.L  #TITLE_TILES_1, d0
+    MOVE.W  #_SIZE1/2, d1
+    MOVE.W  #VRAM_TITLE_GFX, d2
+    JSR     DMADump
+    
+    MOVE.L  #TITLE_TILES_2, d0
+    MOVE.W  #_SIZE2/2, d1
+    MOVE.W  #VRAM_TITLE_GFX+_SIZE1, d2
+    JSR     DMADump
+    
+    MOVE.L  #TITLE_TILES_3, d0
+    MOVE.W  #_SIZE3/2, d1
+    MOVE.W  #VRAM_TITLE_GFX+_SIZE1+_SIZE2, d2
+    JSR     DMADump
+
+    ; tilemaps - to use the correct palette, each word has to be
+    ; modified as it's copied. d1 will hold the palette bits
+
+    JSR     CLEAR_BUFF_PLANE
+
+    ; section 2:
+    LEA.L   TITLE_MAP_2, a0
+    LEA.L   BUFF_PLANE+(_X2*2)+(_Y2*128), a1
+    MOVE.W  #$4000, d1
+
+    MOVEQ   #_HEIGHT2-1, d4
+_S2_ROW:
+    MOVEQ   #_WIDTH2-1, d3
+_S2_TILE:
+    MOVE.W  (a0)+, d0
+    OR.W    d1, d0
+    MOVE.W  d0, (a1)+
+    DBRA    d3, _S2_TILE
+    ADDA.W  #128-_WIDTH2*2, a1
+    DBRA    d4, _S2_ROW
+
+    ; section 1a:
+    LEA.L   TITLE_MAP_1, a0
+    LEA.L   BUFF_PLANE+(_X1a*2)+(_Y1a*128), a1
+    MOVE.W  #$2000, d1
+
+    MOVEQ   #_HEIGHT1a-1, d4
+_S1a_ROW:
+    MOVEQ   #_WIDTH1a-1, d3
+_S1a_TILE:
+    MOVE.W  (a0)+, d0
+    OR.W    d1, d0
+    MOVE.W  d0, (a1)+
+    DBRA    d3, _S1a_TILE
+    ADDA.W  #128-_WIDTH1a*2, a1
+    ADDQ.W  #8, a0
+    DBRA    d4, _S1a_ROW
+
+    ; section 1b:
+    LEA.L   TITLE_MAP_1+18*7*2+12*2, a0
+    LEA.L   BUFF_PLANE+(_X1b*2)+(_Y1b*128), a1
+
+    MOVEQ   #_HEIGHT1b-1, d4
+_S1b_ROW:
+    MOVEQ   #_WIDTH1b-1, d3
+_S1b_TILE:
+    MOVE.W  (a0)+, d0
+    OR.W    d1, d0
+    MOVE.W  d0, (a1)+
+    DBRA    d3, _S1b_TILE
+    ADDA.W  #128-_WIDTH1b*2, a1
+    ADDA.W  #24, a0
+    DBRA    d4, _S1b_ROW
+
+    ; section 3:
+    LEA.L   TITLE_MAP_3, a0
+    LEA.L   BUFF_PLANE+(_X3*2)+(_Y3*128), a1
+    MOVE.W  #$6000, d1
+
+    MOVEQ   #_HEIGHT3-1, d4
+_S3_ROW:
+    MOVEQ   #_WIDTH3-1, d3
+_S3_TILE:
+    MOVE.W  (a0)+, d0
+    OR.W    d1, d0
+    MOVE.W  d0, (a1)+
+    DBRA    d3, _S3_TILE
+    ADDA.W  #128-_WIDTH3*2, a1
+    DBRA    d4, _S3_ROW
+
+    MOVE.L  #BUFF_PLANE, d0
+    MOVE.W  #VRAM_SCROLLB_SIZE/2, d1
+    MOVE.W  #VRAM_SCROLLB, d2
+    JSR     DMADump
+
+    RTS
+
+    

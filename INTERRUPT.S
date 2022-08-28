@@ -68,8 +68,8 @@ VBMAIN:
     JSR     DMADump
 
     ; scroll background if game is not paused
-    TST.W   (GAME_PAUSED)
-    BNE.B   _SKIP_B_SCROLL
+    TST.W   (VSCROLL_ON)
+    BEQ.B   _SKIP_B_SCROLL
 
     LEA.L   BUFF_VSCROLLB, a0
     SUBQ.W  #1, (a0)
@@ -77,8 +77,15 @@ VBMAIN:
     LSR.W   #SCROLL_DIV, d0
     VDP_ACCESS VDP_W_VSRAM, 2
     MOVE.W  d0, (VDP_DATA)
-
 _SKIP_B_SCROLL:
+
+    ; update palettes if needed
+    TST.W   (PAL_UPDATE)
+    BEQ.B   _SKIP_PAL_UPDATE
+    JSR     DUMP_PALETTES
+    CLR.W   (PAL_UPDATE)
+_SKIP_PAL_UPDATE
+
     ADD.W   #1, (FRAME_TICK)
     MOVE.W  #1, (VBLANKON)
 

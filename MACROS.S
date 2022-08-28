@@ -61,17 +61,34 @@ VDP_ACCESS_REG: MACRO
     ENDM
 
 ; Put the system in a state for loading graphics outside
-; of VBLANK - i.e. disable interrupts and the display
-LOAD_STATE: MACRO
+; of VBLANK - i.e. disable interrupts
+LOAD_STATE_SOFT: MACRO
     MOVE.W  #$2700, SR
-    VDP_REG 1, %00000100 ; disable display, V-INT & DMA, use V28 cells
+    VDP_REG 1, %01000100 ; enable display, disable V-INT & DMA, use V28 cells
+    ENDM
+
+; Put the system in a state for loading graphics and colors outside
+; of VBLANK - i.e. disable interrupts and the display
+LOAD_STATE_HARD: MACRO
+    VDP_REG 1, %00100100 ; disable display & DMA, enable V-INT, V28 cells
+    ; until next frame so display is off
+    WAIT_VB
+    MOVE.W  #$2700, SR
+    VDP_REG 1, %00000100 ; disable display, V-INT, DMA, use V28 cells
     ENDM
 
 ; Undo the changes made in LOAD_STATE - i.e. enable
 ; interrupts and the display
 END_LOAD_STATE: MACRO
     MOVE.W  #$2000, SR
-    VDP_REG 1, %01100100 ; enable display & V-INT, disable DMA, V28 cells
+    VDP_REG 1, %01100100 ; enable display & V-INT, disable DMA, use V28 cells
+    ENDM
+
+END_LOAD_STATE_HARD: MACRO
+    MOVE.W  #$2000, SR
+    VDP_REG 1, %00100100
+    WAIT_VB
+    VDP_REG 1, %01100100
     ENDM
 
 ; Push registers onto stack

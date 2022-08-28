@@ -85,6 +85,8 @@ JUNK_MAX = $FF2006      ; 2B: physics updates b/w new junk pieces
 GAME_PAUSED = $FF2008   ; 2B: is the game paused? T/F
 CURR_MENU = $FF200A     ; 12B: menu info for current phase of the game
 MUSIC_ON = $FF2016      ; 2B: is background music enabled? T/F
+VSCROLL_ON = $FF2018    ; 2B: should SCROLLB be scrolled during VBLANK? T/F
+PAL_UPDATE = $FF201A    ; 2B: do the palettes need updating? T/F
 
 ; Data for each player's game state including the board
 PLAYER_1_DATA = $FF3000

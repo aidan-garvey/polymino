@@ -26,6 +26,7 @@ VRAM_COMBO_GFX = $3A60   ; Floating numbers when combos earned, 10*32 bytes
 VRAM_LETTER_GFX = $4000 ; letters, 26*32 bytes
 VRAM_DIGIT_GFX = $4340  ; digits, 10*32 bytes
 ; $4480
+VRAM_TITLE_GFX = $4800
 VRAM_SPRITETBL = $B800
 VRAM_HSCROLL = $BC00
 VRAM_WINDOW = $C000
