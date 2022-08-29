@@ -14,6 +14,39 @@ VBLANK:
     MOVE.L  (VBVECTOR), -(SP)
     RTS
 
+; -----------------
+; INTRO VBI ROUTINE
+; -----------------
+VB_INTRO:
+    PUSH.L  a0-a2/d0-d3
+    
+    ; Dump plane buffer to VRAM
+    MOVE.L  #BUFF_PLANE, d0             ; source address
+    MOVE.W  #VRAM_SCROLLA_SIZE/2, d1    ; size of data in words
+    MOVE.W  #VRAM_SCROLLA, d2           ; VDP dest address
+    JSR     DMADump
+
+    ; update palettes if needed
+    TST.W   (PAL_UPDATE)
+    BEQ.B   _SKIP_PAL_UPDATE
+    JSR     DUMP_PALETTES
+    CLR.W   (PAL_UPDATE)
+_SKIP_PAL_UPDATE
+
+    ; update HSCROLL
+    MOVE.L  #INTRO_HSCROLL, d0
+    MOVE.W  #VRAM_HSCROLL_SIZE/2, d1
+    MOVE.W  #VRAM_HSCROLL, d2
+    JSR     DMADump
+
+    ADD.W   #1, (FRAME_TICK)
+    MOVE.W  #1, (VBLANKON)
+
+    POP.L   a0-a2/d0-d3
+
+    RTE
+
+
 ; ------------------------------------------
 ; MAIN VBI ROUTINE
 ; Copies the sprite and scroll plane buffers

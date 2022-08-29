@@ -157,5 +157,8 @@ PART_DATA = $FF5000
 PAUSE_BUFFER = $FF6000  ; 140B: storage for the patterns in SCROLL A overwritten by pausing
 ; $FF608C
 
+INTRO_HSCROLL = $FF7000 ; 1024B: line-by-line HSCROLL buffer, only used in intro
+; $FF7400
+
 SCRATCH = $FFFFF0       ; some space for when temporary RAM is needed
 DMA_SCRATCH = $FFFFFC   ; DMA needs a long-word of RAM

@@ -465,7 +465,7 @@ DRAW_TITLE:
 ; size in bytes of each file w/ tiles
 _SIZE1 = 3136
 _SIZE2 = 2816
-_SIZE3 = 1664
+_SIZE3 = 1632
 
 ; dimensions of each section
 _WIDTH1a = 14

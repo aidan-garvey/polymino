@@ -7,17 +7,77 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *********************************************************************
 
-INTRO_MSG_X = 14
-INTRO_MSG_Y = 14
-START_MSG_X = 14
-START_MSG_Y = 26
-INTRO_LENGTH = 150
+; ========================================================
+; HSCROLL_STAGGER
+; --------------------------------------------------------
+; Stagger the HSCROLL values of each row in SCROLL A and B
+; ========================================================
+HSCROLL_STAGGER:
+_AMT = 32*8
+    LEA.L   INTRO_HSCROLL, a0
+    MOVE.W  #_AMT, d0
+    MOVE.W  d0, d1
+    SWAP    d0
+    MOVE.W  d1, d0  ; d0 = _AMT, _AMT
 
-INTRO_INIT:
+    NEG.W   d1
+    SWAP    d1
+    MOVE.W  d0, d1
+    NEG.W   d1      ; d1 = -_AMT, -_AMT
+
+    ; we'll do 4 words per loop iteration: + & - for A & B
+    MOVE.W  #VRAM_HSCROLL_SIZE/8, d2
+_LOOP:
+    MOVE.L  d0, (a0)+
+    MOVE.L  d1, (a0)+
+    DBRA    d2, _LOOP
+
+    RTS
+
+; ==============================================================
+; HSCROLL_MERGE
+; --------------------------------------------------------------
+; Merge the rows of SCROLL A and B by the given number of pixels
+; Parameters:
+;   d0 - amount to un-stagger by
+; ==============================================================
+HSCROLL_MERGE:
+    LEA.L   INTRO_HSCROLL, a0
+    MOVE.W  (a0), d1
+    SUB.W   d0, d1
+    MOVE.W  d1, d0
+    SWAP    d1
+    MOVE.W  d0, d1
+    
+    NEG.W   d0
+    SWAP    d0
+    MOVE.W  d1, d0
+    NEG.W   d0
+
+    ; we'll do 4 words per iteration: + & - for A & B
+    MOVE.W  #VRAM_HSCROLL_SIZE/8, d2
+_LOOP:
+    MOVE.L  d1, (a0)+
+    MOVE.L  d0, (a0)+
+    DBRA    d2, _LOOP
+    
+    RTS
+
+INTRO_1_MSG_X_1 = (40-12)/2
+INTRO_1_MSG_X_2 = (40-8)/2
+INTRO_1_MSG_Y = 14
+INTRO_1_SPEED = 4
+INTRO_1_LENGTH = 512/INTRO_1_SPEED
+
+INTRO_1_INIT:
     LOAD_STATE_HARD
 
     ; set background color
     VDP_REG 7, $00
+    ; use row-by-row HSCROLL
+    VDP_REG 11, %00000011
+
+    BSR.B   HSCROLL_STAGGER
 
     JSR     CLEAR_BUFF_PLANE
 
@@ -33,13 +93,19 @@ INTRO_INIT:
     JSR     DMADump
 
     ; write intro message to screen
-    MOVE.W  #INTRO_MSG_X, d3
-    MOVE.W  #INTRO_MSG_Y, d4
-    LEA.L   STR_INTRO, a0
+    MOVE.W  #INTRO_1_MSG_X_1, d3
+    MOVE.W  #INTRO_1_MSG_Y, d4
+    LEA.L   STR_DEVNAME, a0
     JSR     DRAW_STRING
 
-    MOVE.L  #INTRO_ANIM, (MAIN_VECTOR)
-    MOVE.W  #0, (MAIN_TICK)
+    MOVE.W  #INTRO_1_MSG_X_2, d3
+    MOVE.W  #INTRO_1_MSG_Y+1, d4
+    LEA.L   STR_PRESENTS, a0
+    JSR     DRAW_STRING
+
+    MOVE.L  #INTRO_1_ANIM, (MAIN_VECTOR)
+    MOVE.L  #VB_INTRO, (VBVECTOR)
+    CLR.W   (MAIN_TICK)
 
     ; by default, music is on
     MOVE.W  #-1, (MUSIC_ON)
@@ -50,16 +116,78 @@ INTRO_INIT:
     RTS
 
 ; wait for 2 seconds before advancing stage
-INTRO_ANIM:
+INTRO_1_ANIM:
     ADDQ.W  #1, (MAIN_TICK)
-    CMP.W   #INTRO_LENGTH, (MAIN_TICK)
-    BNE.B   _INTRO_ANIM_RET
-    MOVE.L  #STARTSCRN_INIT, (MAIN_VECTOR)
+
+    MOVEQ   #INTRO_1_SPEED, d0
+    BSR.W   HSCROLL_MERGE
+
+    CMP.W   #INTRO_1_LENGTH, (MAIN_TICK)
+    BLT.B   _INTRO_ANIM_RET
+    MOVE.L  #INTRO_1_WAIT, (MAIN_VECTOR)
+    CLR.W   (MAIN_TICK)
 _INTRO_ANIM_RET:
     RTS
 
-STARTSCRN_INIT:
+INTRO_1_WAIT:
+_LEN = 30
+    ADDQ.W  #1, (MAIN_TICK)
+    CMP.W   #_LEN, (MAIN_TICK)
+    BLE.B   _RET
+    CLR.W   (MAIN_TICK)
+    MOVE.L  #INTRO_1_LEAVE, (MAIN_VECTOR)
+_RET:
+    RTS
+
+INTRO_1_LEAVE:
+_SPEED = 4
+_LEN = 512/_SPEED
+    ADDQ.W  #1, (MAIN_TICK)
+    MOVEQ   #_SPEED, d0
+    BSR.W   HSCROLL_MERGE
+
+    CMP.W   #_LEN, (MAIN_TICK)
+    BLT.B   _RET
+    MOVE.L  #INTRO_2_INIT, (MAIN_VECTOR)
+_RET:
+    RTS
+
+INTRO_2_INIT:
     LOAD_STATE_HARD
+
+    JSR     CLEAR_BUFF_PLANE
+    BSR.W   HSCROLL_STAGGER
+    JSR     DRAW_TITLE
+
+    CLR.W   (MAIN_TICK)
+    MOVE.L  #INTRO_2_ANIM, (MAIN_VECTOR)
+
+    END_LOAD_STATE
+    RTS
+
+INTRO_2_ANIM:
+_SPEED = 4
+_LEN = 512/_SPEED
+    ADDQ.W  #1, (MAIN_TICK)
+    MOVEQ   #_SPEED, d0
+    BSR.W   HSCROLL_MERGE
+
+    CMP.W   #_LEN, (MAIN_TICK)
+    BLT.B   _RET
+    MOVE.L  #STARTSCRN_INIT, (MAIN_VECTOR)
+    CLR.W   (MAIN_TICK)
+_RET:
+    RTS
+
+START_MSG_X = 14
+START_MSG_Y = 26
+
+STARTSCRN_INIT:
+    LOAD_STATE_SOFT
+
+    MOVE.L  #VBMAIN, (VBVECTOR)
+    ; use full HSCROLL
+    VDP_REG 11, %00000000
 
     ; set background color
     VDP_REG 7, $00
@@ -76,7 +204,7 @@ STARTSCRN_INIT:
     CLR.W   (VSCROLL_ON)
 
     MOVE.L  #STARTSCRN_LOOP, (MAIN_VECTOR)
-    END_LOAD_STATE_HARD
+    END_LOAD_STATE
 
     RTS
 

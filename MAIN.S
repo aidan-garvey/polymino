@@ -64,7 +64,7 @@ MAIN_INIT:
     JSR     DUMP_PALETTES
 
     ; prepare to show intro screen
-    MOVE.L  #INTRO_INIT, (MAIN_VECTOR)
+    MOVE.L  #INTRO_1_INIT, (MAIN_VECTOR)
 
     RTS
 
