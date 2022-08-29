@@ -44,7 +44,7 @@ _B4 EQU _B3+32
 
 _C1 EQU _C2-32
 
-; PSG note constants
+; former PSG note constants, now used for FM #6
 ;_P_G4 EQU 12*4+7+128
 ;_P_A4 EQU 12*4+9+128
 ;_P_B4 EQU 12*4+11+128
@@ -94,7 +94,7 @@ _TICKS\@ EQU (\1)*_TICKS_PER_FRAME
     ENDIF
     ENDM
 
-; play a white noise note on PSG #4 with PSG #3's frequency
+; used to be for playing PSG #4 notes, now it's for FM #6
 ; parameter \1: _P_xx PSG note constant
 _PSG4: MACRO
     ;; set channel 3 frequency

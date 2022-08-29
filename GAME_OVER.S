@@ -21,6 +21,7 @@
 ;   a0, d0, d3-d4
 ; =====================================
 GAME_OVER_ANIM:
+    PUSH.L  a2
     ; hide player's cursor
     CLR.W   (a5)
     ; hide next junk outline
@@ -42,8 +43,24 @@ _CLEAR_ROW_LOOP:
     JSR     ERASE_BLOCK
     DBRA    d3, _CLEAR_ROW_LOOP
 
-    ; update physics to move everything down
-    JSR     UPDATE_PHYSICS
+    ; move all blocks down by 1
+    ; a2 now points to block below a0
+    ; d4 still equals height-1, which is what we want
+_MOVE_ROW:
+    MOVEQ   #BOARD_WIDTH-1, d3
+_MOVE_BLOCK:
+    SUBQ.L  #2, a2
+    TST.W   -(a0)
+    BEQ.B   _BLOCK_STEP
+    JSR     SWAP_BLOCKS_V
+    MOVE.W  (a0), (a2)
+    CLR.W   (a0)
+_BLOCK_STEP:
+    DBRA    d3, _MOVE_BLOCK
+    ; break if row number <= 0
+    SUBQ.W  #1, d4
+    BGT.B   _MOVE_ROW
 
 _GAME_OVER_RET:
+    POP.L   a2
     RTS
