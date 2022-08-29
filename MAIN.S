@@ -41,6 +41,7 @@
     INCLUDE INPUT.S
     INCLUDE RANDOM.S 
     INCLUDE DRAW_STRING.S
+    INCLUDE UNCOMP.S
 
 ; *****************
 ; Echo sound engine
@@ -119,6 +120,7 @@ _MAIN_VB_WAIT:
     INCLUDE DATA/GFX_OUTLINE.S
     INCLUDE DATA/GFX_LETTERS.S
     INCLUDE DATA/GFX_COMBO.S
+    INCLUDE DATA/GFX_GAMEOVR.S
 
     ; binary data for title screen
 TITLE_MAP_1:

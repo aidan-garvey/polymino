@@ -43,6 +43,19 @@ GAME_INIT:
     MOVE.W  #VRAM_BLOCK_GFX, d2 ; start at tile 1 (address $20)
     JSR     DMADump
 
+    ; uncompress "GAME OVER" sprite graphics for later use
+    LEA.L   GAME_OVER_ROWS, a0
+    LEA.L   GAME_OVER_CHARS, a1
+    LEA.L   BUFF_PLANE, a2
+    MOVEQ   #32, d0
+    JSR     UNCOMPRESS
+
+    ; transfer to VRAM
+    MOVE.L  #BUFF_PLANE, d0
+    MOVE.W  #32*16, d1
+    MOVE.W  #VRAM_GAMEOVR_GFX, d2
+    JSR     DMADump
+
     ; enable vertical scrolling of SCROLL B
     MOVE.W  #-1, (VSCROLL_ON)
     

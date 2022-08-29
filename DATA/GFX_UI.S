@@ -23,7 +23,7 @@ UI_PALETTE:
     DC.W    $068A   ; A: bronze
     DC.W    $0468   ; B: dark bronze
 
-    DC.W    $0A44
+    DC.W    $000E   ; C: red
     DC.W    $0A44
     DC.W    $0A44
     DC.W    $0A44

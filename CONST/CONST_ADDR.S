@@ -25,8 +25,10 @@ VRAM_COMBO_GFX = $3A60   ; Floating numbers when combos earned, 10*32 bytes
 ; $3BA0
 VRAM_LETTER_GFX = $4000 ; letters, 26*32 bytes
 VRAM_DIGIT_GFX = $4340  ; digits, 10*32 bytes
-; $4480
-VRAM_TITLE_GFX = $4800
+VRAM_GAMEOVR_GFX = $4480; "GAME OVER" sprites, 32*32 bytes
+; $4880
+VRAM_TITLE_GFX = $4800  ; title screen graphics, overlaps w/ GAMEOVR_GFX
+                        ; but they aren't used at the same time
 VRAM_SPRITETBL = $B800
 VRAM_HSCROLL = $BC00
 VRAM_WINDOW = $C000

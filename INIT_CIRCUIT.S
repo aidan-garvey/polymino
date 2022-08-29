@@ -15,22 +15,12 @@
 INIT_CIRC_CHARS:
     PUSH.L  a0-a2/d0-d2
 
-    ; use BUFF_PLANE as destination for uncompressed chars
-    LEA.L   BUFF_PLANE, a1
-    LEA.L   CIRC_COMP_ROWS, a0  ; array of unique rows used in the characters
-    LEA.L   CIRC_COMP_CHARS, a2 ; each char is an index into CIRC_COMP_ROWS
-
-    MOVE.W  #(NUM_CIRC_CHARS*8)-1, d1
-_CIRC_CHAR_LOOP:
-    ;MOVEA.L a0, a3
-    ; convert row index into memory offset
-    MOVE.B  (a2)+, d0
-    EXT.W   d0
-    LSL.W   #2, d0  ; each row is 4 bytes
-    
-    MOVE.L  (a0, d0.w), (a1)+
-    
-    DBRA    d1, _CIRC_CHAR_LOOP
+    ; uncompress characters into BUFF_PLANE
+    LEA.L   CIRC_COMP_ROWS, a0
+    LEA.L   CIRC_COMP_CHARS, a1
+    LEA.L   BUFF_PLANE, a2
+    MOVE.W  #NUM_CIRC_CHARS, d0
+    JSR     UNCOMPRESS
 
     ; transfer to VRAM
     MOVE.L  #BUFF_PLANE, d0
