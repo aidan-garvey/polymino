@@ -126,7 +126,7 @@ _PSG4: MACRO
     ; PATTERN 2
     ; *********
     REPT    4       ; pattern will loop 4 times
-    DC.W    $2000   ; channel 1 max volume
+    DC.W    $2008   ; channel 1 max volume
     DC.B    $00, _C3
     ; DC.B    $D6
     _DELAY 7
@@ -166,7 +166,7 @@ _PSG4: MACRO
     ; *********
     REPT    4
     ; frame 0
-    DC.W    $2000   ; channel 1 max volume
+    DC.W    $2008   ; channel 1 max volume
     DC.B    $00, _C3
     DC.L    _SHH
     DC.B    $02, _D2
@@ -228,7 +228,7 @@ _PSG4: MACRO
     ; *********
     REPT    4
     ; frame 0
-    DC.W    $2000   ; channel 1 max volume
+    DC.W    $2008   ; channel 1 max volume
     DC.B    $00, _C3
     DC.L    _SHH
     DC.B    $02, _D2
@@ -314,7 +314,7 @@ _PSG4: MACRO
     DC.W    _CUT
 
     ; 20-23
-    DC.W    $2000
+    DC.W    $2008
     DC.B    $00, _C3
     DC.L    _SHH
     DC.B    $02, _D2
@@ -488,7 +488,7 @@ _PSG4: MACRO
     ; channel 1, 2, 4 instruments
     DC.W    $4000, $4104, $4405
     ; volumes cranked
-    DC.W    $2000, $2100, $2400
+    DC.W    $2008, $2100, $2400
 
     ; frame 30
     _PSG4   _P_G4
@@ -551,7 +551,7 @@ _PSG4: MACRO
     REPT    2
 
     ; frame 0
-    DC.W    $2000   ; ch. 1 vol up
+    DC.W    $2008   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D2, $04, _C1
@@ -619,7 +619,7 @@ _PSG4: MACRO
     DC.B    $12
     DC.W    _CUT
     ; 20
-    DC.W    $2000   ; ch.1 vol up
+    DC.W    $2008   ; ch.1 vol up
     _PSG4   _P_B4 
     DC.L    _SHH
     DC.B    $00, _C3, $02, _D2, $04, _C1, _DEL1
@@ -695,7 +695,7 @@ _PSG4: MACRO
     REPT    2
 
     ; frame 0
-    DC.W    $2000   ; ch. 1 vol up
+    DC.W    $2008   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C6
     DC.B    $00, _C3, $02, _D3, $04, _C1
@@ -764,7 +764,7 @@ _PSG4: MACRO
     ; 20
     _PSG4   _P_B5 
     DC.L    _SHH
-    DC.W    $2000   ; ch.1 vol up
+    DC.W    $2008   ; ch.1 vol up
     DC.B    $00, _C3, $02, _D3, $04, _C1, _DEL1
     ; 21
     DC.B    $1B
@@ -837,7 +837,7 @@ _PSG4: MACRO
     REPT    2
 
     ; frame 0
-    DC.W    $2000   ; ch. 1 vol up
+    DC.W    $2008   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D2, $04, _C1
@@ -908,7 +908,7 @@ _PSG4: MACRO
     ; 20
     _PSG4   _P_B4 
     DC.L    _SHH
-    DC.W    $2000   ; ch.1 vol up
+    DC.W    $2008   ; ch.1 vol up
     DC.B    $00, _C3, $02, _D2, $04, _C1, _DEL1
     ; 21
     DC.B    $1B, _DEL1
@@ -980,7 +980,7 @@ _PSG4: MACRO
     REPT    2
 
     ; frame 0
-    DC.W    $2000   ; ch. 1 vol up
+    DC.W    $2008   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D2, $04, _C1
@@ -1041,7 +1041,7 @@ _PSG4: MACRO
     ; 20
     _PSG4   _P_C5
     DC.L    _SHH
-    DC.W    $2000   ; ch.1 vol up
+    DC.W    $2008   ; ch.1 vol up
     DC.B    $00, _C3, $02, _D2, $04, _C1, _DEL1
     ; 21
     DC.B    $1B

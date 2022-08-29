@@ -7,11 +7,11 @@
 ; Copyright (C) 2022 Aidan Garvey - see MAIN.S for license details.
 ; *********************************************************************
 
-; ========================================================
+; =================================================================
 ; HSCROLL_STAGGER
-; --------------------------------------------------------
-; Stagger the HSCROLL values of each row in SCROLL A and B
-; ========================================================
+; -----------------------------------------------------------------
+; Stagger the HSCROLL values of each pair of rows in SCROLL A and B
+; =================================================================
 HSCROLL_STAGGER:
 _AMT = 32*8
     LEA.L   INTRO_HSCROLL, a0
@@ -25,10 +25,12 @@ _AMT = 32*8
     MOVE.W  d0, d1
     NEG.W   d1      ; d1 = -_AMT, -_AMT
 
-    ; we'll do 4 words per loop iteration: + & - for A & B
-    MOVE.W  #VRAM_HSCROLL_SIZE/8, d2
+    ; we'll do 8 words per loop iteration: 2x + & - for A & B
+    MOVE.W  #VRAM_HSCROLL_SIZE/16, d2
 _LOOP:
     MOVE.L  d0, (a0)+
+    MOVE.L  d0, (a0)+
+    MOVE.L  d1, (a0)+
     MOVE.L  d1, (a0)+
     DBRA    d2, _LOOP
 
@@ -38,6 +40,7 @@ _LOOP:
 ; HSCROLL_MERGE
 ; --------------------------------------------------------------
 ; Merge the rows of SCROLL A and B by the given number of pixels
+; --------------------------------------------------------------
 ; Parameters:
 ;   d0 - amount to un-stagger by
 ; ==============================================================
@@ -54,10 +57,12 @@ HSCROLL_MERGE:
     MOVE.W  d1, d0
     NEG.W   d0
 
-    ; we'll do 4 words per iteration: + & - for A & B
-    MOVE.W  #VRAM_HSCROLL_SIZE/8, d2
+    ; we'll do 8 words per iteration: 2x + & - for A & B
+    MOVE.W  #VRAM_HSCROLL_SIZE/16, d2
 _LOOP:
     MOVE.L  d1, (a0)+
+    MOVE.L  d1, (a0)+
+    MOVE.L  d0, (a0)+
     MOVE.L  d0, (a0)+
     DBRA    d2, _LOOP
     
