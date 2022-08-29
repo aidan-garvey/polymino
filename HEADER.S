@@ -1,6 +1,6 @@
 
 ; *********************************************************************
-;         Beams: A 1-2 player puzzle game for the Sega Genesis
+;        Polymino: A 1-2 player puzzle game for the Sega Genesis
 ;                   Copyright (C) 2022 Aidan Garvey
 ; *********************************************************************
 ; This program is free software: you can redistribute it and/or modify
@@ -91,8 +91,8 @@
 
     DC.B    'SEGA GENESIS    '
     DC.B    '(C)T-00 1990.OCT'
-    DC.B    'BEAMS                                           '
-    DC.B    'BEAMS                                           '
+    DC.B    'Polymino                                        '
+    DC.B    'Polymino                                        '
     DC.B    'GM T-000000 01'
     DC.W    $0                  ; CHECKSUM
     DC.B    'J               '  ; CONTROLLER DATA
