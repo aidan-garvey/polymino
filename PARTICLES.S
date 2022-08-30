@@ -7,8 +7,8 @@
 ; *****************************************************************
 
 ; Projectile particle data format:
-; X, Y velocity (4 bytes)
-; X, Y acceleration (4 bytes)
+; X, Y velocity (2 bytes each)
+; X, Y acceleration (2 bytes each)
 ; Extra data (2 bytes)
 ;   1DU- -CCC ---P PPPP
 ;   * First bit always set for projectiles
@@ -529,6 +529,23 @@ _DELETE_PARTICLE:
     BNE.B   _UPDATE_PARTICLES_STEP
 
 _UPDATE_PARTICLES_RET:
+    RTS
+
+; =============================================
+; DELETE_PARTICLES
+; ---------------------------------------------
+; Delete all particles by clearing the first
+; word of their sprite data and their link data
+; ---------------------------------------------
+; Thrashed: 
+; =============================================
+DELETE_PARTICLES:
+    LEA.L   PART_SPRITES, a0
+_LOOP:
+    CLR.L   (a0) ; clears the first word and the link data
+    ADDQ.W  #PART_SPRITE_SIZE, a0
+    CMPA.L  #SPRITES_END, a0
+    BLT.B   _LOOP
     RTS
 
 ; =====================================

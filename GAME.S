@@ -127,9 +127,13 @@ _WRITE_STATE_2:
     LEA.L   GAME_STATE_1, a2
     LEA.L   BUFF_PLANE+BOARD1_OFFSET, a4
     JSR     GENERATE_ROWS
-
+ 
+    ; set game over = true for player 2, will be cleared if 2 players selected
+    MOVE.W  #-1, (GAME_OVER_2)
     CMP.W   #1, (NUM_PLAYERS)
     BEQ.B   _GAME_INIT_END
+    
+    CLR.W   (GAME_OVER_2)
     LEA.L   GAME_STATE_2, a2
     LEA.L   BUFF_PLANE+BOARD2_OFFSET, a4
     JSR     GENERATE_ROWS
