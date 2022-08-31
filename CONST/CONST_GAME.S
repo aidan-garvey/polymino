@@ -73,6 +73,7 @@ PROJ_X_ACCEL = 4
 
 ; debris random velocity is limited to 31 in each direction
 DEBRIS_VEL_MASK = $001F001F
+GAMEOVR_VEL_MASK = $003F003F
 GRAVITY = 2 ; vertical acceleration
 
 ; velocity & acceleration for floating numbers
