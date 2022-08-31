@@ -320,7 +320,7 @@ GAME_OVER_ANIM_3:
     LEA.L   PART_SPRITES, a0
     LEA.L   PART_DATA, a1
     MOVE.W  #$15F<<4, d5 ; bottom screen bound
-    MOVEQ   #GRAVITY, d6
+    MOVEQ   #GRAVITY*3/4, d6
     MOVEQ   #31, d7 ; loop over each particle
 
 _LOOP:
