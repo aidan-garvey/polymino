@@ -77,6 +77,10 @@ INTRO_1_LENGTH = 256/INTRO_1_SPEED
 INTRO_1_INIT:
     LOAD_STATE_HARD
 
+    ; use higher PCM sample rate
+    MOVEQ   #$03, d0
+    JSR     Echo_SetPCMRate
+
     ; set background color
     VDP_REG 7, $00
     ; use row-by-row HSCROLL
@@ -185,6 +189,10 @@ START_MSG_Y = 26
 STARTSCRN_INIT:
     LOAD_STATE_SOFT
 
+    ; use higher PCM sample rate
+    MOVEQ   #$03, d0
+    JSR     Echo_SetPCMRate
+
     MOVE.L  #VBMAIN, (VBVECTOR)
     ; use full HSCROLL
     VDP_REG 11, %00000000
@@ -220,6 +228,8 @@ STARTSCRN_LOOP:
     AND.W   d2, d1  ; d0 := p2 input this frame, not held
     OR.W    d1, d0  ; d0 := either player input this frame, not held
     BEQ.B   _STARTSCRN_LOOP_RET
+    LEA.L   ESF_SELECT, a0
+    JSR     Echo_PlaySFX
     MOVE.L  #MAIN_MENU_INIT, (MAIN_VECTOR)
 _STARTSCRN_LOOP_RET:
     RTS

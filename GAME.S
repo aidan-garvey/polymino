@@ -14,6 +14,19 @@
 GAME_INIT:
     LOAD_STATE_HARD
 
+    JSR     CLEAR_BUFF_PLANE
+    MOVE.L  #BUFF_PLANE, d0
+    MOVE.W  #VRAM_SCROLLB_SIZE/2, d1
+    MOVE.W  #VRAM_SCROLLB, d2
+    JSR     DMADump
+
+    END_LOAD_STATE
+    LOAD_STATE_HARD
+
+    ; use lower PCM sample rate for BGM music
+    MOVEQ   #$04, d0
+    JSR     Echo_SetPCMRate
+
     ; load palettes
     
     ; palette 1: first blocks palette

@@ -82,18 +82,24 @@ _SKIP_MOVE:
     MOVE.W  d1, (a1)
 
     ; check for selection
+    CLR.B   (MENU_SELECTED, a0)
     MOVE.B  (MENU_CON_MASK, a0), d1
     ; BTST    #BUTTON_A, d0
     AND.B   d0, d1
     ; if selection made, set MENU_SELECTED to +1
     BEQ.B   _MENU_EXIT_CHECK
     MOVE.B  #1, (MENU_SELECTED, a0)
+    LEA.L   ESF_SELECT, a0
+    JSR     Echo_PlaySFX
     BRA.B   _MENU_CURSOR_RET
 _MENU_EXIT_CHECK:
     ; check for exit
     MOVE.B  (MENU_EX_MASK, a0), d1
     AND.B   d0, d1
-    SNE.B   (MENU_SELECTED, a0)
+    BEQ.B   _MENU_CURSOR_RET
+    MOVE.B  #-1, (MENU_SELECTED, a0)
+    LEA.L   ESF_EXIT, a0
+    JSR     Echo_PlaySFX
 _MENU_CURSOR_RET:
     POP.L   a0/a1/d0/d1
     RTS
@@ -107,7 +113,7 @@ MAIN_MENU_VSPACE = $10
 MAIN_MENU_NBUTTONS = 3
 MAIN_MENU_PLAYER = 0
 MAIN_MENU_CON_MASK = %11000000
-MAIN_MENU_EX_MASK = %00000000
+MAIN_MENU_EX_MASK = %00010000
 
 ; configure and draw the main menu
 MAIN_MENU_INIT:
@@ -154,7 +160,8 @@ MAIN_MENU_LOOP:
     LEA.L   CURR_MENU, a0
 
     TST.B   (MENU_SELECTED, a0)
-    BEQ.B   _MAIN_MENU_LOOP_RET ; if no button is selected, take no action
+    BLT.B   _EXIT   ; if player pressed B, go back to start screen
+    BEQ.B   _RET
     ; if a button was selected:
     TST.B   (MENU_BTNINDEX, a0)
     BEQ.B   _PLAYER_1_START ; button 0 is "1 PLAYER"
@@ -162,15 +169,19 @@ MAIN_MENU_LOOP:
     BEQ.B   _PLAYER_2_START ; button 1 is "2 PLAYERS"
     ; if options is pressed, switch to options menu
     MOVE.L  #OPT_MENU_INIT, (MAIN_VECTOR)
-    BRA.B   _MAIN_MENU_LOOP_RET
+    BRA.B   _RET
 _PLAYER_1_START:
     MOVE.W  #1, (NUM_PLAYERS)
     MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
-    BRA.B   _MAIN_MENU_LOOP_RET
+    BRA.B   _RET
 _PLAYER_2_START:
     MOVE.W  #2, (NUM_PLAYERS)
     MOVE.L  #DIFF_MENU_INIT, (MAIN_VECTOR)
-_MAIN_MENU_LOOP_RET:
+    BRA.B   _RET
+_EXIT:
+    MOVE.L  #STARTSCRN_INIT, (MAIN_VECTOR)
+    MOVE.W  #1, (CURSOR_SPRITE)
+_RET:
     RTS
 
 DIFF_MENU_TX = 19

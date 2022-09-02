@@ -39,6 +39,10 @@ EIF_SNARE2:
     INCBIN  AUDIO/EIF/snare2.eif
 EIF_LATEHIHAT:
     INCBIN  AUDIO/EIF/latehihat.eif
+EWF_CLAP:
+    INCBIN  AUDIO/EWF/clap.ewf
+EWF_HIHAT:
+    INCBIN  AUDIO/EWF/hh.ewf
 
 
 INSTRUMENT_LIST:
@@ -56,4 +60,6 @@ INSTRUMENT_LIST:
     Echo_ListEntry EIF_BASS3    ; B
     Echo_ListEntry EIF_SNARE2   ; C
     Echo_ListEntry EIF_LATEHIHAT; D
+    Echo_ListEntry EWF_CLAP     ; E
+    Echo_ListEntry EWF_HIHAT    ; F
     Echo_ListEnd

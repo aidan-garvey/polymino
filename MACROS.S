@@ -71,7 +71,7 @@ LOAD_STATE_SOFT: MACRO
 ; of VBLANK - i.e. disable interrupts and the display
 LOAD_STATE_HARD: MACRO
     VDP_REG 1, %00100100 ; disable display & DMA, enable V-INT, V28 cells
-    ; until next frame so display is off
+    ; wait until next frame so display is off
     WAIT_VB
     MOVE.W  #$2700, SR
     VDP_REG 1, %00000100 ; disable display, V-INT, DMA, use V28 cells
