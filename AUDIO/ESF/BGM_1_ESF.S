@@ -18,13 +18,13 @@ ESF_BGM_1:
 _TICKS_PER_FRAME EQU 4
 
 ; FM note constants
-_C3 EQU 32*3+2*0+1
-_D3 EQU 32*3+2*2+1
-_E3 EQU 32*3+2*4+1
-_F3 EQU 32*3+2*5+1
-_G3 EQU 32*3+2*7+1
-_A3 EQU 32*3+2*9+1
-_B3 EQU 32*3+2*11+1
+_C3 EQU 32*2+2*0+1
+_D3 EQU 32*2+2*2+1
+_E3 EQU 32*2+2*4+1
+_F3 EQU 32*2+2*5+1
+_G3 EQU 32*2+2*7+1
+_A3 EQU 32*2+2*9+1
+_B3 EQU 32*2+2*11+1
 
 _C2 EQU _C3-32
 _D2 EQU _D3-32
@@ -49,10 +49,12 @@ _C1 EQU _C2-32
 ;_P_A4 EQU 12*4+9+128
 ;_P_B4 EQU 12*4+11+128
 ;_P_C5 EQU 12*5+0+128
-_P_G4 EQU _G4+1*32
-_P_A4 EQU _A4+1*32
-_P_B4 EQU _B4+1*32
-_P_C5 EQU _C4+2*32
+_P_F4 EQU _F4
+_P_G4 EQU _G4;+32
+_P_A4 EQU _A4;+32
+_P_B4 EQU _B4;+32
+_P_C5 EQU _C4+32;2*32
+_P_D5 EQU _D4+32
 _P_G5 EQU _P_G4+32
 _P_A5 EQU _P_A4+32
 _P_B5 EQU _P_B4+32
@@ -113,26 +115,26 @@ _PSG4: MACRO
     DC.W    $4001   ; channel 1
     DC.W    $4202   ; channel 3
     DC.W    $4405   ; channel 4
-    DC.W    $4505   ; channel 5
+    DC.W    $450A   ; channel 5
     ;DC.W    $4B07   ; PSG 4
     ; consistent volumes
     DC.W    $2100   ; channel 2 maxed
     DC.W    $2200   ; channel 3 maxed
     DC.W    $2400   ; channel 4 maxed
-    DC.W    $2500   ; channel 5 maxed
+    DC.W    $2510   ; channel 5 slightly quiet
     ;DC.W    $2B01   ; PSG 4 almost maxed
 
     ; *********
     ; PATTERN 2
     ; *********
     REPT    4       ; pattern will loop 4 times
-    DC.W    $2008   ; channel 1 max volume
+    DC.W    $2000   ; channel 1 max volume
     DC.B    $00, _C3
     ; DC.B    $D6
     _DELAY 7
 
     DC.W    _CUT
-    DC.W    $2010   ; channel 1 lower volume
+    DC.W    $2008   ; channel 1 lower volume
     DC.B    $00, _C3
     ; DC.B    $D6
     _DELAY 7
@@ -166,7 +168,7 @@ _PSG4: MACRO
     ; *********
     REPT    4
     ; frame 0
-    DC.W    $2008   ; channel 1 max volume
+    DC.W    $2000   ; channel 1 max volume
     DC.B    $00, _C3
     DC.L    _SHH
     DC.B    $02, _D2
@@ -178,7 +180,7 @@ _PSG4: MACRO
 
     ; 7-8
     DC.W    _CUT
-    DC.W    $2010   ; channel 1 lower volume
+    DC.W    $2008   ; channel 1 lower volume
     DC.B    $00, _C3
     DC.L    _SHH
     _DELAY 4
@@ -228,7 +230,7 @@ _PSG4: MACRO
     ; *********
     REPT    4
     ; frame 0
-    DC.W    $2008   ; channel 1 max volume
+    DC.W    $2000   ; channel 1 max volume
     DC.B    $00, _C3
     DC.L    _SHH
     DC.B    $02, _D2
@@ -246,7 +248,7 @@ _PSG4: MACRO
     ; 7-8
     DC.W    _CUT
 
-    DC.W    $2010
+    DC.W    $2008
     DC.B    $00, _C3
     DC.L    _SHH
     _PSG4   _P_C5
@@ -314,7 +316,7 @@ _PSG4: MACRO
     DC.W    _CUT
 
     ; 20-23
-    DC.W    $2008
+    DC.W    $2000
     DC.B    $00, _C3
     DC.L    _SHH
     DC.B    $02, _D2
@@ -330,7 +332,7 @@ _PSG4: MACRO
     DC.W    _CUT
     DC.L    _SHH
     _PSG4   _P_B4
-    DC.W    $2010
+    DC.W    $2008
     DC.B    $00, _C3, _DEL1
     DC.B    $1B
     _DELAY  3
@@ -391,53 +393,59 @@ _PSG4: MACRO
 
     ; frame 0
     _PSG4   _P_C5
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _DELAY  8
 
     ; 8
-    _PSG4   _P_C5
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _PSG4   _P_G4
+    _DELAY  8
 
     ; 10
-    _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  5
+    _PSG4   _P_C5
+    _DELAY  4
+
+    ; 14
+    _PSG4   _P_C5
+    _DELAY  2
 
     ; 16
     _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  5
+    _DELAY  6
 
     ; 1C
-    _PSG4   _P_A4
-    DC.B    _DEL1, $1B
-    _DELAY  3
+    _PSG4   _P_D5
+    _DELAY  4
 
     ; 20
-    _PSG4   _P_B4
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _PSG4   _P_C5
+    _DELAY  8
 
     ; 28
-    _PSG4   _P_B4
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _PSG4   _P_G4
+    _DELAY  8
 
     ; 30
-    _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  5
+    _PSG4   _P_C5
+    _DELAY  4
+
+    ; 34
+    _PSG4   _P_C5
+    _DELAY 2
 
     ; 36
     _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  5
+    _DELAY  4
+
+    ; 3A
+    _PSG4   _P_G4
+    _DELAY 2
 
     ; 3C
     _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  3
+    _DELAY  2
+
+    ; 3E
+    _PSG4   _P_G4
+    _DELAY 2
 
     ; *********
     ; PATTERN 1
@@ -446,42 +454,63 @@ _PSG4: MACRO
     ; frame 0
     DC.B    $02, _D2
     _PSG4   _P_C5
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _DELAY  4
 
-    ; 8
+    ; 4
     _PSG4   _P_C5
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _DELAY 2
+
+    ; 6
+    _PSG4   _P_G4
+    _DELAY 4
+
+    ; A
+    _PSG4   _P_G4
+    _DELAY  4
+    
+    ; E
+    _PSG4   _P_G4 
+    _DELAY 2
 
     ; 10
-    _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  5
+    _PSG4   _P_C5
+    _DELAY  4
+
+    ; 14
+    _PSG4   _P_C5
+    _DELAY  2
 
     ; 16
     _PSG4   _P_G4
-    DC.B    _DEL1, $1B
-    _DELAY  5
+    _DELAY  6
 
     ; 1C
-    _PSG4   _P_A4
-    DC.B    _DEL1, $1B
-    _DELAY  2
+    _PSG4   _P_D5
+    _DELAY  3
 
     ; 1F
     DC.B    $12, _DEL1
 
     ; 20
     DC.B    $02, _D2
-    _PSG4   _P_B4
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    _PSG4   _P_C5
+    _DELAY  4
 
-    ; 28
-    _PSG4   _P_B4
-    DC.B    _DEL1, $1B
-    _DELAY  7
+    ; 24
+    _PSG4   _P_C5 
+    _DELAY 2
+
+    ; 26
+    _PSG4   _P_G4 
+    _DELAY 4
+
+    ; 2A
+    _PSG4   _P_G4
+    _DELAY  4
+
+    ; 2E
+    _PSG4   _P_G4
+    _DELAY 2
 
     ; let's spam some precussion!
     
@@ -491,7 +520,7 @@ _PSG4: MACRO
     DC.W    $2008, $2100, $2400
 
     ; frame 30
-    _PSG4   _P_G4
+    _PSG4   _P_C5
     DC.B    $00, _B3
     DC.B    $01, _B3
     DC.B    $04, _C2
@@ -504,6 +533,7 @@ _PSG4: MACRO
     _DELAY  2
 
     ; 34
+    _PSG4   _P_C5
     DC.B    $00, _B3
     DC.B    $01, _B3
     DC.B    $04, _C2
@@ -523,6 +553,7 @@ _PSG4: MACRO
     _DELAY  2
 
     ; 3A
+    _PSG4   _P_G4
     DC.B    $00, _B3
     DC.B    $01, _B3
     DC.B    $04, _C2
@@ -536,6 +567,7 @@ _PSG4: MACRO
     DC.B    _DEL1, $1B, _DEL1
 
     ; 3E-3F
+    _PSG4   _P_G4
     DC.B    $00, _B3
     DC.B    $01, _B3
     DC.B    $04, _C2
@@ -548,104 +580,122 @@ _PSG4: MACRO
     ; change channel 1's instrument back
     DC.W    $4001
 
-    REPT    2
+    REPT    4
 
     ; frame 0
-    DC.W    $2008   ; ch. 1 vol up
+    DC.W    $2000   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D2, $04, _C1
-    DC.B    _DEL1, $1B
-    _DELAY  3
+    _DELAY  4
 
     ; frame 4
+    _PSG4   _P_C5
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
+
+    ; 6
+    _PSG4   _P_G4
+    DC.B    _DEL1 
 
     ; 7
     DC.W    _CUT
     ; 8
-    _PSG4   _P_C5
     DC.L    _LHH
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
-    DC.B    _DEL1, $1B
-    _DELAY  3
+    _DELAY  2
+
+    ; A
+    _PSG4   _P_G4
+    _DELAY 2
 
     ; C
-    DC.L    _LHH
-    _DELAY  3
-
-    ; F-11
-    DC.W    _CUT
     _PSG4   _P_G4
     DC.L    _LHH
-    DC.B    $00, _C3, $04, _C1
-    DC.B    _DEL1, $1B
     _DELAY  2
+
+    ; E
+    _PSG4   _P_G4
+    DC.B    _DEL1 
+
+    ; F
+    DC.W    _CUT
+    ; 10
+    _PSG4   _P_C5
+    DC.L    _LHH
+    DC.B    $00, _C3, $04, _C1
+    _DELAY  3
 
     ; 13
     DC.W    _CUT
     ; 14
+    _PSG4   _P_C5 
     DC.L    _LHH
-    DC.B    $00, _B3, _DEL1
+    DC.B    _DEL1
     ; 15
     DC.W    _CUT
     ; 16
     _PSG4   _P_G4
-    DC.B    $00, _A3, _DEL1
-    ; 17
-    DC.B    $1B, _DEL1
+    DC.B    $00, _A3
+    _DELAY 2
     ; 18
     DC.L    _SHH
     DC.B    $04, _C1, _DEL1
     ; 19
     DC.W    _CUT
     ; 1A
+    _PSG4   _P_G4
     DC.L    _SHH
     DC.B    $00, _G3, $04, _C1, _DEL1
     ; 1B
     DC.W    _CUT
     ; 1C
     DC.L    _LHH
-    _PSG4   _P_A4
+    _PSG4   _P_D5
     DC.B    $00, _F3, _DEL1
     ; 1D
-    DC.B    $1B
     DC.W    _CUT
     ; 1E
+    _PSG4   _P_D5
     DC.B    $00, _E3, _DEL1
     ; 1F
     DC.B    $12
     DC.W    _CUT
     ; 20
-    DC.W    $2008   ; ch.1 vol up
-    _PSG4   _P_B4 
+    DC.W    $2000   ; ch.1 vol up
+    _PSG4   _P_C5 
     DC.L    _SHH
-    DC.B    $00, _C3, $02, _D2, $04, _C1, _DEL1
-    ; 21
-    DC.B    $1B
-    _DELAY  3
+    DC.B    $00, _C3, $02, _D2, $04, _C1
+    _DELAY 4
     ; 24
+    _PSG4   _P_C5
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
+    ; 26
+    _PSG4   _P_G4
+    DC.B    _DEL1
     ; 27
     DC.W    _CUT
     ; 28
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.L    _LHH
-    _PSG4   _P_B4
-    DC.B    $00, _C3, $04, _C1, _DEL1
-    ; 29
-    DC.B    $1B
-    _DELAY  3
+    DC.B    $00, _C3, $04, _C1
+    _DELAY 2
+    ; 2A
+    _PSG4   _P_G4 
+    _DELAY 2
     ; 2C
+    _PSG4   _P_G4
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
+    ; 2E
+    _PSG4   _P_G4
+    DC.B    _DEL1
     ; 2F
     DC.W    _CUT
     ; 30
-    _PSG4   _P_G4
+    _PSG4   _P_C5
     DC.L    _LHH
     DC.B    $00, _C3, $04, _C1, _DEL1
     ; 31
@@ -654,6 +704,7 @@ _PSG4: MACRO
     ; 33
     DC.W    _CUT
     ; 34
+    _PSG4   _P_C5
     DC.L    _LHH
     DC.B    $00, _B3, _DEL1
     ; 35
@@ -669,6 +720,7 @@ _PSG4: MACRO
     ; 39
     DC.W    _CUT
     ; 3A
+    _PSG4   _P_G4 
     DC.L    _SHH
     DC.B    $00, _G3, $04, _C1, _DEL1
     ; 3B
@@ -681,6 +733,7 @@ _PSG4: MACRO
     DC.B    $1B
     DC.W    _CUT
     ; 3E
+    _PSG4   _P_G4 
     DC.B    $00, _E3, _DEL1
     ; 3F
     DC.B    $12
@@ -692,137 +745,170 @@ _PSG4: MACRO
     ; PATTERN 5
     ; *********
 
-    REPT    2
+    REPT    4
 
     ; frame 0
-    DC.W    $2008   ; ch. 1 vol up
+    DC.W    $2000   ; ch. 1 vol up
     DC.L    _SHH
-    _PSG4   _P_C6
+    _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D3, $04, _C1
-    DC.B    _DEL1, $1B
-    _DELAY  3
+    _DELAY  2
 
-    ; frame 4
+    ; 2
+    _PSG4   _P_D5
+    _DELAY 2
+
+    ; 4
+    _PSG4   _P_C5
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
+
+    ; 6
+    _PSG4   _P_G4
+    DC.B    _DEL1
 
     ; 7
     DC.W    _CUT
     ; 8
-    _PSG4   _P_C6
+    _PSG4   _P_F4
     DC.L    _SHH
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
-    DC.B    _DEL1, $1B
-    _DELAY  3
+    _DELAY  2
+    ; A
+    _PSG4   _P_G4
+    _DELAY 2
 
     ; C
+    _PSG4   _P_F4 
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
 
-    ; F-11
+    ; E
+    _PSG4   _P_G4
+    DC.B    _DEL1
+
+    ; F-10
     DC.W    _CUT
-    _PSG4   _P_G5
+    _PSG4   _P_C5
     DC.L    _SHH
     DC.B    $00, _C3, $04, _C1
-    DC.B    _DEL1, $1B
     _DELAY  2
+
+    ; 12
+    _PSG4   _P_D5
+    DC.B    _DEL1 
 
     ; 13
     DC.W    _CUT
     ; 14
+    _PSG4   _P_C5 
     DC.L    _LHH
     DC.B    $00, _B3, _DEL1
     ; 15
     DC.W    _CUT
     ; 16
-    _PSG4   _P_G5
-    DC.B    $00, _A3, _DEL1
-    ; 17
-    DC.B    $1B, _DEL1
+    _PSG4   _P_G4 
+    DC.B    $00, _A3
+    _DELAY 2
     ; 18
+    _PSG4   _P_F4 
     DC.L    _SHH
     DC.B    $04, _C1, _DEL1
     ; 19
     DC.W    _CUT
     ; 1A
+    _PSG4   _P_G4
     DC.B    $00, _G3, $04, _C1, _DEL1
     ; 1B
     DC.W    _CUT
     ; 1C
     DC.L    _LHH
-    _PSG4   _P_A5
+    _PSG4   _P_D5
     DC.B    $00, _F3, _DEL1
     ; 1D
-    DC.B    $1B
     DC.W    _CUT
     ; 1E
+    _PSG4   _P_D5 
     DC.B    $00, _E3, _DEL1
     ; 1F
     DC.B    $12
     DC.W    _CUT
     ; 20
-    _PSG4   _P_B5 
+    _PSG4   _P_C5 
     DC.L    _SHH
-    DC.W    $2008   ; ch.1 vol up
-    DC.B    $00, _C3, $02, _D3, $04, _C1, _DEL1
-    ; 21
-    DC.B    $1B
-    _DELAY  3
+    DC.W    $2000   ; ch.1 vol up
+    DC.B    $00, _C3, $02, _D3, $04, _C1
+    _DELAY 2
+    ; 22
+    _PSG4   _P_D5 
+    _DELAY  2
     ; 24
+    _PSG4   _P_C5 
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
+    ; 26
+    _PSG4   _P_G4 
+    DC.B    _DEL1
     ; 27
     DC.W    _CUT
     ; 28
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.L    _SHH
-    _PSG4   _P_B5
-    DC.B    $00, _C3, $04, _C1, _DEL1
-    ; 29
-    DC.B    $1B
-    _DELAY  3
+    _PSG4   _P_F4 
+    DC.B    $00, _C3, $04, _C1
+    _DELAY 2
+    ; 2A
+    _PSG4   _P_G4 
+    _DELAY  2
     ; 2C
+    _PSG4   _P_F4 
     DC.L    _LHH
-    _DELAY  3
+    _DELAY  2
+    ; 2E
+    _PSG4   _P_G4 
+    DC.B    _DEL1 
     ; 2F
     DC.W    _CUT
     ; 30
-    _PSG4   _P_G5
+    _PSG4   _P_C5 
     DC.L    _SHH
-    DC.B    $00, _C3, $04, _C1, _DEL1
-    ; 31
-    DC.B    $1B
-    _DELAY  2
+    DC.B    $00, _C3, $04, _C1
+    _DELAY 2
+    ; 32
+    _PSG4   _P_D5
+    DC.B    _DEL1 
     ; 33
     DC.W    _CUT
     ; 34
+    _PSG4   _P_C5
     DC.L    _LHH
     DC.B    $00, _B3, _DEL1
     ; 35
     DC.W    _CUT
     ; 36
-    _PSG4   _P_G5
-    DC.B    $00, _A3, _DEL1
-    ; 37
-    DC.B    $1B, _DEL1
+    _PSG4   _P_G4
+    DC.B    $00, _A3
+    _DELAY 2
     ; 38
+    _PSG4   _P_F4 
     DC.L    _SHH
     DC.B    $04, _C1, _DEL1
     ; 39
     DC.W    _CUT
     ; 3A
+    _PSG4   _P_F4 
     DC.B    $00, _G3, $04, _C1, _DEL1
     ; 3B
     DC.W    _CUT
     ; 3C
-    _PSG4   _P_G5
+    _PSG4   _P_F4 
     DC.L    _LHH
     DC.B    $00, _F3, _DEL1
     ; 3D
-    DC.B    $1B
     DC.W    _CUT
     ; 3E
+    _PSG4   _P_F4 
     DC.B    $00, _E3, _DEL1
     ; 3F
     DC.B    $12
@@ -837,7 +923,7 @@ _PSG4: MACRO
     REPT    2
 
     ; frame 0
-    DC.W    $2008   ; ch. 1 vol up
+    DC.W    $2000   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D2, $04, _C1
@@ -855,7 +941,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 8
     DC.L    _LHH
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
     _DELAY  4
 
@@ -908,7 +994,7 @@ _PSG4: MACRO
     ; 20
     _PSG4   _P_B4 
     DC.L    _SHH
-    DC.W    $2008   ; ch.1 vol up
+    DC.W    $2000   ; ch.1 vol up
     DC.B    $00, _C3, $02, _D2, $04, _C1, _DEL1
     ; 21
     DC.B    $1B, _DEL1
@@ -920,7 +1006,7 @@ _PSG4: MACRO
     ; 27
     DC.W    _CUT
     ; 28
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.L    _LHH
     DC.B    $00, _C3, $04, _C1
     _DELAY  4
@@ -980,7 +1066,7 @@ _PSG4: MACRO
     REPT    2
 
     ; frame 0
-    DC.W    $2008   ; ch. 1 vol up
+    DC.W    $2000   ; ch. 1 vol up
     DC.L    _SHH
     _PSG4   _P_C5
     DC.B    $00, _C3, $02, _D2, $04, _C1
@@ -995,7 +1081,7 @@ _PSG4: MACRO
     DC.W    _CUT
     ; 8
     DC.L    _SHH
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.B    $00, _C3, $04, _C1
     _DELAY  4
 
@@ -1041,7 +1127,7 @@ _PSG4: MACRO
     ; 20
     _PSG4   _P_C5
     DC.L    _SHH
-    DC.W    $2008   ; ch.1 vol up
+    DC.W    $2000   ; ch.1 vol up
     DC.B    $00, _C3, $02, _D2, $04, _C1, _DEL1
     ; 21
     DC.B    $1B
@@ -1052,7 +1138,7 @@ _PSG4: MACRO
     ; 27
     DC.W    _CUT
     ; 28
-    DC.W    $2010   ; ch.1 vol down
+    DC.W    $2008   ; ch.1 vol down
     DC.L    _SHH
     DC.B    $00, _C3, $04, _C1
     _DELAY  4

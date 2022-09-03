@@ -278,6 +278,8 @@ _LOAD_BUFF2_TILE:
 PAUSE_EXIT_INIT:
     LOAD_STATE_SOFT
 
+    JSR     Echo_StopBGM
+
     JSR     CLEAR_BUFF_PLANE
     ; use cleared screen buffer to clear SCROLL B
     MOVE.L  #BUFF_PLANE, d0
