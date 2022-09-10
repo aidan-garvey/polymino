@@ -99,7 +99,7 @@ _TOP_EDGE_LOOP_2:
     SWAP    d2
     MOVE.W  d2, (a0)+
     ; 24 filler
-    BSR     SCROLLA_FILLER
+    BSR.W   SCROLLA_FILLER
 
 
     ; don't need corners or h. edges for a while
@@ -203,7 +203,7 @@ _BOT_EDGE_LOOP_2:
     SWAP    d2
     MOVE.W  d2, (a0)+
     ; 24 filler
-    BSR     SCROLLA_FILLER
+    BSR.W   SCROLLA_FILLER
 
     ; copy 5 rows of filler - 64 x 5 cells
     ; 32 x 5 LONGs
@@ -216,6 +216,21 @@ _BOT_FILLER_LOOP:
     MOVE.L  d0, (a0)+
     DBRA    d4, _BOT_FILLER_LOOP
 
+    ; if 1 player, remove border b/w P2's board and score area
+    CMP.W   #1, (NUM_PLAYERS)
+    BNE.B   _DMA
+
+    LEA.L   BUFF_PLANE+128+62, a0
+    MOVE.W  (UI_EDGE_T), (a0)
+    ADDA.W  #128, a0
+    MOVEQ   #23, d0
+_P1_LOOP:
+    CLR.W   (a0)
+    ADDA.W  #128, a0
+    DBRA    d0, _P1_LOOP
+    MOVE.W  (UI_EDGE_B), (a0)
+
+_DMA:
     ; transfer plane to VRAM
     MOVE.L  #BUFF_PLANE, d0
     MOVE.W  #VRAM_SCROLLA_SIZE/2, d1
