@@ -2,6 +2,8 @@
 
 ## How to Play
 
+There is now an in-game demo available from the main menu titled **How To Play**.  
+
 Polymino is a fast-paced puzzle game that can be played solo or head-to-head.
 Use the cursor to swap blocks horizontally or vertically. Match 3 blocks of the same color to remove them from the board, and shoot a glider in the direction of the match!
 Large junk pieces periodically fall from the top of the board. Hit them with a glider to shatter them into more blocks that you can match up!
@@ -50,6 +52,7 @@ The mechanics described in How to Play are implemented and the game may be playe
 ## Roadmap
 
 * \[ \] Playtest the game, use feedback to balance the difficulty and tweak the rules
+* \[X\] Add an in-game demo to teach players how the game works
 * \[ \] Add polish to the game's graphics and menus
 * \[ \] Music and sound effects
     * \[X\] At least two pieces of music that play during gameplay
