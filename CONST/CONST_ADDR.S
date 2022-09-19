@@ -22,10 +22,11 @@ VRAM_OUTLINE_GFX_2 = $37E0 ; P2 outline chars, 16*32 bytes
 VRAM_BOMBS_GFX_1 = $39E0 ; P1_BOMBS_DGTS
 VRAM_BOMBS_GFX_2 = $3A20 ; P2_BOMBS_DGTS
 VRAM_COMBO_GFX = $3A60   ; Floating numbers when combos earned, 10*32 bytes
-; $3BA0
-VRAM_LETTER_GFX = $4000 ; letters, 26*32 bytes
-VRAM_DIGIT_GFX = $4340  ; digits, 10*32 bytes
-VRAM_GAMEOVR_GFX = $4480; "GAME OVER" sprites, 32*32 bytes
+VRAM_DEMO_GFX = $3BA0    ; D-pad and ABC buttons, 11*32 bytes
+; $3D00
+VRAM_LETTER_GFX = $4000  ; letters, 26*32 bytes
+VRAM_DIGIT_GFX = $4340   ; digits, 10*32 bytes
+VRAM_GAMEOVR_GFX = $4480 ; "GAME OVER" sprites, 32*32 bytes
 ; $4880
 VRAM_TITLE_GFX = $4800  ; title screen graphics, overlaps w/ GAMEOVR_GFX
                         ; but they aren't used at the same time

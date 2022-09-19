@@ -67,6 +67,10 @@ BUFF_VSCROLLA = $FF1BA0
 BUFF_VSCROLLB = $FF1BC8
 ; $FF1BF0
 
+DEMO_INPUTS = $FF1E00   ; 4B: address of inputs for current phase of demo
+DEMO_LEN = $FF1E04      ; 2B: length in frames of current phase of demo
+; $FF1E06
+
 MAIN_VECTOR = $FF1F00   ; 4B: Address of current main loop subroutine
 MAIN_TICK = $FF1F04     ; 2B: Main loop counter
 FRAME_TICK = $FF1F06    ; 2B: Frame counter

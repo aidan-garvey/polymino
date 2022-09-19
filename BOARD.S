@@ -422,7 +422,7 @@ CLEAR_BLOCKS:
     MOVEQ   #0, d4 ; y pos
     MOVEQ   #0, d6 ; after loop, will be non-zero if any blocks were removed
 _CLEAR_ROWS_LOOP:
-    ; get 2 rows
+    ; get a row
     MOVE.W  (a0), d1
     CLR.W   (a0)+
     ; start at x = 0

@@ -123,3 +123,10 @@ MAX: MACRO
 _END\@:
     ENDM
 
+DEMO_EXIT_CHECK: MACRO
+    BTST.B  #7, (JOY1+1)
+    BEQ.B   _END\@
+    MOVE.L  #PAUSE_EXIT_INIT, (MAIN_VECTOR)
+    BRA     _RET
+_END\@:
+    ENDM

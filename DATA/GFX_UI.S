@@ -24,9 +24,9 @@ UI_PALETTE:
     DC.W    $0468   ; B: dark bronze
 
     DC.W    $000E   ; C: red
-    DC.W    $0A44
-    DC.W    $0A44
-    DC.W    $0A44
+    DC.W    $044E   ; D: light red
+    DC.W    $0444   ; E: darker gray
+    DC.W    $0222   ; F: very dark gray
 
 UI_SPRITE_CHARS:
     ; cursor during gameplay
