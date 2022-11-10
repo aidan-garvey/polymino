@@ -241,9 +241,6 @@ CHECK_MATCH:
     MOVE.L  a0, a1
     MOVE.L  a0, a3
     MOVE.W  (a3)+, d0   ; d0 := (a0), a3 points one block to the right
-    ;; if piece is junk, it can't be matched, so return
-    ;TST.B   d0
-    ;BNE.W   _CHECK_MATCH_RET
     
     ; move a1 to the left until (a1) != d0, but don't go further left than the board
     MOVE.W  d3, d1
@@ -262,7 +259,7 @@ _CHECK_LEFT_DONE:
     ; move a3 to the right until (a3) != d0, don't go further right than the board
     MOVE.W  #BOARD_WIDTH, d1
     SUB.W   d3, d1
-    SUBQ    #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
+    SUBQ.W  #1, d1  ; d1 := BOARD_WIDTH - CURSOR_X - 1
     MOVEQ   #0, d2  ; so we don't break the loop instantly
     BRA.B   _CHECK_RIGHT_STEP
 _CHECK_RIGHT_LOOP:

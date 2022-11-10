@@ -267,9 +267,7 @@ _B_PRESS_NO_ADD:
     ; save vertical pos
     MOVE.W  d2, d4
     
-    ; multiply by row width
-    ; MULU.W  #BOARD_WIDTH, d2
-    ; since BOARD_WIDTH is always going to be 10:
+    ; multiply by BOARD_WIDTH (10):
     LSL.W   #3, d2  ; d2 = CURSOR_Y * 8
     ADD.W   d4, d2
     ADD.W   d4, d2  ; d2 = CURSOR_Y * 10

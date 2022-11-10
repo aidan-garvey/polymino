@@ -72,9 +72,9 @@ GAME_INIT:
     ; enable vertical scrolling of SCROLL B
     MOVE.W  #-1, (VSCROLL_ON)
     
-    ; global:
-    ; first word is number of players, determined in main menu
-    ; second word is frames b/w physics updates, determined by difficulty selection
+    ; global state, skipping the first two words:
+        ; first word is number of players, determined in main menu
+        ; second word is frames b/w physics updates, determined by difficulty selection
     LEA.L   GLOBAL_STATE+4, a0
     MOVE.W  #0, (a0)+   ; counter for physics updates
     MOVE.W  #JUNK_T_UPDATES, (a0)+  ; physics updates b/w junk
@@ -159,6 +159,7 @@ _GAME_INIT_END:
     ; play background music if enabled
     TST.W   (MUSIC_ON)
     BEQ.B   _RET
+    ; randomly choose track 1 or 2
     LEA.L   ESF_BGM_1, a0
     JSR     RAND
     BTST    #0, d0
@@ -201,7 +202,7 @@ _SKIP_UPDATE_RESET:
     LEA.L   P1_SPRITE, a5
 
     CMPI.W  #1, (NUM_PLAYERS)
-    BEQ.B   _LOOP_START ; if 1 player, run main loop once, for P1
+    BEQ.B   _LOOP_START ; if 1 player, run main loop for P1
     BSR     _LOOP_START ; if 2 players, run main loop for P1, then P2
 
     ; re-configure pointers for P2 data
