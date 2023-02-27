@@ -17,7 +17,7 @@
 ;   d4 - y position of string (cell number)
 ; ==============================================
 DRAW_STRING:
-    PUSH.L  a0-a2/d0/d3-d4
+    PUSH    a0-a2/d0/d3-d4
 
     LEA.L   BUFF_PLANE, a1
     ADD.W   d3, d3  ; multiply x by 2 since each tile is a word
@@ -54,5 +54,5 @@ _DRAW_STRING_DIGIT:
     BRA.B   _DRAW_STRING_LOOP
 
 _DRAW_STRING_RET:
-    POP.L   a0-a2/d0/d3-d4
+    POP     a0-a2/d0/d3-d4
     RTS

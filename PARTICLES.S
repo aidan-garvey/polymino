@@ -60,7 +60,7 @@ INIT_PARTICLES:
 ;   none
 ; ===========================
 SPAWN_V_PROJ:
-    PUSH.L  a0/d1-d7
+    PUSH    a0/d1-d7
 
     ; since we're adding projectiles, need
     ; to set flag to check them
@@ -141,7 +141,7 @@ _SVP_D2_DONE:
     ; d7 does not change
     BSR.W   ADD_PARTICLE
 
-    POP.L   a0/d1-d7
+    POP     a0/d1-d7
     RTS
 
 ; =============================
@@ -158,7 +158,7 @@ _SVP_D2_DONE:
 ;   none
 ; =============================
 SPAWN_H_PROJ:
-    PUSH.L  a0/d1-d7
+    PUSH    a0/d1-d7
 
     ; since we're adding projectiles, need
     ; to set flag to check them
@@ -242,7 +242,7 @@ _SHP_D2_DONE:
 
     BSR.W   ADD_PARTICLE
 
-    POP.L   a0/d1-d7
+    POP     a0/d1-d7
     RTS
 
 ; ==================================
@@ -259,7 +259,7 @@ _SHP_D2_DONE:
 ;   none
 ; ==================================
 SPAWN_DEBRIS:
-    PUSH.L  a0/d1-d7
+    PUSH    a0/d1-d7
 
     ; we will use random data for velocity,
     ; generate it now to preserve registers
@@ -320,7 +320,7 @@ _SD_D2_DONE:
     MOVE.W  (PART_P_FLAG_OFF, a2), d7
     BSR.B   ADD_PARTICLE
 
-    POP.L   a0/d1-d7
+    POP     a0/d1-d7
     RTS
 
 ; ===============================================
@@ -335,7 +335,7 @@ _SD_D2_DONE:
 ; Thrashed: none
 ; ===============================================
 SPAWN_COMBO_NUM:
-    PUSH.L  d1-d7
+    PUSH    d1-d7
     ; d1 := 2nd sprite attribute word
     MOVEQ   #0, d1  ; 1x1 size
 
@@ -367,7 +367,7 @@ SPAWN_COMBO_NUM:
     MOVE.W  (PART_P_FLAG_OFF, a2), d7
 
     BSR.B   ADD_PARTICLE
-    POP.L   d1-d7
+    POP     d1-d7
     RTS
 
 ; ===============================================
@@ -386,7 +386,7 @@ SPAWN_COMBO_NUM:
 ; Thrashed: none
 ; ===============================================
 ADD_PARTICLE:
-    PUSH.L  a0-a1/d0
+    PUSH    a0-a1/d0
 
     ; find first empty spot in sprite table
     LEA.L   PART_SPRITES, a0
@@ -423,7 +423,7 @@ _PLACE_PARTICLE:
     MOVE.B  d0, -13(a0)
 
 _ADD_PARTICLE_RET:
-    POP.L   a0-a1/d0
+    POP     a0-a1/d0
     RTS
 
 ; ============================================
@@ -561,7 +561,7 @@ _LOOP:
 ;   d0-d7
 ; =====================================
 PROJ_CHECK:
-    PUSH.L  a3-a4
+    PUSH    a3-a4
 
     ; wut we need:
     ; a1 and a2 preserved for calling SHATTER_JUNK
@@ -711,6 +711,6 @@ _PROJ_STEP:
     BRA.W   _PROJ_LOOP
 
 _PROJ_BREAK:
-    POP.L   a3-a4
+    POP     a3-a4
     RTS
 

@@ -97,7 +97,7 @@ _GEN_ROW_STEP:
 ;   a0, d0-d6
 ; =========================================
 PLAYER_ACTIONS:
-    PUSH.L  a5-a6
+    PUSH    a5-a6
 
     MOVE.W  (a3), d0    ; current joypad inputs
     MOVE.W  4(a3), d1   ; previous frame's inputs
@@ -335,7 +335,7 @@ _SKIP_B_PRESS:
     MOVE.B  d0, (BOMBS_OFF+1, a2)
 _SKIP_C_PRESS:
 
-    POP.L   a5-a6
+    POP     a5-a6
     RTS
 
 ; =====================================
@@ -412,7 +412,7 @@ _UPDATE_BLOCK_STEP:
 ;   d0-d6
 ; ==================================
 CLEAR_BLOCKS:
-    PUSH.L  a0-a1
+    PUSH    a0-a1
     MOVE.L  a2, a0
     ADD.W   #TO_CLEAR_OFF, a0
     MOVEQ   #BOARD_HEIGHT-1, d5 ; vertical loop counter
@@ -450,7 +450,7 @@ _CLEAR_BLOCK_STEP:
     JSR     Echo_PlaySFX
 _NO_SFX:
 
-    POP.L     a0-a1
+    POP       a0-a1
     RTS
 
 ; ===========================================
@@ -517,11 +517,10 @@ _SHATTER_STEP:
 ;   a2 - game state
 ;   a4 - screen buffer
 ; Thrashed:
-;   upper words of d5-d6
+;   none
 ; ==============================================
 DROP_BOMB:
-    MOVE.L  a0, -(SP)
-    PUSH.W  d0-d6
+    PUSH    a0/d0-d6
     MOVE.W  (CURSOR_X_OFF, a2), d3
     MOVE.W  (CURSOR_Y_OFF, a2), d4
     ; we will start by clearing 3x3 area around cursor
@@ -580,8 +579,7 @@ _BOMB_BLOCK_LOOP:
     SUBA.W  #BOARD_WIDTH*4-4, a0
     BSR.B   _BOMB_BLOCK_EFFECT
 
-    POP.W   d0-d6
-    MOVE.L  (SP)+, a0
+    POP     a0/d0-d6
     RTS
 
 ; ========================================

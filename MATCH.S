@@ -17,7 +17,7 @@
 ;   a0, d0-d7
 ; ==================================
 CHECK_ALL_MATCHES:
-    PUSH.L  a4-a5
+    PUSH    a4-a5
     ; ****************************
     ; check for horizontal matches
     ; ****************************
@@ -208,7 +208,7 @@ _CHECK_V_C_STEP:
         CMP.W   #BOARD_WIDTH, d3
         BLT.W   _CHECK_V_COL
 
-    POP.L   a4-a5
+    POP     a4-a5
     RTS
 
 ; =============================================
@@ -236,7 +236,7 @@ _CHECK_V_C_STEP:
 ;   d6 - tracks if match is a repeat or not
 ; =============================================
 CHECK_MATCH:
-    PUSH.L  a1/a3-a4/d0-d6
+    PUSH    a1/a3-a4/d0-d6
 
     MOVE.L  a0, a1
     MOVE.L  a0, a3
@@ -414,5 +414,5 @@ _NOT_NEW_V_BLOCK:
 
 _NO_V_MATCH:
 _CHECK_MATCH_RET:
-    POP.L   a1/a3-a4/d0-d6
+    POP     a1/a3-a4/d0-d6
     RTS

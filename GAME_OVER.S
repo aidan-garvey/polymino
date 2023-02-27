@@ -23,7 +23,7 @@
 ;   a0, d0, d3-d4
 ; =====================================
 GAME_OVER_ANIM:
-    PUSH.L  a2
+    PUSH    a2
     ; hide player's cursor
     CLR.W   (a5)
     ; hide next junk outline
@@ -78,7 +78,7 @@ _BLOCK_STEP:
     CLR.W   (MAIN_TICK)
 
 _RET:
-    POP.L   a2
+    POP     a2
     RTS
 
 ; ========================================

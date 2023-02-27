@@ -76,7 +76,7 @@ _WRITE_H_POS:
 ;   a0, d0-d2
 ; ========================================
 DRAW_SCORE:
-    PUSH.L    a1/a3
+    PUSH    a1/a3
     LEA.L   TEXT_DIGITS, a0 ;= score graphics source
     MOVE.L  a2, a1
     ADDA.W  #SCORE_BUFF_OFF, a1 ;= score graphics dest
@@ -110,7 +110,7 @@ _DRAW_SCORE_LOOP:
 
     DBRA    d3, _DRAW_SCORE_LOOP
 
-    POP.L   a1/a3
+    POP     a1/a3
     RTS
 
 ; =============================================
@@ -163,8 +163,7 @@ DRAW_BOMBS:
 ;   none
 ; ==================================
 PLACE_BLOCK:
-    PUSH.L  a0/a4
-    PUSH.W  d0/d3-d4
+    PUSH    a0/a4/d0/d3-d4
 
     ; convert d4 into offset from a4.
     ; each cell is 2 bytes, each row is 128 bytes.
@@ -182,8 +181,7 @@ PLACE_BLOCK:
     ADDA.W  d0, a0 ; a0 points to block pattern to use
     MOVE.W  (a0), (a4)
 
-    POP.W   d0/d3-d4
-    POP.L   a0/a4
+    POP     a0/a4/d0/d3-d4
     RTS
 
 ; ======================================
@@ -199,7 +197,7 @@ PLACE_BLOCK:
 ;   none
 ; ======================================
 SWAP_BLOCKS_H:
-    PUSH.L  a4/d3-d4
+    PUSH    a4/d3-d4
 
     ; convert d4 into offset from a4.
     ; each cell is 2 bytes, each row is 128 bytes.
@@ -214,7 +212,7 @@ SWAP_BLOCKS_H:
     SWAP    d3
     MOVE.L  d3, (a4)
 
-    POP.L   a4/d3-d4
+    POP     a4/d3-d4
     RTS
 
 ; ==================================
@@ -230,7 +228,7 @@ SWAP_BLOCKS_H:
 ;   none
 ; ==================================
 SWAP_BLOCKS_V:
-    PUSH.L  a4-a5/d3-d4
+    PUSH    a4-a5/d3-d4
 
     ; convert d4 into offset from a4.
     ; each cell is 2 bytes, each row is 128 bytes.
@@ -247,7 +245,7 @@ SWAP_BLOCKS_V:
     MOVE.W  (a5), (a4)
     MOVE.W  d3, (a5)
 
-    POP.L   a4-a5/d3-d4
+    POP     a4-a5/d3-d4
     RTS
 
 ; ==============================
@@ -263,8 +261,7 @@ SWAP_BLOCKS_V:
 ;   none
 ; ==============================
 ERASE_BLOCK:
-    MOVE.L  a4, -(SP)
-    PUSH.W  d3-d4
+    PUSH    a4/d3-d4
 
     ; convert d4 into offset from a4.
     ; each cell is 2 bytes, each row is 128 bytes.
@@ -276,8 +273,7 @@ ERASE_BLOCK:
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     CLR.W   (a4) ; clear the block
 
-    POP.W   d3-d4
-    MOVE.L  (SP)+, a4
+    POP     a4/d3-d4
     RTS
 
 ; ==============================
@@ -294,8 +290,7 @@ ERASE_BLOCK:
 ;   none
 ; ==============================
 PLACE_JUNK_BLOCK:
-    MOVE.L  a4, -(SP)
-    PUSH.W  d3-d4
+    PUSH    a4/d3-d4
 
     ; convert d4 into offset from a4.
     ; each cell is 2 bytes, each row is 128 bytes.
@@ -307,8 +302,7 @@ PLACE_JUNK_BLOCK:
     ADDA.W  d4, a4 ; a4 points to block in screen buffer
     MOVE.W  (a5), (a4) ; copy block data
 
-    POP.W   d3-d4
-    MOVE.L  (SP)+, a4
+    POP     a4/d3-d4
     RTS
 
 ; =======================================
@@ -355,7 +349,7 @@ _CLEAR_UI_P1:
 ;   a0, d0-d4
 ; ==============================================
 DRAW_JUNK_OUTLINE:
-    PUSH.L  a1/a3-a4
+    PUSH    a1/a3-a4
 
     ; ************************************
     ; update the x position of the outline
@@ -452,7 +446,7 @@ _EMPTY_COL_LOOP:
 _EMPTY_COL_STEP:
     DBRA    d1, _EMPTY_COL_LOOP
 
-    POP.L   a1/a3-a4
+    POP     a1/a3-a4
     RTS
 
 ; ==================================================

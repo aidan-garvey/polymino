@@ -18,7 +18,7 @@
 ;   d0 - number of chars
 ; ============================================================
 UNCOMPRESS:
-    PUSH.L  a0-a2/d0-d1
+    PUSH    a0-a2/d0-d1
 
     ; to get number of rows, multiply number of chars by 8
     LSL.W   #3, d0
@@ -35,4 +35,4 @@ _LOOP:
 _STEP:
     DBRA    d0, _LOOP
 
-    POP.L   a0-a2/d0-d1
+    POP     a0-a2/d0-d1

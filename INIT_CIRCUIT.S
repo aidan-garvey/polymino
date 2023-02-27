@@ -13,7 +13,7 @@
 ; and copy them to VRAM
 ; ==========================================================
 INIT_CIRC_CHARS:
-    PUSH.L  a0-a2/d0-d2
+    PUSH    a0-a2/d0-d2
 
     ; uncompress characters into BUFF_PLANE
     LEA.L   CIRC_COMP_ROWS, a0
@@ -28,7 +28,7 @@ INIT_CIRC_CHARS:
     MOVE.W  #VRAM_BCKGND_GFX, d2
     JSR     DMADump
 
-    POP.L   a0-a2/d0-d2
+    POP     a0-a2/d0-d2
     RTS
 
 ; ======================================
@@ -37,7 +37,7 @@ INIT_CIRC_CHARS:
 ; Copy the circuit background to SCROLLB
 ; ======================================
 INIT_CIRC_PLANE:
-    PUSH.L  a0/a1/d0/d1/d6/d7
+    PUSH    a0/a1/d0/d1/d6/d7
 
     LEA.L   CIRC_PATTERNS, a0
     LEA.L   BUFF_PLANE, a1
@@ -69,6 +69,6 @@ _CIRC_PLANE_LOOP_2:
     MOVE.W  #VRAM_SCROLLB, d2
     JSR     DMADump
 
-    POP.L   a0/a1/d0/d1/d6/d7
+    POP     a0/a1/d0/d1/d6/d7
     RTS
     

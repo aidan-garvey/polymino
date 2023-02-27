@@ -18,7 +18,7 @@ VBLANK:
 ; INTRO VBI ROUTINE
 ; -----------------
 VB_INTRO:
-    PUSH.L  a0-a2/d0-d3
+    PUSH    a0-a2/d0-d3
     
     ; Dump plane buffer to VRAM
     MOVE.L  #BUFF_PLANE, d0             ; source address
@@ -42,7 +42,7 @@ _SKIP_PAL_UPDATE
     ADD.W   #1, (FRAME_TICK)
     MOVE.W  #1, (VBLANKON)
 
-    POP.L   a0-a2/d0-d3
+    POP     a0-a2/d0-d3
 
     RTE
 
@@ -53,7 +53,7 @@ _SKIP_PAL_UPDATE
 ; to VRAM and flushes the DMA queue.
 ; ------------------------------------------
 VBMAIN:
-    PUSH.L  a0-a2/d0-d3
+    PUSH    a0-a2/d0-d3
 
     ; Dump sprite buffer to VRAM
     MOVE.L  #BUFF_SPRITES, d0           ; source address
@@ -122,7 +122,7 @@ _SKIP_PAL_UPDATE
     ADD.W   #1, (FRAME_TICK)
     MOVE.W  #1, (VBLANKON)
 
-    POP.L   a0-a2/d0-d3
+    POP     a0-a2/d0-d3
     RTE
 
 ; -----------------
