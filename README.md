@@ -1,5 +1,18 @@
 # POLYMINO
 
+## Note
+
+This is the Sega Genesis version of Polymino, which is now being followed up
+with a remake on PC, which you can find [here](https://store.steampowered.com/app/2537550/Polymino/).
+I consider this game to be _finished_ but not _complete_. There are still some
+bugs, it isn't as optimized as I wish it was, and it's very light on content. I
+will probably not return to this version of the game, at least not in the near
+future. The PC version is going to run smoother, look better, have additional
+game modes, support up to 4 players, and have unlockable cosmetic content.
+
+The rest of this README is left unchanged from before I abandoned this version
+of Polymino to work on the PC version.
+
 ## How to Play
 
 There is now an in-game demo available from the main menu titled **How To Play**.  
